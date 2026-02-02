@@ -1,0 +1,59 @@
+/* Minimal Monochrome Theme for SwayOSD - matches waybar */
+
+window {
+    background: rgba(10, 10, 10, 0.95);
+    border-radius: 8px;
+    border: none;
+    padding: 0;
+}
+
+/* Main container */
+#osd {
+    background: transparent;
+    padding: 20px 30px;
+    margin: 0;
+}
+
+/* Progress bar container */
+progressbar {
+    background: #111111;
+    border-radius: 4px;
+    min-height: 6px;
+    min-width: 300px;
+    border: 1px solid #1a1a1a;
+}
+
+/* Progress bar fill */
+progress {
+    background: linear-gradient(90deg, #606060 0%, #a0a0a0 100%);
+    border-radius: 3px;
+    min-height: 6px;
+}
+
+/* Volume/brightness icon and percentage label */
+image,
+label {
+    color: #ffffff;
+    font-family: "JetBrainsMono Nerd Font", "Roboto", monospace;
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 8px;
+}
+
+label {
+    font-size: 18px;
+    color: #b0b0b0;
+}
+
+/* Trough (empty part of progress bar) */
+trough {
+    background: #0f0f0f;
+    border-radius: 4px;
+    min-height: 6px;
+}
+
+/* Capslock/numlock indicators */
+#osd.capslock,
+#osd.numlock {
+    background: #1a1a1a;
+}

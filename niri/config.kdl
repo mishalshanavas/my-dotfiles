@@ -16,8 +16,6 @@ input {
     }
 
     mouse {
-        accel-speed 0.0
-        accel-profile "flat"
     }
 
     trackpoint {
@@ -101,7 +99,10 @@ spawn-at-startup "udiskie" "--tray"
 spawn-at-startup "batsignal" "-w" "20" "-c" "10" "-d" "5"
 
 // Idle and lock manager
-spawn-at-startup "swayidle" "-w" "timeout" "300" "/home/mishal/.config/swaylock/lock.sh" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "pgrep swaylock || /home/mishal/.config/swaylock/lock.sh"
+// - Lock screen after 5 minutes of inactivity
+// - Turn off monitors after 10 minutes (only if already locked)
+// - Lock before system sleep
+spawn-at-startup "swayidle" "-w" "timeout" "300" "/home/mishal/.config/swaylock/lock.sh" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "/home/mishal/.config/swaylock/lock.sh" "lock" "/home/mishal/.config/swaylock/lock.sh"
 
 // Virtual pet overlay (delayed to render above waybar)
 spawn-at-startup "sh" "-c" "sleep 3 && wpets-all --watch-config --config /home/mishal/.config/bongocat/bongocat.conf"
@@ -347,7 +348,6 @@ binds {
 
     // Floating window toggle
     Mod+T { toggle-window-floating; }
-    Mod+Shift+T hotkey-overlay-title="Toggle All Windows Floating" { spawn "/home/mishal/.config/niri/scripts/toggle-floating-grid.sh"; }
 
     Mod+W { toggle-column-tabbed-display; }
 
