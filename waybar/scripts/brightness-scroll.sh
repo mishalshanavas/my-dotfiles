@@ -1,7 +1,20 @@
 #!/bin/bash
 
-# Brightness scroll control with minimum limit
+# Brightness scroll control with minimum limit and debounce
 MIN=10
+LOCK_FILE="/tmp/brightness-scroll.lock"
+DEBOUNCE_MS=100
+
+# Debounce: exit if last scroll was too recent
+if [[ -f "$LOCK_FILE" ]]; then
+    LAST=$(cat "$LOCK_FILE")
+    NOW=$(date +%s%3N)
+    DIFF=$((NOW - LAST))
+    if [[ $DIFF -lt $DEBOUNCE_MS ]]; then
+        exit 0
+    fi
+fi
+echo $(date +%s%3N) > "$LOCK_FILE"
 
 get_brightness() {
     brightnessctl -m | awk -F, '{print substr($4, 0, length($4)-1)}'
