@@ -78,12 +78,12 @@ layout {
     }
 
     // Center new windows for smoother opening
-    center-focused-column "on-overflow"
+    center-focused-column "never"
 }
 
 // Startup applications
 spawn-at-startup "waybar" "-c" "/home/mishal/.config/waybar/config.jsonc" "-s" "/home/mishal/.config/waybar/style.css"
-spawn-at-startup "swaybg" "-i" "/home/mishal/.config/niri/wallpapers/3.png" "-m" "fill"
+spawn-at-startup "swaybg" "-i" "/home/mishal/.config/niri/wallpapers/4.jpg" "-m" "fill"
 
 // Notification daemon
 spawn-at-startup "mako"

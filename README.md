@@ -14,6 +14,10 @@
 - XDG desktop portals for file dialogs and screen sharing
 - automatic hardware-based feature detection
 
+**key philosophy:**
+- `Alt` = general apps & system controls
+- `Mod` = window management & navigation
+
 ---
 
 ## all the keybindings (yes, ALL of them)
@@ -21,15 +25,15 @@
 **launch stuff**
 - `Alt+Return` `Alt+T` - terminal (kitty)
 - `Alt+Shift+Return` `Alt+Shift+T` - floating terminal
-- `Mod+Return` `Mod+Space` `Alt+Space` - app launcher (fuzzel)
+- `Alt+Space` `Mod+Space` `Mod+Return` - app launcher (fuzzel)
 - `Alt+E` - file manager (nautilus)
-- `Mod+V` - clipboard history
-- `Super+L` - lock screen
-- `Alt+Q` - close window
+- `Alt+V` `Mod+V` - clipboard history
+- `Alt+L` - lock screen
+- `Alt+Q` `Mod+Q` - close window
 - `Mod+Shift+Q` - force kill window (emergency)
-- `Mod+Shift+E` `Ctrl+Mod+Delete` - quit niri
+- `Alt+Shift+E` `Ctrl+Alt+Delete` - quit niri
 - `Mod+Shift+Slash` - show this mess (hotkey overlay)
-- `Mod+S` - toggle screen reader (orca)
+- `Alt+S` - toggle screen reader (orca)
 
 **focus windows (vim keys work)**
 - `Mod+H/Left` - focus left
@@ -56,16 +60,20 @@
 - `Mod+Ctrl+1-9` - move window to workspace 1-9
 - `Mod+Ctrl+Down/Page_Down` - send window down
 - `Mod+Ctrl+Up/Page_Up` - send window up
+- `Mod+Alt+Shift+Down` - send window down (alt)
+- `Mod+Alt+Shift+Up` - send window up (alt)
 - `Mod+Shift+Page_Down` - move workspace down
 - `Mod+Shift+Page_Up` - move workspace up
 
 **resize stuff**
-- `Mod+Alt+Left/Right/Up/Down` - resize column/window by 10%
+- `Mod+Ctrl+Left/Right` - resize column width by 10%
+- `Mod+Ctrl+Up/Down` - resize window height by 10%
 
 **floating windows**
 - `Mod+T` - toggle floating/tiling
-- `Ctrl+Alt+Left/Right` - resize floating width by 10%
-- `Ctrl+Alt+Up/Down` - resize floating height by 10%
+- `Mod+Shift+T` - switch focus between floating & tiling
+- `Mod+Shift+Ctrl+Left/Right` - resize floating width by 10%
+- `Mod+Shift+Ctrl+Up/Down` - resize floating height by 10%
 
 **window layouts**
 - `Mod+R` - cycle column widths
@@ -104,12 +112,12 @@
 - `XF86MonBrightnessDown` - brightness -10%
 
 **wallpaper controls**
-- `Mod+B` - cycle to next wallpaper
-- `Mod+Shift+B` - cycle to previous wallpaper  
-- `Mod+Ctrl+B` - random wallpaper
-- `Mod+Alt+B` - preview current wallpaper info
+- `Alt+B` - cycle to next wallpaper
+- `Alt+Shift+B` - cycle to previous wallpaper  
+- `Alt+Ctrl+B` - random wallpaper
+- `Alt+Ctrl+Shift+B` - preview current wallpaper info
 
-**other weird ones**
-- `Mod+Escape` - toggle keyboard shortcuts inhibit (???)
-- `Mod+Shift+P` - power off monitors
+**system controls**
+- `Mod+Escape` - toggle keyboard shortcuts inhibit
+- `Alt+Shift+P` - power off monitors
 

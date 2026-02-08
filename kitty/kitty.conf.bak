@@ -10,7 +10,7 @@ initial_window_width 680
 initial_window_height 400
 
 # Font
-# font_family JetBrainsMono Nerd Font
+font_family JetBrainsMono Nerd Font
 font_size 10
 
 # Performance and shell integration
@@ -27,6 +27,7 @@ background_opacity 1
 
 map ctrl+shift+c copy_to_clipboard
 map ctrl+shift+v paste_from_clipboard
+map ctrl+shift+h show_scrollback
 map ctrl+shift+e open_url_with_hints
 map ctrl+shift+t new_tab
 map ctrl+shift+w close_tab
@@ -47,10 +48,3 @@ enable_audio_bell no
 # Constant Perceptual Luminosity (dark)
 include current-theme.conf
 # END_KITTY_THEME
-
-# BEGIN_KITTY_FONTS
-font_family      family="JetBrainsMonoNL Nerd Font"
-bold_font        auto
-italic_font      auto
-bold_italic_font auto
-# END_KITTY_FONTS
