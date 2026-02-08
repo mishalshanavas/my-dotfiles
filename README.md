@@ -9,10 +9,6 @@
 - workspace 2: browsers (auto-maximized)  
 - workspace 3: communication apps
 
-**system integration:**
-- xwayland-satellite for X11 application support  
-- XDG desktop portals for file dialogs and screen sharing
-- automatic hardware-based feature detection
 
 **key philosophy:**
 - `Alt` = general apps & system controls
@@ -66,14 +62,12 @@
 - `Mod+Shift+Page_Up` - move workspace up
 
 **resize stuff**
-- `Mod+Ctrl+Left/Right` - resize column width by 10%
-- `Mod+Ctrl+Up/Down` - resize window height by 10%
+- `Mod+Ctrl+Left/Right/Up/Down` - resize tiled windows by 10%
+- `Mod+Alt+Left/Right/Up/Down` - resize floating windows by 10%
 
 **floating windows**
 - `Mod+T` - toggle floating/tiling
 - `Mod+Shift+T` - switch focus between floating & tiling
-- `Mod+Shift+Ctrl+Left/Right` - resize floating width by 10%
-- `Mod+Shift+Ctrl+Up/Down` - resize floating height by 10%
 
 **window layouts**
 - `Mod+R` - cycle column widths

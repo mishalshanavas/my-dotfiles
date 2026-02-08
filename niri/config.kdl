@@ -355,10 +355,10 @@ binds {
     Mod+T { toggle-window-floating; }
     Mod+Shift+T { switch-focus-between-floating-and-tiling; }
     // Floating resizing (absolute window width/height)
-    Mod+Shift+Ctrl+Left  { set-window-width "-10%"; }
-    Mod+Shift+Ctrl+Right { set-window-width "+10%"; }
-    Mod+Shift+Ctrl+Up    { set-window-height "-10%"; }
-    Mod+Shift+Ctrl+Down  { set-window-height "+10%"; }
+    Mod+Alt+Left  { set-window-width "-10%"; }
+    Mod+Alt+Right { set-window-width "+10%"; }
+    Mod+Alt+Up    { set-window-height "-10%"; }
+    Mod+Alt+Down  { set-window-height "+10%"; }
 
     Mod+W { toggle-column-tabbed-display; }
 
