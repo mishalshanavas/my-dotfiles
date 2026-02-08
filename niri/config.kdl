@@ -76,6 +76,9 @@ layout {
         top 0
         bottom 0
     }
+
+    // Center new windows for smoother opening
+    center-focused-column "on-overflow"
 }
 
 // Startup applications
@@ -114,14 +117,14 @@ hotkey-overlay {
 
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
-// Animation settings - niri defaults
+// Animation settings - buttery smooth
 animations {
     workspace-switch {
-        spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+        spring damping-ratio=1.0 stiffness=400 epsilon=0.0001
     }
 
     window-open {
-        duration-ms 150
+        duration-ms 200
         curve "ease-out-expo"
     }
 
@@ -131,19 +134,19 @@ animations {
     }
 
     horizontal-view-movement {
-        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+        spring damping-ratio=1.0 stiffness=500 epsilon=0.001
     }
 
     window-movement {
-        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+        spring damping-ratio=1.0 stiffness=400 epsilon=0.001
     }
 
     window-resize {
-        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+        spring damping-ratio=1.0 stiffness=500 epsilon=0.001
     }
 
     config-notification-open-close {
-        spring damping-ratio=0.6 stiffness=1000 epsilon=0.001
+        spring damping-ratio=0.6 stiffness=600 epsilon=0.001
     }
 
     screenshot-ui-open {
@@ -162,6 +165,9 @@ window-rule {
 window-rule {
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
     open-floating true
+    default-column-width { fixed 480; }
+    default-window-height { fixed 270; }
+    default-floating-position x=32 y=32 relative-to="bottom-right"
 }
 
 // Development workspace assignment
@@ -203,8 +209,14 @@ window-rule {
     open-floating true
     default-column-width { fixed 680; }
     default-window-height { fixed 330; }
-    focus-ring { off; }
-    border { off; }
+}
+
+// Visual distinction for floating windows
+window-rule {
+    match is-floating=true
+    shadow {
+        on
+    }
 }
 
 // Keybindings
@@ -216,21 +228,19 @@ binds {
     Alt+T hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
     Alt+Shift+Return hotkey-overlay-title="Floating Terminal" { spawn "kitty" "--class" "floating-terminal"; }
     Alt+Shift+T hotkey-overlay-title="Floating Terminal" { spawn "kitty" "--class" "floating-terminal"; }
-    Mod+Space hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
     Alt+Space hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
+    Mod+Space hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
     Mod+Return hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
-    Mod+V hotkey-overlay-title="Clipboard History" { spawn-sh "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"; }
-    Super+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "/home/mishal/.config/swaylock/lock.sh"; }
+    Alt+V hotkey-overlay-title="Clipboard History" { spawn-sh "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"; }
+    Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "/home/mishal/.config/swaylock/lock.sh"; }
     Alt+E hotkey-overlay-title="File Manager: nautilus" { spawn "nautilus"; }
-
-
-    Mod+S allow-when-locked=true hotkey-overlay-title="Toggle Screen Reader" { spawn-sh "pkill orca || exec orca"; }
+    Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Screen Reader" { spawn-sh "pkill orca || exec orca"; }
 
     // Wallpaper cycling
-    Mod+B hotkey-overlay-title="Cycle Wallpaper" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh"; }
-    Mod+Shift+B hotkey-overlay-title="Previous Wallpaper" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh" "prev"; }
-    Mod+Ctrl+B hotkey-overlay-title="Random Wallpaper" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh" "random"; }
-    Mod+Alt+B hotkey-overlay-title="Wallpaper Preview" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh" "preview"; }
+    Alt+B hotkey-overlay-title="Cycle Wallpaper" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh"; }
+    Alt+Shift+B hotkey-overlay-title="Previous Wallpaper" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh" "prev"; }
+    Alt+Ctrl+B hotkey-overlay-title="Random Wallpaper" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh" "random"; }
+    Alt+Ctrl+Shift+B hotkey-overlay-title="Wallpaper Preview" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh" "preview"; }
 
     // Media keys
     XF86AudioRaiseVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "raise"; }
@@ -274,10 +284,10 @@ binds {
     // Workspace navigation
     Mod+Page_Down      { focus-workspace-down; }
     Mod+Page_Up        { focus-workspace-up; }
-    Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
-    Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
-    Mod+Ctrl+Down      { move-column-to-workspace-down; }
-    Mod+Ctrl+Up        { move-column-to-workspace-up; }
+    Mod+Ctrl+Page_Down    { move-column-to-workspace-down; }
+    Mod+Ctrl+Page_Up      { move-column-to-workspace-up; }
+    Mod+Alt+Shift+Down    { move-column-to-workspace-down; }
+    Mod+Alt+Shift+Up      { move-column-to-workspace-up; }
 
     Mod+Shift+Page_Down { move-workspace-down; }
     Mod+Shift+Page_Up   { move-workspace-up; }
@@ -335,19 +345,20 @@ binds {
     Mod+C { center-column; }
     Mod+Ctrl+C { center-visible-columns; }
 
-    // Window resizing
-    Mod+Alt+Left  { set-column-width "-10%"; }
-    Mod+Alt+Right { set-column-width "+10%"; }
-    Mod+Alt+Up    { set-window-height "-10%"; }
-    Mod+Alt+Down  { set-window-height "+10%"; }
+    // Tiled resizing
+    Mod+Ctrl+Left  { set-column-width "-10%"; }
+    Mod+Ctrl+Right { set-column-width "+10%"; }
+    Mod+Ctrl+Up    { set-window-height "-10%"; }
+    Mod+Ctrl+Down  { set-window-height "+10%"; }
 
-    Ctrl+Alt+Left  { set-window-width "-10%"; }
-    Ctrl+Alt+Right { set-window-width "+10%"; }
-    Ctrl+Alt+Up    { set-window-height "-10%"; }
-    Ctrl+Alt+Down  { set-window-height "+10%"; }
-
-    // Floating window toggle
+    // Floating window controls
     Mod+T { toggle-window-floating; }
+    Mod+Shift+T { switch-focus-between-floating-and-tiling; }
+    // Floating resizing (absolute window width/height)
+    Mod+Shift+Ctrl+Left  { set-window-width "-10%"; }
+    Mod+Shift+Ctrl+Right { set-window-width "+10%"; }
+    Mod+Shift+Ctrl+Up    { set-window-height "-10%"; }
+    Mod+Shift+Ctrl+Down  { set-window-height "+10%"; }
 
     Mod+W { toggle-column-tabbed-display; }
 
@@ -359,8 +370,8 @@ binds {
     // System controls
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
-    Mod+Shift+E { quit; }
-    Ctrl+Mod+Delete { quit; }
+    Alt+Shift+E { quit; }
+    Ctrl+Alt+Delete { quit; }
 
-    Mod+Shift+P { power-off-monitors; }
+    Alt+Shift+P { power-off-monitors; }
 }
