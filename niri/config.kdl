@@ -80,13 +80,16 @@ layout {
 
 // Startup applications
 spawn-at-startup "waybar" "-c" "/home/mishal/.config/waybar/config.jsonc" "-s" "/home/mishal/.config/waybar/style.css"
-spawn-at-startup "swaybg" "-i" "/home/mishal/.config/niri/wallpapers/2.jpg" "-m" "fill"
+spawn-at-startup "swaybg" "-i" "/home/mishal/.config/niri/wallpapers/3.png" "-m" "fill"
 
 // Notification daemon
 spawn-at-startup "mako"
 
 // SwayOSD server for volume/brightness OSD
 spawn-at-startup "swayosd-server" "--style" "/home/mishal/.config/swayosd/style.css" "--top-margin" "0.85"
+
+// X11 application support
+spawn-at-startup "xwayland-satellite"
 
 // Clipboard manager
 spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
@@ -95,17 +98,14 @@ spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
 // Auto-mount USB drives
 spawn-at-startup "udiskie" "--tray"
 
-// Battery low warning
-spawn-at-startup "batsignal" "-w" "20" "-c" "10" "-d" "5"
+// Battery low warning (only if battery exists)
+spawn-at-startup "sh" "-c" "[ -d '/sys/class/power_supply/BAT'* ] && batsignal -w 20 -c 10 -d 5 || true"
 
 // Idle and lock manager
 // - Lock screen after 5 minutes of inactivity
 // - Turn off monitors after 10 minutes (only if already locked)
 // - Lock before system sleep
 spawn-at-startup "swayidle" "-w" "timeout" "300" "/home/mishal/.config/swaylock/lock.sh" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "/home/mishal/.config/swaylock/lock.sh" "lock" "/home/mishal/.config/swaylock/lock.sh"
-
-// Virtual pet overlay (delayed to render above waybar)
-spawn-at-startup "sh" "-c" "sleep 3 && wpets-all --watch-config --config /home/mishal/.config/bongocat/bongocat.conf"
 
 hotkey-overlay {
     skip-at-startup
@@ -164,6 +164,20 @@ window-rule {
     open-floating true
 }
 
+// Development workspace assignment
+window-rule {
+    match app-id=r#"^code.*$"#
+    open-on-workspace "1"
+    open-maximized true
+}
+
+// Browser workspace assignment  
+window-rule {
+    match app-id=r#"^brave.*$"#
+    open-on-workspace "2"
+    open-maximized true
+}
+
 // Minecraft fullscreen without decorations
 window-rule {
     match title="Minecraft"
@@ -181,18 +195,6 @@ window-rule {
 window-rule {
     geometry-corner-radius 0
     clip-to-geometry true
-}
-
-// VSCode fullscreen on launch
-window-rule {
-    match app-id=r#"^code.*$"#
-    open-maximized true
-}
-
-// Brave fullscreen on launch
-window-rule {
-    match app-id=r#"^brave.*$"#
-    open-maximized true
 }
 
 // Floating terminal
@@ -218,12 +220,17 @@ binds {
     Alt+Space hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
     Mod+Return hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
     Mod+V hotkey-overlay-title="Clipboard History" { spawn-sh "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"; }
-    Super+Mod+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "/home/mishal/.config/swaylock/lock.sh"; }
+    Super+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "/home/mishal/.config/swaylock/lock.sh"; }
+    Alt+E hotkey-overlay-title="File Manager: nautilus" { spawn "nautilus"; }
 
-    Super+Mod+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
+
+    Mod+S allow-when-locked=true hotkey-overlay-title="Toggle Screen Reader" { spawn-sh "pkill orca || exec orca"; }
 
     // Wallpaper cycling
     Mod+B hotkey-overlay-title="Cycle Wallpaper" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh"; }
+    Mod+Shift+B hotkey-overlay-title="Previous Wallpaper" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh" "prev"; }
+    Mod+Ctrl+B hotkey-overlay-title="Random Wallpaper" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh" "random"; }
+    Mod+Alt+B hotkey-overlay-title="Wallpaper Preview" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh" "preview"; }
 
     // Media keys
     XF86AudioRaiseVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "raise"; }
@@ -237,7 +244,7 @@ binds {
     Mod+O repeat=false { toggle-overview; }
 
     Alt+Q repeat=false { close-window; }
-    Mod+Shift+Q hotkey-overlay-title="Force Kill Window" { spawn-sh "xdotool getactivewindow windowkill || true"; }
+    Mod+Shift+Q hotkey-overlay-title="Force Kill Window" { spawn-sh "niri msg action close-window --force || true"; }
 
     // Window focus navigation
     Mod+Left  { focus-column-left; }
@@ -267,8 +274,6 @@ binds {
     // Workspace navigation
     Mod+Page_Down      { focus-workspace-down; }
     Mod+Page_Up        { focus-workspace-up; }
-    Mod+U              { focus-workspace-down; }
-    Mod+I              { focus-workspace-up; }
     Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
     Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
     Mod+Ctrl+Down      { move-column-to-workspace-down; }
@@ -276,8 +281,6 @@ binds {
 
     Mod+Shift+Page_Down { move-workspace-down; }
     Mod+Shift+Page_Up   { move-workspace-up; }
-    Mod+Shift+U         { move-workspace-down; }
-    Mod+Shift+I         { move-workspace-up; }
 
     // Mouse wheel workspace switching
     Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
@@ -318,9 +321,6 @@ binds {
     Alt+Tab { focus-workspace-previous; }
 
     // Column management
-    Mod+BracketLeft  { consume-or-expel-window-left; }
-    Mod+BracketRight { consume-or-expel-window-right; }
-
     Mod+Comma  { consume-window-into-column; }
     Mod+Period { expel-window-from-column; }
 

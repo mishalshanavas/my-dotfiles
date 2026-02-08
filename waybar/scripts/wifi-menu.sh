@@ -39,7 +39,12 @@ elif [[ "$CHOSEN" == *"Rescan"* ]]; then
     sleep 2
     exec "$0"
 else
-    SSID=$(echo "$CHOSEN" | sed 's/󰖩 //' | sed 's/ [0-9]*%.*//')
+    SSID=$(echo "$CHOSEN" | sed 's/󰖩 //' | sed 's/ [0-9]*%.*//' | sed 's/[^a-zA-Z0-9._: -]//g')
+    # Validate SSID length and characters
+    if [[ ${#SSID} -lt 1 || ${#SSID} -gt 32 ]]; then
+        notify-send "WiFi" "Invalid network name"
+        exit 1
+    fi
     
     if nmcli connection show "$SSID" &>/dev/null; then
         nmcli connection up "$SSID" && notify-send "WiFi" "Connected to $SSID" || notify-send "WiFi" "Failed"

@@ -15,8 +15,9 @@ margin=10
 padding=10
 
 # Behavior
-default-timeout=5000
+default-timeout=8000
 ignore-timeout=0
+actions=1
 
 # Format and actions
 format=<b>%s</b>\n%b

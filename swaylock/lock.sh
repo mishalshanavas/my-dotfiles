@@ -32,21 +32,30 @@ take_and_blur_screenshot() {
         # Try ffmpeg for fast blur
         if command -v ffmpeg &>/dev/null; then
             if ffmpeg -loglevel error -i "$tmp_screenshot" -vf "gblur=sigma=30,brightness=-0.05" -y "$BLUR_IMAGE" 2>/dev/null; then
-                rm -f "$tmp_screenshot"
-                return 0
+                # Verify blur was successful
+                if [[ -f "$BLUR_IMAGE" && -s "$BLUR_IMAGE" ]]; then
+                    rm -f "$tmp_screenshot"
+                    return 0
+                fi
             fi
         fi
         
         # Fallback: ImageMagick convert
         if command -v magick &>/dev/null; then
             if magick "$tmp_screenshot" -blur 0x12 -modulate 95 "$BLUR_IMAGE" 2>/dev/null; then
-                rm -f "$tmp_screenshot"
-                return 0
+                # Verify conversion was successful
+                if [[ -f "$BLUR_IMAGE" && -s "$BLUR_IMAGE" ]]; then
+                    rm -f "$tmp_screenshot"
+                    return 0
+                fi
             fi
         elif command -v convert &>/dev/null; then
             if convert "$tmp_screenshot" -blur 0x12 -modulate 95 "$BLUR_IMAGE" 2>/dev/null; then
-                rm -f "$tmp_screenshot"
-                return 0
+                # Verify conversion was successful
+                if [[ -f "$BLUR_IMAGE" && -s "$BLUR_IMAGE" ]]; then
+                    rm -f "$tmp_screenshot"
+                    return 0
+                fi
             fi
         fi
         

@@ -1,8 +1,18 @@
-# niri config - keybindings that i created that even i don't know
+# niri config
 
 **branches:**
 - `main` - niri (current)
 - `bspwm` - old setup (archived)
+
+**smart workspace assignments:**
+- workspace 1: VS Code (auto-maximized)
+- workspace 2: browsers (auto-maximized)  
+- workspace 3: communication apps
+
+**system integration:**
+- xwayland-satellite for X11 application support  
+- XDG desktop portals for file dialogs and screen sharing
+- automatic hardware-based feature detection
 
 ---
 
@@ -12,13 +22,14 @@
 - `Alt+Return` `Alt+T` - terminal (kitty)
 - `Alt+Shift+Return` `Alt+Shift+T` - floating terminal
 - `Mod+Return` `Mod+Space` `Alt+Space` - app launcher (fuzzel)
+- `Alt+E` - file manager (nautilus)
 - `Mod+V` - clipboard history
-- `Super+Mod+L` - lock screen
+- `Super+L` - lock screen
 - `Alt+Q` - close window
 - `Mod+Shift+Q` - force kill window (emergency)
 - `Mod+Shift+E` `Ctrl+Mod+Delete` - quit niri
 - `Mod+Shift+Slash` - show this mess (hotkey overlay)
-- `Super+Mod+S` - toggle screen reader (orca)
+- `Mod+S` - toggle screen reader (orca)
 
 **focus windows (vim keys work)**
 - `Mod+H/Left` - focus left
@@ -38,15 +49,15 @@
 
 **workspaces**
 - `Mod+1-9` - go to workspace 1-9
-- `Mod+U/Page_Down` - workspace down
-- `Mod+I/Page_Up` - workspace up
+- `Mod+Page_Down` - workspace down
+- `Mod+Page_Up` - workspace up
 - `Alt+Tab` - previous workspace
 - `Mod+O` - toggle overview
 - `Mod+Ctrl+1-9` - move window to workspace 1-9
 - `Mod+Ctrl+Down/Page_Down` - send window down
 - `Mod+Ctrl+Up/Page_Up` - send window up
-- `Mod+Shift+U/Page_Down` - move workspace down
-- `Mod+Shift+I/Page_Up` - move workspace up
+- `Mod+Shift+Page_Down` - move workspace down
+- `Mod+Shift+Page_Up` - move workspace up
 
 **resize stuff**
 - `Mod+Alt+Left/Right/Up/Down` - resize column/window by 10%
@@ -67,8 +78,6 @@
 - `Mod+Ctrl+C` - center all visible
 
 **column magic**
-- `Mod+[` - consume/expel left
-- `Mod+]` - consume/expel right
 - `Mod+,` - consume window into column
 - `Mod+.` - expel window from column
 - `Mod+W` - toggle tabbed mode
@@ -93,6 +102,12 @@
 - `XF86AudioMicMute` - mic mute
 - `XF86MonBrightnessUp` - brightness +10%
 - `XF86MonBrightnessDown` - brightness -10%
+
+**wallpaper controls**
+- `Mod+B` - cycle to next wallpaper
+- `Mod+Shift+B` - cycle to previous wallpaper  
+- `Mod+Ctrl+B` - random wallpaper
+- `Mod+Alt+B` - preview current wallpaper info
 
 **other weird ones**
 - `Mod+Escape` - toggle keyboard shortcuts inhibit (???)

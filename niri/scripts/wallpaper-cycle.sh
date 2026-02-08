@@ -18,6 +18,10 @@ fi
 # Read current index
 if [ -f "$STATE_FILE" ]; then
     CURRENT=$(cat "$STATE_FILE")
+    # Ensure CURRENT is a valid number and within range
+    if ! [[ "$CURRENT" =~ ^[0-9]+$ ]] || [ "$CURRENT" -ge "$TOTAL" ]; then
+        CURRENT=0
+    fi
 else
     CURRENT=0
 fi
@@ -33,6 +37,34 @@ case "$1" in
     random)
         CURRENT=$(( RANDOM % TOTAL ))
         ;;
+    preview)
+        # Preview current wallpaper info without changing
+        WALLPAPER="${WALLPAPERS[$CURRENT]}"
+        BASENAME=$(basename "$WALLPAPER")
+        notify-send "Wallpaper Preview" "$BASENAME ($(($CURRENT + 1))/$TOTAL)" -t 2000
+        exit 0
+        ;;
+    fav)
+        # Add current wallpaper to favorites
+        WALLPAPER="${WALLPAPERS[$CURRENT]}"
+        FAV_FILE="$HOME/.config/niri/favorite-wallpapers"
+        echo "$WALLPAPER" >> "$FAV_FILE"
+        BASENAME=$(basename "$WALLPAPER")
+        notify-send "Wallpaper" "Added $BASENAME to favorites" -t 2000
+        exit 0
+        ;;
+    list)
+        # List all wallpapers
+        for i in "${!WALLPAPERS[@]}"; do
+            BASENAME=$(basename "${WALLPAPERS[$i]}")
+            if [[ $i -eq $CURRENT ]]; then
+                echo "● $((i + 1)): $BASENAME (current)"
+            else
+                echo "  $((i + 1)): $BASENAME"
+            fi
+        done
+        exit 0
+        ;;
     *)
         # Default to next
         CURRENT=$(( (CURRENT + 1) % TOTAL ))
@@ -45,8 +77,9 @@ echo "$CURRENT" > "$STATE_FILE"
 # Get wallpaper path
 WALLPAPER="${WALLPAPERS[$CURRENT]}"
 
-# Kill existing swaybg and start new one
+# Kill existing swaybg and start new one (wait a moment to ensure clean transition)
 pkill swaybg
+sleep 0.1
 swaybg -i "$WALLPAPER" -m fill &
 
 # Show notification with wallpaper name

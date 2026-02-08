@@ -39,14 +39,20 @@ toggle() {
         # Disable caffeine
         kill "$(cat "$PID_FILE")" 2>/dev/null
         rm -f "$PID_FILE" "$START_FILE"
+        notify-send "Caffeine" "Screen sleep enabled" -t 2000
     else
         # Enable caffeine - use systemd-inhibit to prevent idle/sleep
-        systemd-inhibit --what=idle:sleep:handle-lid-switch \
-            --who="Waybar Caffeine" \
-            --why="User requested screen stay awake" \
-            sleep infinity &
-        echo $! > "$PID_FILE"
-        date +%s > "$START_FILE"
+        if command -v systemd-inhibit &>/dev/null; then
+            systemd-inhibit --what=idle:sleep:handle-lid-switch \
+                --who="Waybar Caffeine" \
+                --why="User requested screen stay awake" \
+                sleep infinity &
+            echo $! > "$PID_FILE"
+            date +%s > "$START_FILE"
+            notify-send "Caffeine" "Screen sleep disabled" -t 2000
+        else
+            notify-send "Caffeine" "systemd-inhibit not available" -u critical -t 3000
+        fi
     fi
 }
 
