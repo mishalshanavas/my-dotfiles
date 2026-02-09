@@ -1,4 +1,4 @@
-# Minimal Kitty Configuration for GNOME
+# Apple-inspired Kitty Configuration
 
 # Window decorations
 hide_window_decorations yes
@@ -9,25 +9,20 @@ remember_window_size yes
 initial_window_width 680
 initial_window_height 400
 
-# Font
-font_family JetBrainsMono Nerd Font
+# Font - matching waybar
+font_family SF Pro Text
 font_size 10
+cursor_blink_interval 0
 
 # Performance and shell integration
 shell_integration enabled
 allow_remote_control yes
 
-# Colors (minimal dark theme)
-# foreground #b0b0b0
-# background #0a0a0a
-# cursor #c0c0c0
-
-# Opacity
-background_opacity 1
+# Opacity and blur
+background_opacity 0.987
 
 map ctrl+shift+c copy_to_clipboard
 map ctrl+shift+v paste_from_clipboard
-map ctrl+shift+h show_scrollback
 map ctrl+shift+e open_url_with_hints
 map ctrl+shift+t new_tab
 map ctrl+shift+w close_tab
@@ -43,8 +38,3 @@ clipboard_control write-clipboard write-primary read-clipboard read-primary
 #remove audible bell
 enable_audio_bell no
 
-
-# BEGIN_KITTY_THEME
-# Constant Perceptual Luminosity (dark)
-include current-theme.conf
-# END_KITTY_THEME
