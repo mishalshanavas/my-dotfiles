@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # Brightness scroll control with minimum limit and debounce
+# Configuration
+TMP_DIR="${XDG_RUNTIME_DIR:-/tmp}"
 MIN=10
-LOCK_FILE="/tmp/brightness-scroll.lock"
+LOCK_FILE="$TMP_DIR/brightness-scroll.lock"
 DEBOUNCE_MS=100
 
 # Debounce: exit if last scroll was too recent

@@ -36,6 +36,7 @@
 - `Mod+J/Down` - focus down  
 - `Mod+K/Up` - focus up
 - `Mod+L/Right` - focus right
+- `Mod+Tab` - previous window
 - `Mod+Home` - first column
 - `Mod+End` - last column
 
@@ -52,6 +53,8 @@
 - `Mod+Page_Down` - workspace down
 - `Mod+Page_Up` - workspace up
 - `Alt+Tab` - previous workspace
+- `Alt+Shift+Tab` - next workspace
+- `Mod+Tab` - switch to previous window
 - `Mod+O` - toggle overview
 - `Mod+Ctrl+1-9` - move window to workspace 1-9
 - `Mod+Ctrl+Down/Page_Down` - send window down

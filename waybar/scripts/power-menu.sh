@@ -1,8 +1,11 @@
 #!/bin/bash
 
 # Power menu for waybar
-pkill -x fuzzel 2>/dev/null
-sleep 0.05
+# Improved process management
+if pgrep -x fuzzel >/dev/null 2>&1; then
+    pkill -x fuzzel 2>/dev/null
+    sleep 0.05
+fi
 
 MENU="󰌾 Lock\n"
 MENU+="󰍃 Logout\n"
@@ -15,8 +18,10 @@ CHOSEN=$(echo -e "$MENU" | fuzzel --dmenu -p "Power: ")
 [[ -z "$CHOSEN" ]] && exit 0
 
 confirm() {
-    pkill -x fuzzel 2>/dev/null
-    sleep 0.05
+    if pgrep -x fuzzel >/dev/null 2>&1; then
+        pkill -x fuzzel 2>/dev/null
+        sleep 0.05
+    fi
     echo -e "Yes\nNo" | fuzzel --dmenu -p "$1? "
 }
 

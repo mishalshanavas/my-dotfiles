@@ -3,6 +3,7 @@
 # Caffeine toggle script for waybar
 # Prevents screen sleep when active
 
+# Configuration
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/waybar-caffeine"
 PID_FILE="$CACHE_DIR/caffeine.pid"
 START_FILE="$CACHE_DIR/caffeine.start"
