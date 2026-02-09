@@ -1,37 +1,40 @@
-# Mako minimal monochrome theme
+# Mako Apple-inspired theme matching waybar
 
 # Appearance
-font=monospace 10
-background-color=#1a1a1a
+font=SF Pro Text 11
+background-color=#111111
 text-color=#e0e0e0
-border-color=#404040
+border-color=#252525
 border-size=1
-border-radius=0
+border-radius=4
 
 # Layout
-width=300
-height=100
-margin=10
-padding=10
+width=320
+height=80
+margin=8
+padding=12,16
 
 # Behavior
-default-timeout=8000
+default-timeout=5000
 ignore-timeout=0
 actions=1
 
-# Format and actions
+# Format
 format=<b>%s</b>\n%b
 
 # Urgency levels
 [urgency=low]
-border-color=#303030
-background-color=#1a1a1a
+border-color=#202020
+background-color=#0f0f0f
+text-color=#a0a0a0
 
 [urgency=normal]
-border-color=#404040
-background-color=#1a1a1a
+border-color=#252525
+background-color=#111111
+text-color=#e0e0e0
 
 [urgency=high]
-border-color=#808080
-background-color=#262626
+border-color=#e05050
+background-color=#2a1515
 text-color=#ffffff
+default-timeout=0
