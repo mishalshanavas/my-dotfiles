@@ -1,5 +1,9 @@
 # Mako Apple-inspired theme matching waybar
 
+# Position and layer
+anchor=top-right
+layer=overlay
+
 # Appearance
 font=SF Pro Text 11
 background-color=#111111
@@ -18,6 +22,7 @@ padding=12,16
 default-timeout=5000
 ignore-timeout=0
 actions=1
+group-by=app-id
 
 # Format
 format=<b>%s</b>\n%b
@@ -38,3 +43,6 @@ border-color=#e05050
 background-color=#2a1515
 text-color=#ffffff
 default-timeout=0
+
+[mode=do-not-disturb]
+invisible=1

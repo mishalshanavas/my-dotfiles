@@ -49,12 +49,7 @@ get_battery_info() {
     # Set class based on capacity if not charging
     if [ -z "$class" ]; then
         if [ "$capacity" -le 5 ]; then
-            # Blink effect: alternate between critical and critical-blink every 2 seconds
-            if [ "$(($(date +%s) % 4))" -lt 2 ]; then
-                class="critical"
-            else
-                class="critical-blink"
-            fi
+            class="critical-blink"
         elif [ "$capacity" -le 15 ]; then
             class="critical"
         elif [ "$capacity" -le 30 ]; then

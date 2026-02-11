@@ -4,6 +4,11 @@
 image=~/.cache/lockscreen-blur.png
 scaling=fill
 
+# Behavior
+daemonize
+show-failed-attempts
+ignore-empty-password
+
 # Prevent multiple unlock attempts
 grace=2
 grace-no-mouse
@@ -13,6 +18,9 @@ grace-no-touch
 indicator-idle-visible
 indicator-radius=100
 indicator-thickness=10
+
+# Font
+font=SF Pro Text
 
 # Colors - monochrome theme
 color=000000

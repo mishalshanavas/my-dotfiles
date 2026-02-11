@@ -77,11 +77,12 @@ echo "$CURRENT" > "$STATE_FILE"
 # Get wallpaper path
 WALLPAPER="${WALLPAPERS[$CURRENT]}"
 
-# Kill existing swaybg and start new one (wait a moment to ensure clean transition)
-pkill swaybg
-sleep 0.1
+# Start new swaybg first, then kill old one to avoid black flash
 swaybg -i "$WALLPAPER" -m fill &
+disown
+sleep 0.15
+pkill -o swaybg 2>/dev/null || true
 
 # Show notification with wallpaper name
 BASENAME=$(basename "$WALLPAPER")
-notify-send "Wallpaper" "$BASENAME ($(($CURRENT + 1))/$TOTAL)"
+notify-send "Wallpaper" "$BASENAME ($(($CURRENT + 1))/$TOTAL)" -t 1500

@@ -202,3 +202,17 @@ window#waybar {
 #custom-brightness {
     color: #606060;
 }
+
+/* Battery min-width to prevent jumping */
+#custom-battery {
+    min-width: 45px;
+}
+
+/* Network state-specific styling */
+#network.wifi {
+    color: #70a0c0;
+}
+
+#network.ethernet {
+    color: #70c070;
+}

@@ -74,7 +74,7 @@ fi
 # Lock the screen
 # Note: swaylock reads config from ~/.config/swaylock/config
 if [[ -f "$BLUR_IMAGE" ]]; then
-    exec swaylock --image "$BLUR_IMAGE" --scaling fill
+    exec swaylock --daemonize --image "$BLUR_IMAGE" --scaling fill
 else
-    exec swaylock
+    exec swaylock --daemonize
 fi

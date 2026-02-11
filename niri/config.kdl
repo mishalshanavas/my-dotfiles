@@ -1,4 +1,18 @@
 prefer-no-csd true
+
+// Environment variables for better Wayland app support
+environment {
+    QT_QPA_PLATFORM "wayland"
+    MOZ_ENABLE_WAYLAND "1"
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+}
+
+// Cursor settings
+cursor {
+    xcursor-theme "Adwaita"
+    xcursor-size 24
+}
+
 // Input configuration
 input {
     keyboard {
@@ -81,28 +95,22 @@ layout {
     center-focused-column "never"
 }
 
-// Startup applications
-spawn-at-startup "waybar" "-c" "/home/mishal/.config/waybar/config.jsonc" "-s" "/home/mishal/.config/waybar/style.css"
+// Startup applications - optimized order for faster appearance
 spawn-at-startup "swaybg" "-i" "/home/mishal/.config/niri/wallpapers/4.jpg" "-m" "fill"
-
-// Notification daemon
 spawn-at-startup "mako"
+spawn-at-startup "/home/mishal/.config/scripts/start-waybar.sh"
 
-// SwayOSD server for volume/brightness OSD
-spawn-at-startup "swayosd-server" "--style" "/home/mishal/.config/swayosd/style.css" "--top-margin" "0.85"
+// Background services (can start with slight delays)
+spawn-at-startup "sh" "-c" "sleep 1 && swayosd-server --style /home/mishal/.config/swayosd/style.css --top-margin 0.85"
+spawn-at-startup "sh" "-c" "sleep 1.5 && xwayland-satellite"
 
-// X11 application support
-spawn-at-startup "xwayland-satellite"
-
-// Clipboard manager
-spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
-spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
-
-// Auto-mount USB drives
-spawn-at-startup "udiskie" "--tray"
+// Utility services (lowest priority)
+spawn-at-startup "sh" "-c" "sleep 2 && wl-paste --type text --watch cliphist store"
+spawn-at-startup "sh" "-c" "sleep 2 && wl-paste --type image --watch cliphist store"
+spawn-at-startup "sh" "-c" "sleep 2 && udiskie --tray"
 
 // Battery low warning (only if battery exists)
-spawn-at-startup "sh" "-c" "[ -d '/sys/class/power_supply/BAT'* ] && batsignal -w 20 -c 10 -d 5 || true"
+spawn-at-startup "sh" "-c" "ls /sys/class/power_supply/ | grep -q BAT && batsignal -w 20 -c 10 -d 5 || true"
 
 // Idle and lock manager
 // - Lock screen after 5 minutes of inactivity
@@ -371,6 +379,9 @@ binds {
     Print { screenshot; }
     Ctrl+Print { screenshot-screen; }
     Mod+Print { screenshot-window; }
+    
+    // OCR screenshot - extract text from screen
+    Alt+Shift+O hotkey-overlay-title="OCR Screenshot" { spawn-sh "grim -g \"$(slurp)\" /tmp/ocr-$$.png && text=$(tesseract /tmp/ocr-$$.png - 2>/dev/null | tr -d '\\n' | head -c 200) && echo \"$text\" | wl-copy && notify-send 'OCR Extracted' \"$text\" -t 5000 && rm -f /tmp/ocr-$$.png"; }
 
     // System controls
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
@@ -379,4 +390,8 @@ binds {
     Ctrl+Alt+Delete { quit; }
 
     Alt+Shift+P { power-off-monitors; }
+
+    // Move window to monitor (for external displays)
+    Mod+Shift+Ctrl+Left { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
 }
