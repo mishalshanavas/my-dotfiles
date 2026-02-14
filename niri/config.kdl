@@ -27,9 +27,17 @@ input {
         tap
         natural-scroll
         scroll-method "two-finger"
+        accel-speed 0.1
+        accel-profile "adaptive"
+        tap-button-map "left-right-middle"
+        dwt                  // disable while typing
+        dwtp                 // disable while trackpoint
+        scroll-factor 0.75   // smoother scroll (reduce stickiness)
     }
 
     mouse {
+        accel-speed 0.0
+        accel-profile "flat"
     }
 
     trackpoint {
