@@ -109,6 +109,9 @@ spawn-at-startup "sh" "-c" "sleep 2 && wl-paste --type text --watch cliphist sto
 spawn-at-startup "sh" "-c" "sleep 2 && wl-paste --type image --watch cliphist store"
 spawn-at-startup "sh" "-c" "sleep 2 && udiskie --tray"
 
+// CPU governor: performance on AC, powersave on battery
+spawn-at-startup "sh" "-c" "while true; do /home/mishal/.config/scripts/cpu-governor.sh; sleep 5; done &"
+
 // Battery low warning (only if battery exists)
 spawn-at-startup "sh" "-c" "ls /sys/class/power_supply/ | grep -q BAT && batsignal -w 20 -c 10 -d 5 || true"
 
@@ -239,7 +242,7 @@ binds {
     Alt+Space hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
     Mod+Space hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
     Mod+Return hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
-    Alt+V hotkey-overlay-title="Clipboard History" { spawn-sh "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"; }
+    Mod+V hotkey-overlay-title="Clipboard History" { spawn-sh "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy && wtype -M ctrl -k v -m ctrl"; }
     Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "/home/mishal/.config/swaylock/lock.sh"; }
     Alt+E hotkey-overlay-title="File Manager: nautilus" { spawn "nautilus"; }
     Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Screen Reader" { spawn-sh "pkill orca || exec orca"; }
