@@ -1,7 +1,7 @@
 #!/bin/bash
+set -euo pipefail
 
 # Power menu for waybar
-# Improved process management
 if pgrep -x fuzzel >/dev/null 2>&1; then
     pkill -x fuzzel 2>/dev/null
     sleep 0.05
@@ -13,16 +13,16 @@ MENU+="󰒲 Suspend\n"
 MENU+="󰜉 Reboot\n"
 MENU+="󰐥 Shutdown"
 
-CHOSEN=$(echo -e "$MENU" | fuzzel --dmenu -p "Power: ")
+CHOSEN=$(echo -e "$MENU" | fuzzel --dmenu -p "Power: ") || true
 
-[[ -z "$CHOSEN" ]] && exit 0
+[[ -z "${CHOSEN:-}" ]] && exit 0
 
 confirm() {
     if pgrep -x fuzzel >/dev/null 2>&1; then
         pkill -x fuzzel 2>/dev/null
         sleep 0.05
     fi
-    echo -e "Yes\nNo" | fuzzel --dmenu -p "$1? "
+    echo -e "Yes\nNo" | fuzzel --dmenu -p "$1? " || true
 }
 
 case "$CHOSEN" in

@@ -1,7 +1,7 @@
 #!/bin/bash
+set -euo pipefail
 
 # Minimal audio menu for waybar with caching
-# Kill any existing fuzzel first
 
 # Configuration
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/waybar"
@@ -28,7 +28,7 @@ get_mute() {
     wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q MUTED && echo "yes" || echo "no"
 }
 
-# Cache device list
+# Cache device list using awk for robust parsing
 get_device_menu() {
     local cache_valid=false
     
@@ -39,28 +39,24 @@ get_device_menu() {
     fi
     
     if [[ "$cache_valid" != "true" ]]; then
-        # Rebuild cache
+        # Rebuild cache using awk for reliable Name→Description association
         {
-            # Output devices
             echo "󰓃 Output:"
-            DEFAULT_SINK=$(pactl get-default-sink)
-            while read -r sink; do
-                name=$(pactl list sinks | grep -A1 "Name: $sink" | grep "Description" | cut -d: -f2 | xargs)
-                [[ -z "$name" ]] && name="$sink"
-                echo "SINK:$sink:$name"
-            done <<< "$(pactl list sinks short | awk '{print $2}')"
+            pactl list sinks | awk '
+                /^\tName: /     { name = $2 }
+                /^\tDescription: / { sub(/^\tDescription: /, ""); print "SINK:" name ":" $0 }
+            '
             
             echo "──────────────"
             
-            # Input devices
             echo "󰍬 Input:"
-            DEFAULT_SOURCE=$(pactl get-default-source)
-            while read -r source; do
-                [[ "$source" == *".monitor" ]] && continue
-                name=$(pactl list sources | grep -A1 "Name: $source" | grep "Description" | cut -d: -f2 | xargs)
-                [[ -z "$name" ]] && name="$source"
-                echo "SOURCE:$source:$name"
-            done <<< "$(pactl list sources short | awk '{print $2}')"
+            pactl list sources | awk '
+                /^\tName: /     { name = $2 }
+                /^\tDescription: / {
+                    sub(/^\tDescription: /, "")
+                    if (name ~ /\.monitor$/) print "SOURCE:" name ":" $0
+                }
+            '
         } > "$CACHE_FILE"
     fi
 }
@@ -68,20 +64,22 @@ get_device_menu() {
 show_menu() {
     kill_fuzzel
     
+    local VOL MUTED
     VOL=$(get_volume)
     MUTED=$(get_mute)
     
     # Volume bar
-    FILLED=$((VOL / 10))
-    EMPTY=$((10 - FILLED))
-    BAR=""
+    local FILLED=$((VOL / 10))
+    local EMPTY=$((10 - FILLED))
+    local BAR=""
     for ((i=0; i<FILLED; i++)); do BAR+="█"; done
     for ((i=0; i<EMPTY; i++)); do BAR+="░"; done
     
     # Get cached device list
     get_device_menu
     
-    MENU=""
+    local MENU=""
+    local DEFAULT_SINK DEFAULT_SOURCE
     DEFAULT_SINK=$(pactl get-default-sink)
     DEFAULT_SOURCE=$(pactl get-default-source)
     
@@ -105,9 +103,10 @@ show_menu() {
         fi
     done < "$CACHE_FILE"
 
-    CHOSEN=$(echo -e "$MENU" | fuzzel --dmenu -p "Audio: ")
+    local CHOSEN
+    CHOSEN=$(echo -e "$MENU" | fuzzel --dmenu -p "Audio: ") || true
 
-    [[ -z "$CHOSEN" ]] && exit 0
+    [[ -z "${CHOSEN:-}" ]] && exit 0
 
     case "$CHOSEN" in
         *"○"*)
@@ -129,7 +128,7 @@ show_menu() {
     esac
 }
 
-case "$1" in
+case "${1:-}" in
     up) swayosd-client --output-volume raise ;;
     down) swayosd-client --output-volume lower ;;
     *) show_menu ;;

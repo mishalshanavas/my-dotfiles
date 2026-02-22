@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Brightness scroll control with minimum limit and debounce
 # Configuration
@@ -16,13 +17,13 @@ if [[ -f "$LOCK_FILE" ]]; then
         exit 0
     fi
 fi
-echo $(date +%s%3N) > "$LOCK_FILE"
+echo "$(date +%s%3N)" > "$LOCK_FILE"
 
 get_brightness() {
     brightnessctl -m | awk -F, '{print substr($4, 0, length($4)-1)}'
 }
 
-case "$1" in
+case "${1:-}" in
     up)
         swayosd-client --brightness raise
         ;;
@@ -38,5 +39,3 @@ case "$1" in
         fi
         ;;
 esac
-
-pkill -RTMIN+8 waybar

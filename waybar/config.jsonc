@@ -6,7 +6,7 @@
     
     "modules-left": ["niri/workspaces", "niri/window"],
     "modules-center": ["clock"],
-    "modules-right": ["custom/window-state", "custom/caffeine", "custom/brightness", "pulseaudio", "network", "custom/battery", "custom/power"],
+    "modules-right": ["custom/window-state", "custom/caffeine", "backlight", "pulseaudio", "network", "custom/battery", "custom/power"],
 
     "niri/workspaces": {
         "format": "{icon}",
@@ -42,7 +42,7 @@
     "custom/battery": {
         "exec": "~/.config/waybar/scripts/battery.sh",
         "return-type": "json",
-        "interval": 10,
+        "interval": 60,
         "signal": 10
     },
 
@@ -73,15 +73,13 @@
     "custom/caffeine": {
         "exec": "~/.config/waybar/scripts/caffeine.sh",
         "return-type": "json",
-        "interval": 5,
+        "interval": 1,
+        "signal": 11,
         "on-click": "~/.config/waybar/scripts/caffeine.sh toggle"
     },
 
-    "custom/brightness": {
-        "format": "󰃟  {}",
-        "exec": "brightnessctl -m | awk -F, '{print substr($4, 0, length($4)-1)}'",
-        "signal": 8,
-        "interval": 5,
+    "backlight": {
+        "format": "󰃟 {percent}",
         "on-scroll-up": "~/.config/waybar/scripts/brightness-scroll.sh up",
         "on-scroll-down": "~/.config/waybar/scripts/brightness-scroll.sh down",
         "smooth-scrolling-threshold": 1
@@ -96,7 +94,7 @@
     "custom/window-state": {
         "exec": "~/.config/waybar/scripts/window-state.sh",
         "return-type": "json",
-        "interval": 3,
+        "interval": "once",
         "signal": 9,
         "tooltip": false,
         "on-click": "~/.config/waybar/scripts/toggle-window-state.sh"

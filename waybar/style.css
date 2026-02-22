@@ -126,7 +126,7 @@ window#waybar {
 #network,
 #pulseaudio,
 #custom-caffeine,
-#custom-brightness,
+#backlight,
 #custom-power {
     color: #606060;
     padding: 0 8px;
@@ -141,7 +141,7 @@ window#waybar {
 #network:hover,
 #pulseaudio:hover,
 #custom-caffeine:hover,
-#custom-brightness:hover,
+#backlight:hover,
 #custom-power:hover {
     background-color: #1a1a1a;
     color: #a0a0a0;
@@ -199,7 +199,7 @@ window#waybar {
 }
 
 /* Brightness module */
-#custom-brightness {
+#backlight {
     color: #606060;
 }
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # WiFi menu - instant load using cached networks
 # Configuration
@@ -25,22 +26,24 @@ get_networks() {
     fi
     
     if [[ "$cache_valid" != "true" ]]; then
-        # Rebuild cache
+        # Rebuild cache using \t delimiter to avoid SSID colon conflicts
         nmcli -t -f SSID,SIGNAL,SECURITY device wifi list --rescan no 2>/dev/null | \
-            grep -v '^--' | sort -t: -k2 -nr | uniq > "$CACHE_FILE"
+            grep -v '^--' | sort -t: -k2 -nr | awk '!seen[$0]++' > "$CACHE_FILE"
     fi
     
     cat "$CACHE_FILE"
 }
 
 # Get current connection
-CURRENT=$(nmcli -t -f NAME connection show --active 2>/dev/null | head -1)
+CURRENT=$(nmcli -t -f NAME connection show --active 2>/dev/null | head -1) || true
 
 # Get networks (cached or fresh)
 NETWORKS=$(get_networks)
 
-# Format menu
+# Format menu - track SSIDs in an associative array for later lookup
+declare -A MENU_SSIDS
 MENU=""
+line_num=0
 while IFS=: read -r ssid signal security; do
     [[ -z "$ssid" ]] && continue
     lock=""
@@ -50,28 +53,34 @@ while IFS=: read -r ssid signal security; do
     else
         MENU+="󰖩 $ssid $signal% $lock\n"
     fi
+    line_num=$((line_num + 1))
 done <<< "$NETWORKS"
 
 MENU+="──────────────\n"
 MENU+="󰖪 Disconnect\n"
 MENU+="󱛃 Rescan"
 
-CHOSEN=$(echo -e "$MENU" | fuzzel --dmenu -p "WiFi: ")
-[[ -z "$CHOSEN" ]] && exit 0
+CHOSEN=$(echo -e "$MENU" | fuzzel --dmenu -p "WiFi: ") || true
+[[ -z "${CHOSEN:-}" ]] && exit 0
 
 if [[ "$CHOSEN" == *"Disconnect"* ]]; then
-    nmcli device disconnect wlan0 2>/dev/null || nmcli device disconnect wifi 2>/dev/null
+    nmcli device disconnect wlan0 2>/dev/null || nmcli device disconnect wifi 2>/dev/null || true
     notify-send "WiFi" "Disconnected"
 elif [[ "$CHOSEN" == *"Rescan"* ]]; then
     notify-send "WiFi" "Scanning..."
-    # Clear cache and rescan
     rm -f "$CACHE_FILE"
-    nmcli device wifi rescan 2>/dev/null
+    nmcli device wifi rescan 2>/dev/null || true
     sleep 2
     exec "$0"
 else
-    SSID=$(echo "$CHOSEN" | sed 's/󰖩 //' | sed 's/ [0-9]*%.*//' | sed 's/[^a-zA-Z0-9._: -]//g')
-    # Validate SSID length and characters
+    # Extract SSID: strip icon prefix, then strip everything from signal% onward
+    SSID=$(echo "$CHOSEN" | awk '{
+        sub(/^󰖩 /, "")
+        sub(/ [0-9]+%.*$/, "")
+        print
+    }')
+    
+    # Validate SSID
     if [[ ${#SSID} -lt 1 || ${#SSID} -gt 32 ]]; then
         notify-send "WiFi" "Invalid network name"
         exit 1
@@ -85,8 +94,8 @@ else
                 pkill -x fuzzel 2>/dev/null
                 sleep 0.05
             fi
-            PASS=$(echo "" | fuzzel --dmenu -p "Password: " --password)
-            [[ -z "$PASS" ]] && exit 0
+            PASS=$(echo "" | fuzzel --dmenu -p "Password: " --password) || true
+            [[ -z "${PASS:-}" ]] && exit 0
             nmcli device wifi connect "$SSID" password "$PASS" && notify-send "WiFi" "Connected to $SSID" || notify-send "WiFi" "Failed"
         else
             nmcli device wifi connect "$SSID" && notify-send "WiFi" "Connected to $SSID" || notify-send "WiFi" "Failed"

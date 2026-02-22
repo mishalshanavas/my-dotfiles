@@ -1,4 +1,5 @@
 #!/bin/bash
+set -uo pipefail
 
 # Caffeine toggle script for waybar
 # Prevents screen sleep when active
@@ -12,7 +13,6 @@ mkdir -p "$CACHE_DIR"
 
 get_status() {
     if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
-        # Calculate elapsed time
         if [[ -f "$START_FILE" ]]; then
             start_time=$(cat "$START_FILE")
             now=$(date +%s)
@@ -37,12 +37,10 @@ get_status() {
 
 toggle() {
     if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
-        # Disable caffeine
         kill "$(cat "$PID_FILE")" 2>/dev/null
         rm -f "$PID_FILE" "$START_FILE"
         notify-send "Caffeine" "Screen sleep enabled" -t 2000
     else
-        # Enable caffeine - use systemd-inhibit to prevent idle/sleep
         if command -v systemd-inhibit &>/dev/null; then
             systemd-inhibit --what=idle:sleep:handle-lid-switch \
                 --who="Waybar Caffeine" \
@@ -57,9 +55,10 @@ toggle() {
     fi
 }
 
-case "$1" in
+case "${1:-}" in
     toggle)
         toggle
+        pkill -RTMIN+11 waybar 2>/dev/null || true
         ;;
     *)
         get_status
