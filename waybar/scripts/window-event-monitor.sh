@@ -23,7 +23,7 @@ trap cleanup EXIT
 # Listen to niri event stream and signal waybar on relevant changes
 niri msg event-stream 2>/dev/null | while IFS= read -r line; do
     case "$line" in
-        "Windows changed:"*|"Window focus changed:"*|"Window opened:"*|"Window closed:"*)
+        "Windows changed:"*|"Workspaces changed:"*|"Window focus changed:"*|"Workspace "*": active window changed to"*)
             pkill -RTMIN+9 waybar 2>/dev/null || true
             ;;
     esac

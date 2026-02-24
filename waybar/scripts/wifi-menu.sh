@@ -5,7 +5,7 @@ set -euo pipefail
 # Configuration
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/waybar"
 CACHE_FILE="$CACHE_DIR/wifi-networks.cache"
-CACHE_DURATION=15  # seconds
+CACHE_DURATION=5  # seconds
 
 mkdir -p "$CACHE_DIR"
 
@@ -67,11 +67,14 @@ if [[ "$CHOSEN" == *"Disconnect"* ]]; then
     nmcli device disconnect wlan0 2>/dev/null || nmcli device disconnect wifi 2>/dev/null || true
     notify-send "WiFi" "Disconnected"
 elif [[ "$CHOSEN" == *"Rescan"* ]]; then
-    notify-send "WiFi" "Scanning..."
     rm -f "$CACHE_FILE"
-    nmcli device wifi rescan 2>/dev/null || true
-    sleep 2
-    exec "$0"
+    # Trigger rescan, wait briefly for hardware to respond
+    nmcli device wifi rescan &>/dev/null || true
+    sleep 0.5
+    # Grab fresh list immediately
+    nmcli -t -f SSID,SIGNAL,SECURITY device wifi list --rescan no 2>/dev/null | \
+        grep -v '^--' | sort -t: -k2 -nr | awk '!seen[$0]++' > "$CACHE_FILE" 2>/dev/null || true
+    exec bash "$0"
 else
     # Extract SSID: strip icon prefix, then strip everything from signal% onward
     SSID=$(echo "$CHOSEN" | awk '{
