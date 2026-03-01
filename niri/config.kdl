@@ -117,10 +117,6 @@ spawn-at-startup "sh" "-c" "sleep 2 && wl-paste --type text --watch cliphist sto
 spawn-at-startup "sh" "-c" "sleep 2 && wl-paste --type image --watch cliphist store"
 spawn-at-startup "sh" "-c" "sleep 2 && udiskie --tray"
 
-// Waybar event monitors for real-time updates
-spawn-at-startup "sh" "-c" "sleep 2.5 && /home/mishal/.config/waybar/scripts/window-event-monitor.sh &"
-spawn-at-startup "sh" "-c" "sleep 2.5 && /home/mishal/.config/waybar/scripts/power-monitor.sh &"
-
 // CPU governor: performance on AC, powersave on battery
 spawn-at-startup "sh" "-c" "while true; do /home/mishal/.config/scripts/cpu-governor.sh; sleep 5; done &"
 
