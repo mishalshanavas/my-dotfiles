@@ -1,9 +1,5 @@
 # Swaylock configuration - minimal monochrome with blurred screenshot
 
-# Screenshot with blur effect
-image=~/.cache/lockscreen-blur.png
-scaling=fill
-
 # Behavior
 daemonize
 show-failed-attempts

@@ -22,7 +22,7 @@ padding=12,16
 default-timeout=5000
 ignore-timeout=0
 actions=1
-group-by=app-id
+group-by=app-name
 
 # Format
 format=<b>%s</b>\n%b

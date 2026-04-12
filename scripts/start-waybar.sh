@@ -27,5 +27,9 @@ for i in {1..10}; do
     sleep 0.1
 done
 
+# Event-driven updates (safe if already running)
+"/home/mishal/.config/waybar/scripts/window-event-monitor.sh" &
+"/home/mishal/.config/waybar/scripts/power-monitor.sh" &
+
 # Start waybar with proper error handling
 exec waybar -c "/home/mishal/.config/waybar/config.jsonc" -s "/home/mishal/.config/waybar/style.css" 2>/dev/null

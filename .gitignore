@@ -25,5 +25,13 @@
 !gtk-4.0/**
 !scripts/
 !scripts/**
+!fontconfig/
+!fontconfig/**
+!xdg-desktop-portal/
+!xdg-desktop-portal/**
 !gtkrc-2.0
 !brave-flags.conf
+
+# Local state / backups (keep repo clean)
+**/*.bak
+niri/.wallpaper-index

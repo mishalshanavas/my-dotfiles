@@ -34,7 +34,7 @@ progress {
 image,
 label {
     color: #ffffff;
-    font-family: "JetBrainsMono Nerd Font", "Roboto", monospace;
+    font-family: "SF Pro Text", "SF Pro Display", "Noto Sans", sans-serif;
     font-size: 28px;
     font-weight: 600;
     margin: 0 8px;

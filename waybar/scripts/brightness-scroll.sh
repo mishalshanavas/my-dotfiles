@@ -39,3 +39,6 @@ case "${1:-}" in
         fi
         ;;
 esac
+
+# Refresh waybar brightness module
+pkill -RTMIN+8 waybar 2>/dev/null || true

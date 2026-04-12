@@ -2,6 +2,10 @@ prefer-no-csd true
 
 // Environment variables for better Wayland app support
 environment {
+    XDG_CURRENT_DESKTOP "niri"
+    XDG_SESSION_DESKTOP "niri"
+    XDG_SESSION_TYPE "wayland"
+
     QT_QPA_PLATFORM "wayland"
     MOZ_ENABLE_WAYLAND "1"
     ELECTRON_OZONE_PLATFORM_HINT "auto"
@@ -104,21 +108,17 @@ layout {
 }
 
 // Startup applications - optimized order for faster appearance
+// Sync Wayland session env into DBus/systemd user session (portals, tray, notifications).
+spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP DISPLAY 2>/dev/null || true; systemctl --user restart xdg-desktop-portal.service xdg-desktop-portal-gtk.service 2>/dev/null || true"
+
 spawn-at-startup "swaybg" "-i" "/home/mishal/.config/niri/wallpapers/4.jpg" "-m" "fill"
-spawn-at-startup "mako"
+spawn-at-startup "sh" "-c" "pkill -x dunst 2>/dev/null || true; pgrep -x mako >/dev/null || mako"
 spawn-at-startup "/home/mishal/.config/scripts/start-waybar.sh"
-
-// Background services (can start with slight delays)
-spawn-at-startup "sh" "-c" "sleep 1 && swayosd-server --style /home/mishal/.config/swayosd/style.css --top-margin 0.85"
-spawn-at-startup "sh" "-c" "sleep 1.5 && xwayland-satellite"
-
-// Utility services (lowest priority)
-spawn-at-startup "sh" "-c" "sleep 2 && wl-paste --type text --watch cliphist store"
-spawn-at-startup "sh" "-c" "sleep 2 && wl-paste --type image --watch cliphist store"
-spawn-at-startup "sh" "-c" "sleep 2 && udiskie --tray"
-
-// CPU governor: performance on AC, powersave on battery
-spawn-at-startup "sh" "-c" "while true; do /home/mishal/.config/scripts/cpu-governor.sh; sleep 5; done &"
+spawn-at-startup "swayosd-server" "--style" "/home/mishal/.config/swayosd/style.css" "--top-margin" "0.85"
+spawn-at-startup "xwayland-satellite"
+spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
+spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
+spawn-at-startup "udiskie" "--tray"
 
 // Battery low warning (only if battery exists)
 spawn-at-startup "sh" "-c" "ls /sys/class/power_supply/ | grep -q BAT && batsignal -w 20 -c 10 -d 5 || true"
@@ -203,6 +203,18 @@ window-rule {
     open-maximized true
 }
 
+// Zen browser maximized
+window-rule {
+    match app-id=r#"^zen$"#
+    open-maximized true
+}
+
+// Antigravity maximized
+window-rule {
+    match app-id=r#"^antigravity$"#
+    open-maximized true
+}
+
 // Minecraft fullscreen without decorations
 window-rule {
     match title="Minecraft"
@@ -246,14 +258,13 @@ binds {
     Alt+Return hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
     Alt+T hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
     Alt+Shift+Return hotkey-overlay-title="Floating Terminal" { spawn "kitty" "--class" "floating-terminal"; }
-    Alt+Shift+T hotkey-overlay-title="Floating Terminal" { spawn "kitty" "--class" "floating-terminal"; }
     Alt+Space hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
-    Mod+Space hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
-    Mod+Return hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
     Mod+V hotkey-overlay-title="Clipboard History" { spawn-sh "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy && wtype -M ctrl -k v -m ctrl"; }
     Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "/home/mishal/.config/swaylock/lock.sh"; }
     Alt+E hotkey-overlay-title="File Manager: nautilus" { spawn "nautilus"; }
     Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Screen Reader" { spawn-sh "pkill orca || exec orca"; }
+
+    Mod+B repeat=false hotkey-overlay-title="Toggle Bar: waybar" { spawn-sh "pkill -x -USR1 waybar 2>/dev/null || true"; }
 
     // Wallpaper cycling
     Alt+B hotkey-overlay-title="Cycle Wallpaper" { spawn "/home/mishal/.config/niri/scripts/wallpaper-cycle.sh"; }
