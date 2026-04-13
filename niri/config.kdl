@@ -127,7 +127,7 @@ spawn-at-startup "sh" "-c" "ls /sys/class/power_supply/ | grep -q BAT && batsign
 // - Lock screen after 5 minutes of inactivity
 // - Turn off monitors after 10 minutes (only if already locked)
 // - Lock before system sleep
-spawn-at-startup "swayidle" "-w" "timeout" "300" "/home/mishal/.config/swaylock/lock.sh" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "/home/mishal/.config/swaylock/lock.sh" "lock" "/home/mishal/.config/swaylock/lock.sh"
+spawn-at-startup "swayidle" "-w" "timeout" "300" "/home/mishal/.config/swaylock/lock.sh" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors; /home/mishal/.config/scripts/start-waybar.sh &" "before-sleep" "/home/mishal/.config/swaylock/lock.sh" "lock" "/home/mishal/.config/swaylock/lock.sh"
 
 hotkey-overlay {
     skip-at-startup
