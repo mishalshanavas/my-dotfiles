@@ -1,17 +1,16 @@
 #!/bin/sh
-prompt="Brightness"
-
 if ! command -v brightnessctl >/dev/null 2>&1; then
-    printf "brightnessctl not found" | fuzzel --dmenu --prompt="$prompt" --width=40 --lines=8
     exit 0
 fi
 
-menu="10%\n25%\n50%\n75%\n100%\n+5%\n-5%"
-choice=$(printf "%b" "$menu" | fuzzel --dmenu --prompt="$prompt" --width=40 --lines=8)
-[ -z "$choice" ] && exit 0
+val=$(brightnessctl -m 2>/dev/null | awk -F, '{print $4}' | tr -d '%')
+[ -z "$val" ] && exit 0
 
-case "$choice" in
-    "+5%") "$HOME/.config/ironbar/scripts/brightness-step.sh" up ;;
-    "-5%") "$HOME/.config/ironbar/scripts/brightness-step.sh" down ;;
-    *) brightnessctl set "$choice" ;;
-esac
+for preset in 10 25 50 75 100; do
+    if [ "$val" -lt "$preset" ]; then
+        brightnessctl set "${preset}%" >/dev/null 2>&1 || true
+        exit 0
+    fi
+done
+
+brightnessctl set "10%" >/dev/null 2>&1 || true

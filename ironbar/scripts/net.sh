@@ -26,6 +26,6 @@ net_status() {
     echo "   Offline"
 }
 net_status
-nmcli monitor 2>/dev/null | while read -r _; do
+nmcli monitor 2>/dev/null | grep --line-buffered -E "connected|disconnected|Wifi|connectivity" | while read -r _; do
     net_status
 done

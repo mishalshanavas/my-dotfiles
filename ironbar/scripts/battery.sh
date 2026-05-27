@@ -48,7 +48,7 @@ bat_status() {
     elif [ "$pct" -ge 20 ]; then icon=""
     else icon=""
     fi
-    echo "${icon}   ${pct}%"
+    echo "${icon}  ${pct}%"
 }
 
 bat_status

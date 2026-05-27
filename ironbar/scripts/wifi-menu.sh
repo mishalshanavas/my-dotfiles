@@ -21,4 +21,7 @@ choice=$(printf "%b" "$list" | fuzzel --dmenu --prompt="$prompt" --width=40 --li
 
 ssid=$(echo "$choice" | awk -F' \| ' '{print $1}' | sed 's/ *$//')
 
-nmcli dev wifi connect "$ssid"
+if ! nmcli dev wifi connect "$ssid" 2>/dev/null; then
+    pass=$(printf "" | fuzzel --dmenu --prompt="Password for $ssid" --width=40 --lines=1 --password)
+    [ -n "$pass" ] && nmcli dev wifi connect "$ssid" password "$pass"
+fi

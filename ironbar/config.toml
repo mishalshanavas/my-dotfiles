@@ -59,10 +59,10 @@ tooltip = "Network"
 
 [[end]]
 type = "bluetooth"
-format.enabled = "  On"
-format.disabled = "  Off"
-format.connected = "  On"
-format.connected_battery = "  On"
+format.enabled = ""
+format.disabled = ""
+format.connected = " ·"
+format.connected_battery = " ·"
 device_status.connected = "Connected"
 device_status.connecting = "Connecting"
 device_status.disconnected = "Disconnected"
@@ -72,7 +72,7 @@ tooltip = "Bluetooth Settings"
 
 [[end]]
 type = "volume"
-format = "{icon}  {percentage}%"
+format = "{icon} {percentage}%"
 icons.muted = ""
 icons.volume_low = ""
 icons.volume_medium = ""

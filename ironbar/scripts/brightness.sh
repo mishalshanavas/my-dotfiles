@@ -11,5 +11,13 @@ if [ -z "$val" ]; then
     exit 0
 fi
 
-icon=""
+if [ "$val" -ge 75 ]; then
+    icon=""
+elif [ "$val" -ge 40 ]; then
+    icon=""
+elif [ "$val" -ge 10 ]; then
+    icon=""
+else
+    icon=""
+fi
 echo "${icon}  ${val}%"

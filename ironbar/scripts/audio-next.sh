@@ -19,7 +19,7 @@ sinks=$(wpctl status 2>/dev/null | awk '
 
 [ -z "$sinks" ] && exit 0
 
-default_id=$(wpctl get-default @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{print $1}')
+default_id=$(wpctl status 2>/dev/null | awk '/Sinks:/,/Sources:/ { if (/\*/) { match($0,/[0-9]+\./); id=substr($0,RSTART,RLENGTH); gsub(/\./,"",id); print id; exit } }')
 if [ -z "$default_id" ]; then
     default_id=$(printf "%s\n" "$sinks" | head -n 1)
 fi

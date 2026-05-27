@@ -86,7 +86,7 @@ layout {
         bottom 0
     }
 
-    center-focused-column "never"
+    center-focused-column "on-overflow"
 }
 
 // ── Startup ────────────────────────────────────────────────────────────────
@@ -116,10 +116,23 @@ hotkey-overlay {
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 // ── Animations ─────────────────────────────────────────────────────────────
-
 animations {
+    workspace-switch {
+        spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+    }
+    window-open {
+        spring damping-ratio=0.8 stiffness=800 epsilon=0.0001
+    }
+    window-close {
+        off
+    }
+    window-movement {
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+    }
+    horizontal-view-movement {
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+    }
 }
-
 // ── Window rules ───────────────────────────────────────────────────────────
 
 // Ghostty — let it decide its own initial size
@@ -198,7 +211,7 @@ binds {
 
     // Launcher & utilities
     Alt+Space hotkey-overlay-title="Run Application" { spawn "fuzzel"; }
-    Mod+V     hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && cliphist decode <<< \"$selected\" | wl-copy && wtype -M ctrl v -m ctrl"; }
+    Mod+V     hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && cliphist decode <<< \"$selected\" | wl-copy"; }
     Alt+L     hotkey-overlay-title="Lock Screen"      { spawn "/home/mishal/.config/swaylock/lock.sh"; }
     Alt+E     hotkey-overlay-title="File Manager"     { spawn "nautilus"; }
     Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Screen Reader" { spawn-sh "pkill orca || exec orca"; }

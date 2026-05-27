@@ -9,8 +9,11 @@ wf_status() {
     fi
 }
 wf_status
-niri msg event-stream 2>/dev/null | while IFS= read -r line; do
-    case "$line" in
-        *Window*|*Workspace*) wf_status ;;
-    esac
+while true; do
+    niri msg event-stream 2>/dev/null | while IFS= read -r line; do
+        case "$line" in
+            *Window*|*Workspace*) wf_status ;;
+        esac
+    done
+    sleep 1
 done

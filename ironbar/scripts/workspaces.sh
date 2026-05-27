@@ -13,9 +13,12 @@ render() {
 }
 
 render
-niri msg event-stream 2>/dev/null | while IFS= read -r line; do
-    case "$line" in
-        *Workspace*|*Window*)
-            render ;;
-    esac
+while true; do
+    niri msg event-stream 2>/dev/null | while IFS= read -r line; do
+        case "$line" in
+            *Workspace*|*Window*)
+                render ;;
+        esac
+    done
+    sleep 1
 done
