@@ -1,0 +1,21 @@
+# Ignore everything by default
+*
+
+# Allow tracked files
+!.gitignore
+!README.md
+
+!niri/
+!niri/config.kdl
+
+!ironbar/
+!ironbar/config.toml
+!ironbar/style.css
+!ironbar/scripts/
+!ironbar/scripts/*.sh
+
+!ghostty/
+!ghostty/config.ghostty
+
+!fuzzel/
+!fuzzel/fuzzel.ini

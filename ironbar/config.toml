@@ -1,0 +1,111 @@
+name = "main"
+position = "top"
+height = 24
+start_hidden = true
+popup_autohide = true
+exclusive_zone = true
+
+[[start]]
+type = "script"
+cmd = "$HOME/.config/ironbar/scripts/workspaces.sh"
+mode = "watch"
+class = "workspaces-widget"
+tooltip = "Workspaces"
+
+[[start]]
+type = "focused"
+show_icon = false
+truncate.mode = "end"
+truncate.max_length = 28
+tooltip = "Focused Window"
+
+[[start]]
+type = "script"
+cmd = "$HOME/.config/ironbar/scripts/winfloat.sh"
+mode = "watch"
+class = "winfloat"
+tooltip = "Window Layout Status"
+
+[[center]]
+type = "clock"
+format = "%I:%M %p"
+format_popup = "%A, %d %B %Y"
+tooltip = "Calendar"
+
+[[end]]
+type = "music"
+format = "{title}"
+show_status_icon = true
+truncate.mode = "end"
+truncate.max_length = 28
+icons.play = ""
+icons.pause = ""
+icons.prev = ""
+icons.next = ""
+icons.volume = ""
+icons.track = ""
+icons.album = ""
+icons.artist = ""
+tooltip = "Media Controls"
+
+[[end]]
+type = "script"
+class = "network"
+cmd = "$HOME/.config/ironbar/scripts/net.sh"
+mode = "watch"
+on_click_left = "$HOME/.config/ironbar/scripts/wifi-menu.sh"
+on_click_right = "$HOME/.config/ironbar/scripts/wifi-toggle.sh"
+tooltip = "Network"
+
+[[end]]
+type = "bluetooth"
+format.enabled = "  On"
+format.disabled = "  Off"
+format.connected = "  On"
+format.connected_battery = "  On"
+device_status.connected = "Connected"
+device_status.connecting = "Connecting"
+device_status.disconnected = "Disconnected"
+device_status.disconnecting = "Disconnecting"
+on_click_right = "$HOME/.config/ironbar/scripts/bluetooth-toggle.sh"
+tooltip = "Bluetooth Settings"
+
+[[end]]
+type = "volume"
+format = "{icon}  {percentage}%"
+icons.muted = ""
+icons.volume_low = ""
+icons.volume_medium = ""
+icons.volume_high = ""
+on_click_right = "$HOME/.config/ironbar/scripts/audio-next.sh"
+show_sources = false
+popup_orientation = "horizontal"
+sink_slider_orientation = "horizontal"
+tooltip = "Volume Controls"
+
+[[end]]
+type = "script"
+class = "brightness"
+cmd = "$HOME/.config/ironbar/scripts/brightness.sh"
+mode = "poll"
+interval = 1000
+on_click_left = "$HOME/.config/ironbar/scripts/brightness-menu.sh"
+on_scroll_up = "$HOME/.config/ironbar/scripts/brightness-step.sh up"
+on_scroll_down = "$HOME/.config/ironbar/scripts/brightness-step.sh down"
+tooltip = "Brightness"
+
+[[end]]
+type = "script"
+class = "battery"
+cmd = "$HOME/.config/ironbar/scripts/battery.sh"
+mode = "watch"
+tooltip = "Battery Status"
+
+[[end]]
+type = "script"
+class = "power"
+cmd = "echo ''"
+mode = "poll"
+interval = 864000
+on_click_left = "$HOME/.config/ironbar/scripts/power.sh"
+tooltip = "Power Menu"

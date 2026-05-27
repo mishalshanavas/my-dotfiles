@@ -1,0 +1,357 @@
+@define-color bg_color #000000;
+@define-color bg_soft #0b0b0b;
+@define-color panel_color #0e0e0e;
+@define-color panel_primary #111111;
+@define-color border_color #1a1a1a;
+@define-color border_primary #2a2a2a;
+@define-color text_color #f2f2f2;
+@define-color muted_color #9a9a9a;
+@define-color accent_color #ffffff;
+@define-color hover_color #151515;
+@define-color hover_border #303030;
+@define-color active_color #ffffff;
+
+* {
+    font-family: "SF Pro Display", "SF Pro Text", "Symbols Nerd Font", "Symbols Nerd Font Mono", "Nerd Font", "Nerd Font Mono", "Helvetica Neue", "Inter", "Noto Sans", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.1;
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    color: @text_color;
+    background: transparent;
+    box-shadow: none;
+}
+
+window,
+window > * {
+    background: @bg_color;
+}
+
+.bar {
+    background: @bg_color;
+    color: @text_color;
+    padding: 0 4px;
+    box-shadow: inset 0 -1px 0 #111111;
+}
+
+.bar box,
+.bar centerbox,
+.bar > * {
+    background: transparent;
+}
+
+/* Core widgets */
+.clock,
+.volume,
+.script,
+.bluetooth,
+.battery,
+.tray,
+.notifications,
+.music,
+.network_manager,
+.focused,
+.winfloat,
+.power,
+.brightness {
+    color: @text_color;
+    padding: 0 6px;
+    margin: 0 4px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Clock */
+.clock { 
+    font-weight: 600;
+    letter-spacing: 0.4px;
+}
+
+/* Focused Window */
+.focused {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+/* Winfloat script */
+.winfloat {
+    color: @muted_color;
+    font-size: 11px;
+    background: transparent;
+    border-color: transparent;
+}
+
+/* Hover effects */
+.clock:hover,
+.volume:hover,
+.script:hover,
+.bluetooth:hover,
+.battery:hover,
+.tray:hover,
+.music:hover,
+.network_manager:hover,
+.notifications:hover,
+.focused:hover,
+.winfloat:hover,
+.power:hover,
+.brightness:hover {
+    background: @hover_color;
+    color: @text_color;
+    border-color: transparent;
+}
+
+/* Tooltips */
+tooltip {
+    background: #050505;
+    border: 1px solid #2a2a2a;
+    padding: 6px 8px;
+}
+
+tooltip * {
+    color: #ffffff;
+    font-size: 12px;
+}
+
+/* Workspaces */
+.workspaces-widget {
+    padding: 0 6px;
+    margin: 0 4px;
+    border-radius: 4px;
+    font-size: 10px;
+    letter-spacing: 4px;
+    font-weight: 600;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.workspaces-widget:hover {
+    background: @hover_color;
+    color: @text_color;
+    border-color: transparent;
+}
+
+/* Power Button */
+.power {
+    font-size: 12px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+/* Tray */
+.tray .item {
+    padding: 0 3px;
+    margin: 0 1px;
+}
+
+/* Bluetooth States */
+.bluetooth.disabled,
+.bluetooth.not-found {
+    color: @muted_color;
+}
+.bluetooth.enabled { color: #cccccc; }
+.bluetooth.connected { color: @text_color; }
+
+/* Popups (Universal) */
+.popup {
+    background-color: #050505;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.popup * {
+    color: #ffffff;
+}
+
+/* Clock popup specific */
+.popup-clock {
+    background-color: #050505;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+/* Volume popup */
+.popup-volume {
+    background: #050505;
+    color: #ffffff;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.popup-volume label { color: #ffffff; }
+
+.popup-volume .device-box {
+    padding: 6px 8px;
+    min-width: 0;
+    border-bottom: 1px solid #1a1a1a;
+    margin-bottom: 6px;
+}
+
+.popup-volume .device-box .device-selector {
+    padding: 4px 8px;
+    margin: 4px 0 8px;
+    background: #0a0a0a;
+    border: 1px solid #1f1f1f;
+}
+
+.popup-volume .device-box .device-selector popover listview row:selected,
+.popup-volume .device-box .device-selector popover listview row:checked {
+    background: #141414;
+}
+
+.popup-volume .device-box .device-selector popover listview row:selected label,
+.popup-volume .device-box .device-selector popover listview row:checked label {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.popup-volume scale {
+    min-width: 140px;
+    min-height: 14px;
+    padding: 0 4px;
+}
+
+.popup-volume scale trough {
+    background: #1a1a1a;
+    min-height: 3px;
+}
+
+.popup-volume scale highlight {
+    background: #ffffff;
+    min-height: 3px;
+}
+
+.popup-volume .btn-mute {
+    padding: 0 4px;
+    min-width: 0;
+    margin-left: auto;
+}
+
+.popup-volume .apps-box {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #1a1a1a;
+}
+
+.popup-volume .apps-box .title {
+    font-size: 11px;
+    color: #666666;
+    font-weight: 600;
+    padding: 2px 6px 4px;
+}
+
+.popup-volume .apps-box .app-box {
+    padding: 4px 8px;
+    margin: 4px 0;
+}
+
+.popup-volume .apps-box .app-box .btn-mute {
+    margin-left: auto;
+}
+
+.popup-volume .device-box .sink-box .title,
+.popup-volume .device-box .source-box .title {
+    display: none;
+}
+
+/* Bluetooth popup */
+.popup-bluetooth {
+    background: #050505;
+    color: #ffffff;
+    padding: 8px;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+}
+
+.popup-bluetooth label { color: #ffffff; }
+
+.popup-bluetooth .header {
+    padding: 6px 8px;
+    margin: 0 0 8px;
+    background: #0a0a0a;
+    border: 1px solid #1f1f1f;
+}
+
+.popup-bluetooth .header .label {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0 4px;
+}
+
+.popup-bluetooth .header .switch {
+    min-height: 16px;
+    min-width: 32px;
+    margin-left: auto;
+}
+
+.popup-bluetooth .devices {
+    padding: 4px 0;
+}
+
+.popup-bluetooth .devices .box .device {
+    padding: 6px 8px;
+    margin: 4px 0;
+    background: #0a0a0a;
+    border: 1px solid #1f1f1f;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.popup-bluetooth .devices .box .device:hover {
+    background: #141414;
+    border-color: #2a2a2a;
+}
+
+.popup-bluetooth .devices .box .device .icon-box {
+    min-width: 20px;
+    min-height: 20px;
+}
+
+.popup-bluetooth .devices .box .device .icon-box .text-icon {
+    font-size: 13px;
+}
+
+.popup-bluetooth .devices .box .device .status .header-label {
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.popup-bluetooth .devices .box .device .status .footer-label {
+    font-size: 11px;
+    color: #666666;
+}
+
+.popup-bluetooth .devices .box .device .switch {
+    min-height: 18px;
+    min-width: 34px;
+    margin-left: auto;
+}
+
+.popup-bluetooth switch {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 9px;
+}
+
+.popup-bluetooth switch slider {
+    background: #888888;
+    min-width: 14px;
+    min-height: 14px;
+    border-radius: 7px;
+}
+
+.popup-bluetooth switch:checked {
+    background: #ffffff;
+    border-color: #ffffff;
+}
+
+.popup-bluetooth switch:checked slider {
+    background: #000000;
+}
