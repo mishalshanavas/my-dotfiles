@@ -1,57 +1,80 @@
 #!/bin/sh
-battery_path() {
-    for dev in /sys/class/power_supply/*; do
-        [ -f "$dev/type" ] || continue
-        if [ "$(cat "$dev/type" 2>/dev/null)" = "Battery" ]; then
-            printf '%s\n' "$dev"
-            return 0
-        fi
-    done
-    return 1
+battery_device() {
+    command -v upower >/dev/null 2>&1 || return 1
+    upower -e 2>/dev/null | awk '/battery/ {print; exit}'
 }
 
-BAT_PATH=$(battery_path)
-[ -z "$BAT_PATH" ] && exit 0
-
-last_level=101
-
-maybe_notify() {
-    pct=$1
-    status=$2
-
-    if [ "$status" != "Discharging" ]; then
-        last_level=101
-        return
-    fi
-
-    if [ "$pct" -le 10 ] && [ "$last_level" -gt 10 ]; then
-        notify-send -u critical "Battery critical" "${pct}% remaining" 2>/dev/null || true
-    elif [ "$pct" -le 20 ] && [ "$last_level" -gt 20 ]; then
-        notify-send -u normal "Battery low" "${pct}% remaining" 2>/dev/null || true
-    fi
-
-    last_level=$pct
+is_int() {
+    case $1 in
+        ''|*[!0-9]*) return 1 ;;
+        *) return 0 ;;
+    esac
 }
 
-bat_status() {
-    pct=$(cat "$BAT_PATH/capacity" 2>/dev/null)
-    status=$(cat "$BAT_PATH/status" 2>/dev/null)
-    [ -z "$pct" ] && return
-
-    maybe_notify "$pct" "$status"
-
-    if [ "$status" = "Charging" ] || [ "$status" = "Full" ]; then
-        icon=""
-    elif [ "$pct" -ge 90 ]; then icon=""
-    elif [ "$pct" -ge 70 ]; then icon=""
-    elif [ "$pct" -ge 50 ]; then icon=""
-    elif [ "$pct" -ge 20 ]; then icon=""
-    else icon=""
-    fi
-    echo "${icon}  ${pct}%"
+read_info() {
+    upower -i "$BAT_DEV" 2>/dev/null | awk -F': *' '
+        /^[[:space:]]*state:/      { state = $2 }
+        /^[[:space:]]*percentage:/ { pct = $2; gsub(/%/, "", pct); gsub(/\.[0-9]*/, "", pct) }
+        END {
+            if (state == "") state = "unknown"
+            print state "|" pct
+        }
+    '
 }
 
-bat_status
-udevadm monitor --udev --subsystem-match=power_supply 2>/dev/null | while read -r _; do
-    bat_status
+normalize_state() {
+    case "$1" in
+        charging|fully-charged|pending-charge) printf 'Charging\n' ;;
+        discharging|pending-discharge)         printf 'Discharging\n' ;;
+        *)                                     printf 'Unknown\n' ;;
+    esac
+}
+
+render() {
+    info=$(read_info)
+    state_raw=${info%%|*}
+    pct=${info#*|}
+    status=$(normalize_state "$state_raw")
+
+    # Notify on low battery — use a state file to avoid re-notifying
+    if [ "$status" = "Discharging" ] && is_int "$pct"; then
+        for threshold in 10 20; do
+            flag="/tmp/.bat_notified_${threshold}"
+            if [ "$pct" -le "$threshold" ] && [ ! -f "$flag" ]; then
+                touch "$flag"
+                if [ "$threshold" -eq 10 ]; then
+                    notify-send -u critical "Battery critical" "${pct}% remaining" 2>/dev/null || true
+                else
+                    notify-send -u normal "Battery low" "${pct}% remaining" 2>/dev/null || true
+                fi
+            elif [ "$pct" -gt "$threshold" ] && [ -f "$flag" ]; then
+                rm -f "$flag"
+            fi
+        done
+    fi
+
+    if [ "$status" = "Charging" ]; then
+        icon=""
+    elif is_int "$pct" && [ "$pct" -ge 90 ]; then icon=""
+    elif is_int "$pct" && [ "$pct" -ge 70 ]; then icon=""
+    elif is_int "$pct" && [ "$pct" -ge 50 ]; then icon=""
+    elif is_int "$pct" && [ "$pct" -ge 20 ]; then icon=""
+    else icon=""
+    fi
+
+    if is_int "$pct"; then
+        printf '%s  %s%%\n' "$icon" "$pct"
+    else
+        printf '%s  --%%\n' "$icon"
+    fi
+}
+
+BAT_DEV=$(battery_device)
+[ -z "$BAT_DEV" ] && exit 0
+
+render
+upower --monitor 2>/dev/null | while IFS= read -r line; do
+    case "$line" in
+        *"$BAT_DEV"*) render ;;
+    esac
 done

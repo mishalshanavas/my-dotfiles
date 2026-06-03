@@ -86,7 +86,7 @@ layout {
         bottom 0
     }
 
-    center-focused-column "on-overflow"
+    center-focused-column "never"
 }
 
 // ── Startup ────────────────────────────────────────────────────────────────
@@ -109,10 +109,6 @@ spawn-at-startup "udiskie" "--tray"
 // Idle management: lock at 5 min, monitors off at 10 min, lock before sleep
 spawn-at-startup "swayidle" "-w" "timeout" "300" "/home/mishal/.config/swaylock/lock.sh" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "/home/mishal/.config/swaylock/lock.sh" "lock" "/home/mishal/.config/swaylock/lock.sh"
 
-hotkey-overlay {
-    skip-at-startup
-}
-
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 // ── Animations ─────────────────────────────────────────────────────────────
@@ -127,10 +123,10 @@ animations {
         off
     }
     window-movement {
-        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+        spring damping-ratio=0.92 stiffness=420 epsilon=0.0001
     }
     horizontal-view-movement {
-        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+        spring damping-ratio=0.92 stiffness=420 epsilon=0.0001
     }
 }
 // ── Window rules ───────────────────────────────────────────────────────────
@@ -201,8 +197,6 @@ window-rule {
 // ── Keybindings ────────────────────────────────────────────────────────────
 
 binds {
-    Mod+Shift+Slash { show-hotkey-overlay; }
-
     // Terminals
     Alt+Return hotkey-overlay-title="Open Terminal" { spawn "ghostty"; }
     Alt+T      hotkey-overlay-title="Open Terminal" { spawn "ghostty"; }

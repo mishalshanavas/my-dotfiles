@@ -12,7 +12,7 @@
 @define-color active_color #ffffff;
 
 * {
-    font-family: "SF Pro Display", "SF Pro Text", "Symbols Nerd Font", "Symbols Nerd Font Mono", "Nerd Font", "Nerd Font Mono", "Helvetica Neue", "Inter", "Noto Sans", sans-serif;
+    font-family: "SF Pro Display", "SF Pro Text", "Material Icons", "Symbols Nerd Font", "Symbols Nerd Font Mono", "Nerd Font", "Nerd Font Mono", "Helvetica Neue", "Inter", "Noto Sans", sans-serif;
     font-size: 12px;
     font-weight: 500;
     line-height: 1.1;
@@ -33,7 +33,7 @@ window > * {
 .bar {
     background: @bg_color;
     color: @text_color;
-    padding: 0 4px;
+    padding: 0 3px;
     box-shadow: inset 0 -1px 0 #111111;
 }
 
@@ -59,16 +59,22 @@ window > * {
 .power,
 .brightness {
     color: @text_color;
-    padding: 0 6px;
-    margin: 0 4px;
+    padding: 0 4px;
+    margin: 0 2px;
     background: transparent;
     border: 1px solid transparent;
     border-radius: 0;
     transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
+.bluetooth {
+    font-family: "Material Icons", "SF Pro Display", "SF Pro Text", "Symbols Nerd Font", "Symbols Nerd Font Mono", "Nerd Font", "Nerd Font Mono", "Helvetica Neue", "Inter", "Noto Sans", sans-serif;
+    font-variant-ligatures: normal;
+    font-feature-settings: "liga" 1, "clig" 1;
+}
+
 /* Clock */
-.clock { 
+.clock {
     font-weight: 600;
     letter-spacing: 0.4px;
 }
@@ -122,8 +128,8 @@ tooltip * {
 
 /* Workspaces */
 .workspaces-widget {
-    padding: 0 6px;
-    margin: 0 4px;
+    padding: 0 4px;
+    margin: 0 2px;
     border-radius: 0;
     font-size: 10px;
     letter-spacing: 4px;
@@ -141,13 +147,13 @@ tooltip * {
 /* Power Button */
 .power {
     font-size: 12px;
-    padding-left: 6px;
-    padding-right: 6px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 /* Tray */
 .tray .item {
-    padding: 0 3px;
+    padding: 0 2px;
     margin: 0 1px;
 }
 
@@ -156,7 +162,7 @@ tooltip * {
 .bluetooth.not-found {
     color: @muted_color;
 }
-.bluetooth.enabled { color: #cccccc; }
+.bluetooth.enabled   { color: #cccccc; }
 .bluetooth.connected { color: @text_color; }
 
 /* Popups (Universal) */
@@ -171,7 +177,7 @@ tooltip * {
     color: #ffffff;
 }
 
-/* Clock popup specific */
+/* Clock popup */
 .popup-clock {
     background-color: #050505;
     border: 1px solid #2a2a2a;
@@ -268,15 +274,27 @@ tooltip * {
 .popup-bluetooth {
     background: #050505;
     color: #ffffff;
-    padding: 8px;
     border: 1px solid #2a2a2a;
     border-radius: 0;
+    padding: 10px;
+    min-width: 240px;
+    line-height: 1.25;
 }
 
-.popup-bluetooth label { color: #ffffff; }
+.popup-bluetooth,
+.popup-bluetooth * {
+    font-family: "SF Pro Display", "SF Pro Text", "Symbols Nerd Font", "Symbols Nerd Font Mono", "Nerd Font", "Nerd Font Mono", "Helvetica Neue", "Inter", "Noto Sans", sans-serif;
+    font-variant-ligatures: normal;
+    font-feature-settings: "liga" 0, "clig" 0;
+}
+
+.popup-bluetooth label {
+    color: #ffffff;
+    font-size: 12px;
+}
 
 .popup-bluetooth .header {
-    padding: 6px 8px;
+    padding: 8px 10px;
     margin: 0 0 8px;
     background: #0a0a0a;
     border: 1px solid #1f1f1f;
@@ -286,6 +304,7 @@ tooltip * {
     font-size: 12px;
     font-weight: 600;
     padding: 0 4px;
+    letter-spacing: 0.2px;
 }
 
 .popup-bluetooth .header .switch {
@@ -295,11 +314,11 @@ tooltip * {
 }
 
 .popup-bluetooth .devices {
-    padding: 4px 0;
+    padding: 6px 0;
 }
 
 .popup-bluetooth .devices .box .device {
-    padding: 6px 8px;
+    padding: 8px 10px;
     margin: 4px 0;
     background: #0a0a0a;
     border: 1px solid #1f1f1f;
@@ -318,16 +337,20 @@ tooltip * {
 
 .popup-bluetooth .devices .box .device .icon-box .text-icon {
     font-size: 13px;
+    font-family: "Material Icons", "Symbols Nerd Font", "Symbols Nerd Font Mono", "Nerd Font", "Nerd Font Mono", "Inter", "Noto Sans", sans-serif;
+    font-variant-ligatures: normal;
+    font-feature-settings: "liga" 1, "clig" 1;
 }
 
 .popup-bluetooth .devices .box .device .status .header-label {
     font-size: 12px;
     color: #ffffff;
+    font-weight: 600;
 }
 
 .popup-bluetooth .devices .box .device .status .footer-label {
     font-size: 11px;
-    color: #666666;
+    color: #b8b8b8;
 }
 
 .popup-bluetooth .devices .box .device .switch {

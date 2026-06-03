@@ -1,8 +1,8 @@
 name = "main"
 position = "top"
-height = 24
-start_hidden = true
-popup_autohide = true
+height = 18
+start_hidden = false
+popup_autohide = false
 exclusive_zone = true
 
 [[start]]
@@ -38,14 +38,14 @@ format = "{title}"
 show_status_icon = true
 truncate.mode = "end"
 truncate.max_length = 28
-icons.play = ""
-icons.pause = ""
-icons.prev = ""
-icons.next = ""
-icons.volume = ""
-icons.track = ""
-icons.album = ""
-icons.artist = ""
+icons.play = ""
+icons.pause = ""
+icons.prev = ""
+icons.next = ""
+icons.volume = ""
+icons.track = ""
+icons.album = ""
+icons.artist = ""
 tooltip = "Media Controls"
 
 [[end]]
@@ -59,10 +59,10 @@ tooltip = "Network"
 
 [[end]]
 type = "bluetooth"
-format.enabled = ""
-format.disabled = ""
-format.connected = " ·"
-format.connected_battery = " ·"
+format.enabled = "bluetooth"
+format.disabled = "bluetooth_disabled"
+format.connected = "bluetooth_connected"
+format.connected_battery = "bluetooth_connected {device_battery_percent}%"
 device_status.connected = "Connected"
 device_status.connecting = "Connecting"
 device_status.disconnected = "Disconnected"
@@ -73,10 +73,10 @@ tooltip = "Bluetooth Settings"
 [[end]]
 type = "volume"
 format = "{icon} {percentage}%"
-icons.muted = ""
-icons.volume_low = ""
-icons.volume_medium = ""
-icons.volume_high = ""
+icons.muted = ""
+icons.volume_low = ""
+icons.volume_medium = ""
+icons.volume_high = ""
 on_click_right = "$HOME/.config/ironbar/scripts/audio-next.sh"
 show_sources = false
 popup_orientation = "horizontal"
@@ -87,8 +87,7 @@ tooltip = "Volume Controls"
 type = "script"
 class = "brightness"
 cmd = "$HOME/.config/ironbar/scripts/brightness.sh"
-mode = "poll"
-interval = 1000
+mode = "watch"
 on_click_left = "$HOME/.config/ironbar/scripts/brightness-menu.sh"
 on_scroll_up = "$HOME/.config/ironbar/scripts/brightness-step.sh up"
 on_scroll_down = "$HOME/.config/ironbar/scripts/brightness-step.sh down"
@@ -104,7 +103,7 @@ tooltip = "Battery Status"
 [[end]]
 type = "script"
 class = "power"
-cmd = "echo ''"
+cmd = "echo ''"
 mode = "poll"
 interval = 864000
 on_click_left = "$HOME/.config/ironbar/scripts/power.sh"
