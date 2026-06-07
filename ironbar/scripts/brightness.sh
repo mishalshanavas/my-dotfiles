@@ -1,4 +1,6 @@
 #!/bin/sh
+# Brightness display for ironbar — inotify-driven with polling fallback
+
 backlight_path() {
     for dev in /sys/class/backlight/*; do
         [ -r "$dev/brightness" ]     || continue
@@ -58,19 +60,23 @@ fi
 
 render
 
-command -v inotifywait >/dev/null 2>&1 || exit 0
+# Prefer inotify for instant updates
+if command -v inotifywait >/dev/null 2>&1; then
+    fifo=$(mktemp -u /tmp/.brightness_inotify_XXXXXX)
+    mkfifo "$fifo"
+    trap 'rm -f "$fifo"' EXIT INT TERM
 
-# Run inotifywait without a subshell pipeline so render() runs in this process
-# and can share state cleanly. We use a temp FIFO for this.
-fifo=$(mktemp -u /tmp/.brightness_inotify_XXXXXX)
-mkfifo "$fifo"
-trap 'rm -f "$fifo"' EXIT INT TERM
+    inotifywait -m -e modify -e close_write "$BL_PATH/brightness" 2>/dev/null > "$fifo" &
+    inotify_pid=$!
 
-inotifywait -m -e modify -e close_write "$BL_PATH/brightness" 2>/dev/null > "$fifo" &
-inotify_pid=$!
+    while IFS= read -r _ < "$fifo"; do
+        render
+    done
 
-while IFS= read -r _ < "$fifo"; do
-    render
-done
-
-kill "$inotify_pid" 2>/dev/null || true
+    kill "$inotify_pid" 2>/dev/null || true
+else
+    # Polling fallback — update every second
+    while sleep 1; do
+        render
+    done
+fi

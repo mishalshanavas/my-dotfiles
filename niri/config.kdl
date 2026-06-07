@@ -18,6 +18,8 @@ cursor {
 input {
     keyboard {
         xkb {
+            layout "us"
+            options "ctrl:nocaps"
         }
         numlock
     }
@@ -338,6 +340,7 @@ binds {
 
     // System
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+    Mod+Shift+Comma { spawn-sh "niri msg action load-config-file"; }
     Alt+Shift+E     { quit; }
     Ctrl+Alt+Delete  { quit; }
     Alt+Shift+P      { power-off-monitors; }

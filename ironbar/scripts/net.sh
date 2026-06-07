@@ -23,13 +23,13 @@ net_status() {
     eth=${result#*	}
 
     if [ -n "$wifi" ]; then
-        printf '   %s\n' "$wifi"
+        printf '  %s\n' "$wifi"
     elif [ -n "$eth" ]; then
-        printf '   %s\n' "$eth"
+        printf '  %s\n' "$eth"
     elif nmcli -t -f STATE -e no dev 2>/dev/null | grep -q '^connecting$'; then
-        printf '   Connecting\n'
+        printf '  Connecting\n'
     else
-        printf '   Offline\n'
+        printf '  Offline\n'
     fi
 }
 
@@ -39,7 +39,8 @@ net_status
 # meaning net_status's printf goes directly to ironbar's stdout as expected.
 fifo=$(mktemp -u /tmp/.net_monitor_XXXXXX)
 mkfifo "$fifo"
-trap 'rm -f "$fifo"; kill "$monitor_pid" 2>/dev/null' EXIT INT TERM
+monitor_pid=""
+trap 'rm -f "$fifo"; [ -n "$monitor_pid" ] && kill "$monitor_pid" 2>/dev/null' EXIT INT TERM
 
 while true; do
     nmcli monitor 2>/dev/null > "$fifo" &

@@ -54,12 +54,12 @@ render() {
     fi
 
     if [ "$status" = "Charging" ]; then
-        icon=""
-    elif is_int "$pct" && [ "$pct" -ge 90 ]; then icon=""
-    elif is_int "$pct" && [ "$pct" -ge 70 ]; then icon=""
-    elif is_int "$pct" && [ "$pct" -ge 50 ]; then icon=""
-    elif is_int "$pct" && [ "$pct" -ge 20 ]; then icon=""
-    else icon=""
+        icon="⚡"
+    elif is_int "$pct" && [ "$pct" -ge 90 ]; then icon=""
+    elif is_int "$pct" && [ "$pct" -ge 70 ]; then icon=""
+    elif is_int "$pct" && [ "$pct" -ge 50 ]; then icon=""
+    elif is_int "$pct" && [ "$pct" -ge 20 ]; then icon=""
+    else icon=""
     fi
 
     if is_int "$pct"; then

@@ -57,7 +57,8 @@ window > * {
 .focused,
 .winfloat,
 .power,
-.brightness {
+.brightness,
+.caffeine {
     color: @text_color;
     padding: 0 4px;
     margin: 0 2px;
@@ -108,7 +109,8 @@ window > * {
 .focused:hover,
 .winfloat:hover,
 .power:hover,
-.brightness:hover {
+.brightness:hover,
+.caffeine:hover {
     background: @hover_color;
     color: @text_color;
     border-color: transparent;

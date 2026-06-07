@@ -2,7 +2,7 @@ name = "main"
 position = "top"
 height = 18
 start_hidden = false
-popup_autohide = false
+popup_autohide = true
 exclusive_zone = true
 
 [[start]]
@@ -46,14 +46,28 @@ icons.volume = ""
 icons.track = ""
 icons.album = ""
 icons.artist = ""
+on_click_left = "playerctl play-pause"
+on_click_right = "playerctl next"
+on_click_middle = "playerctl previous"
+on_scroll_up = "playerctl volume 0.05+"
+on_scroll_down = "playerctl volume 0.05-"
 tooltip = "Media Controls"
+
+[[end]]
+type = "script"
+class = "caffeine"
+cmd = "/home/mishal/.config/ironbar/scripts/caffeine.sh"
+mode = "poll"
+interval = 2
+on_click_left = "/home/mishal/.config/ironbar/scripts/caffeine-toggle.sh"
+tooltip = "Caffeine: toggle sleep"
 
 [[end]]
 type = "script"
 class = "network"
 cmd = "$HOME/.config/ironbar/scripts/net.sh"
 mode = "watch"
-on_click_left = "$HOME/.config/ironbar/scripts/wifi-menu.sh"
+on_click_left = "$HOME/.config/ironbar/scripts/network-info.sh"
 on_click_right = "$HOME/.config/ironbar/scripts/wifi-toggle.sh"
 tooltip = "Network"
 
@@ -73,10 +87,10 @@ tooltip = "Bluetooth Settings"
 [[end]]
 type = "volume"
 format = "{icon} {percentage}%"
-icons.muted = ""
-icons.volume_low = ""
-icons.volume_medium = ""
-icons.volume_high = ""
+icons.muted = ""
+icons.volume_low = ""
+icons.volume_medium = ""
+icons.volume_high = ""
 on_click_right = "$HOME/.config/ironbar/scripts/audio-next.sh"
 show_sources = false
 popup_orientation = "horizontal"
@@ -103,8 +117,8 @@ tooltip = "Battery Status"
 [[end]]
 type = "script"
 class = "power"
-cmd = "echo ''"
+cmd = "echo ' ⏻ '"
 mode = "poll"
 interval = 864000
 on_click_left = "$HOME/.config/ironbar/scripts/power.sh"
-tooltip = "Power Menu"
+tooltip = "Lock Screen"

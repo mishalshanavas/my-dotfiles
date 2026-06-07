@@ -1,51 +1,61 @@
-# Ghostty config — minimal dark theme
+font-family = MonoLisa
+font-size = 9
+font-feature = calt
+font-feature = liga
+font-feature = dlig
+font-feature = ss01
+font-thicken = false
 
-font-size = 10
-font-family = "JetBrains Mono"
+cursor-style = block
+cursor-style-blink = false
+cursor-opacity = 1.0
+cursor-click-to-move = true
 
-# Window
-window-decoration = false
 window-padding-x = 6
 window-padding-y = 4
-background-opacity = 0.97
+window-padding-balance = true
+window-decoration = false
+resize-overlay = never
 
-# Theme
-background = #111111
-foreground = #e0e0e0
-cursor-color = #e0e0e0
-cursor-style = bar
+window-inherit-working-directory = true
+tab-inherit-working-directory = true
+split-inherit-working-directory = true
 
-# Minimal dark color palette
-palette = 0=#1a1a1a
-palette = 1=#e05050
-palette = 2=#60a060
-palette = 3=#c8a060
-palette = 4=#5080c0
-palette = 5=#9060a0
-palette = 6=#50a0a0
-palette = 7=#c0c0c0
-palette = 8=#404040
-palette = 9=#e07070
-palette = 10=#80c080
-palette = 11=#d0b878
-palette = 12=#70a0e0
-palette = 13=#b080c0
-palette = 14=#70c0c0
-palette = 15=#e8e8e8
+title = "{{ .Command }}"
 
-# Behavior
-scrollback-limit = 10000
-copy-on-select = true
-clipboard-trim-trailing-spaces = true
+background-opacity = 1.0
+background-blur = false
 
-# Shell integration
-shell-integration = detect
+
+shell-integration = zsh
 shell-integration-features = cursor,sudo,title
 
-# Keybinds
-keybind = ctrl+shift+c=copy_to_clipboard
-keybind = ctrl+shift+v=paste_from_clipboard
-keybind = ctrl+shift+t=new_tab
+copy-on-select = true
+clipboard-trim-trailing-spaces = true
+clipboard-read = allow
+clipboard-write = allow
+
+scrollback-limit = 10000
+
+notify-on-command-finish = unfocused
+notify-on-command-finish-after = 10s
+
+gtk-single-instance = true
+unfocused-split-opacity = 0.85
+
+mouse-hide-while-typing = true
+focus-follows-mouse = false
+
+keybind = ctrl+shift+page_up=previous_tab
+keybind = ctrl+shift+page_down=next_tab
+keybind = ctrl+shift+equal=equalize_splits
+keybind = ctrl+shift+x=reset
+keybind = ctrl+shift+p=toggle_command_palette
+keybind = ctrl+shift+left=resize_split:left,20
+keybind = ctrl+shift+right=resize_split:right,20
+keybind = ctrl+shift+comma=open_config
 keybind = ctrl+shift+w=close_surface
-keybind = ctrl+shift+right=next_tab
-keybind = ctrl+shift+left=previous_tab
+
+confirm-close-surface = false
+quit-after-last-window-closed = true
+minimum-contrast = 1.1
