@@ -100,7 +100,11 @@ layout {
     }
 
     shadow {
-        off
+        on
+        softness 24
+        spread 3
+        offset x=0 y=4
+        color "#00000050"
     }
 
     // Tab indicator: clean tabs, hidden when single
@@ -121,8 +125,7 @@ layout {
         bottom 0
     }
 
-    center-focused-column "on-overflow"
-    always-center-single-column
+    center-focused-column "never"
 }
 
 // ── Startup ────────────────────────────────────────────────────────────────
@@ -130,11 +133,12 @@ layout {
 // Sync Wayland env into DBus/systemd so portals and tray work
 spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP DISPLAY 2>/dev/null || true"
 
-spawn-at-startup "swaybg" "-i" "/home/mishal/.config/niri/wallpaper.jpeg" "-m" "fill"
+spawn-at-startup "bash" "/home/mishal/.config/niri/scripts/swaybg_helper.sh"
 spawn-at-startup "mako"
 spawn-at-startup "ironbar"
 spawn-at-startup "swayosd-server" "--style" "/home/mishal/.config/swayosd/style.css" "--top-margin" "0.85"
 spawn-at-startup "xwayland-satellite"
+spawn-at-startup "python3" "/home/mishal/.config/niri/scripts/niri_tile_to_n.py" "-n" "3" "-delay" "2000"
 spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
 spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
 spawn-at-startup "udiskie" "--tray"
@@ -142,8 +146,8 @@ spawn-at-startup "udiskie" "--tray"
 // Battery notifications handled by Ironbar battery script
 
 // Idle management: lock at 5 min, monitors off at 10 min, lock before sleep
-spawn-at-startup "swayidle" "-w" "timeout" "300" "/home/mishal/.config/swaylock/lock.sh" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "/home/mishal/.config/swaylock/lock.sh" "lock" "/home/mishal/.config/swaylock/lock.sh"
-screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+spawn-at-startup "swayidle" "-w" "timeout" "300" "/home/mishal/.config/swaylock/lock.sh" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "niri msg action power-off-monitors" "lock" "/home/mishal/.config/swaylock/lock.sh"
+screenshot-path "~/Pictures/Screenshots/%Y-%m-%d_%H-%M-%S.png"
 
 // XWayland integration — speeds up X11 app startup
 xwayland-satellite {
@@ -229,31 +233,48 @@ window-rule {
 }
 
 // Shadow on floating windows for visual depth
+// Exclude transient popups, notifications, and mako
 window-rule {
     match is-floating=true
     shadow {
         on
+        softness 20
+        spread 2
+        offset x=0 y=4
+        color "#00000060"
+    }
+}
+
+// Override: no shadow on transient/popup windows
+window-rule {
+    match app-id=r#"^(mako|org\.freedesktop\.Notifications)$"#
+    shadow {
+        off
     }
 }
 
 // ── Keybindings ────────────────────────────────────────────────────────────
 
 binds {
-    // Terminals
-    Alt+Return hotkey-overlay-title="Open Terminal" { spawn "ghostty"; }
-    Alt+T      hotkey-overlay-title="Open Terminal" { spawn "ghostty"; }
-    Alt+Shift+Return hotkey-overlay-title="Floating Terminal" { spawn "ghostty" "--class=floating-terminal"; }
-    Alt+Shift+T      hotkey-overlay-title="Floating Terminal" { spawn "ghostty" "--class=floating-terminal"; }
+    // Terminal — spawn-jump: focus existing or spawn new
+    // Ghostty's app-id is com.mitchellh.ghostty (not just ghostty)
+    Alt+Return hotkey-overlay-title="Open Terminal" { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "ghostty" "com.mitchellh.ghostty" "-l" "3" "-w"; }
+    Alt+T      hotkey-overlay-title="Open Terminal" { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "ghostty" "com.mitchellh.ghostty" "-l" "3" "-w"; }
+    Alt+Shift+Return hotkey-overlay-title="Floating Terminal" { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "ghostty --class=floating-terminal" "floating-terminal" "-p"; }
+    Alt+Shift+T      hotkey-overlay-title="Floating Terminal" { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "ghostty --class=floating-terminal" "floating-terminal" "-p"; }
 
     // Launcher & utilities
     Alt+Space hotkey-overlay-title="Run Application" { spawn "fuzzel"; }
-    Alt+V     hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && cliphist decode <<< \"$selected\" | wl-copy"; }
+    Mod+V     hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && cliphist decode <<< \"$selected\" | wl-copy"; }
     Alt+L     hotkey-overlay-title="Lock Screen"      { spawn "/home/mishal/.config/swaylock/lock.sh"; }
-    Alt+E     hotkey-overlay-title="File Manager"     { spawn "nautilus"; }
-    Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Screen Reader" { spawn-sh "pkill orca || exec orca"; }
+    Alt+E     hotkey-overlay-title="File Manager"     { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "nautilus"; }
+    Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Orca" { spawn-sh "if pkill orca 2>/dev/null; then :; else orca &; fi"; }
 
     // Toggle ironbar
     Alt+B repeat=false hotkey-overlay-title="Toggle Bar" { spawn-sh "/home/mishal/.config/ironbar/scripts/bartoggle.sh"; }
+
+    // Wallpaper cycle
+    Alt+W repeat=false hotkey-overlay-title="Next Wallpaper" { spawn "bash" "/home/mishal/.config/niri/scripts/swaybg_helper.sh" "--cycle" "-d"; }
 
     // Media keys
     XF86AudioRaiseVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "raise"; }
@@ -293,9 +314,9 @@ binds {
     Mod+Ctrl+Home { move-column-to-first; }
     Mod+Ctrl+End  { move-column-to-last; }
 
-    // Workspace navigation
-    Mod+Page_Down         { focus-workspace-down; }
-    Mod+Page_Up           { focus-workspace-up; }
+    // Workspace navigation — overview-aware: in overview moves workspaces, else focuses next
+    Mod+Page_Down         { spawn-sh "bash /home/mishal/.config/niri/scripts/niri_overview_bind.sh 'move-workspace-down' 'focus-workspace-down'"; }
+    Mod+Page_Up           { spawn-sh "bash /home/mishal/.config/niri/scripts/niri_overview_bind.sh 'move-workspace-up' 'focus-workspace-up'"; }
     Mod+Ctrl+Page_Down    { move-column-to-workspace-down; }
     Mod+Ctrl+Page_Up      { move-column-to-workspace-up; }
     Mod+Shift+Page_Down   { move-workspace-down; }
@@ -388,7 +409,7 @@ binds {
     Mod+Print  { screenshot-window; }
 
     // OCR — select area, extract text, copy to clipboard
-    Alt+Shift+O hotkey-overlay-title="OCR Screenshot" { spawn-sh "grim -g \"$(slurp)\" /tmp/ocr-$$.png && text=$(tesseract /tmp/ocr-$$.png - 2>/dev/null | tr -d '\\n' | head -c 200) && echo \"$text\" | wl-copy && notify-send 'OCR' \"$text\" -t 5000 && rm -f /tmp/ocr-$$.png"; }
+    Alt+Shift+O hotkey-overlay-title="OCR Screenshot" { spawn-sh "trap 'rm -f /tmp/ocr-$$.png' EXIT; grim -g \"$(slurp)\" /tmp/ocr-$$.png && text=$(tesseract /tmp/ocr-$$.png - 2>/dev/null | tr -d '\\n' | head -c 200) && echo \"$text\" | wl-copy && notify-send 'OCR' \"$text\" -t 5000"; }
 
     // System
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
