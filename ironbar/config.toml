@@ -1,7 +1,7 @@
 name = "main"
 position = "top"
 height = 18
-start_hidden = false
+start_hidden = true
 popup_autohide = true
 exclusive_zone = true
 
@@ -38,14 +38,14 @@ format = "{title}"
 show_status_icon = true
 truncate.mode = "end"
 truncate.max_length = 28
-icons.play = ""
-icons.pause = ""
-icons.prev = ""
-icons.next = ""
-icons.volume = ""
-icons.track = ""
-icons.album = ""
-icons.artist = ""
+icons.play = "▶"
+icons.pause = "⏸"
+icons.prev = "⏮"
+icons.next = "⏭"
+icons.volume = ""
+icons.track = "🎵"
+icons.album = "💿"
+icons.artist = "🎤"
 on_click_left = "playerctl play-pause"
 on_click_right = "playerctl next"
 on_click_middle = "playerctl previous"
@@ -73,16 +73,22 @@ tooltip = "Network"
 
 [[end]]
 type = "bluetooth"
-format.enabled = "bluetooth"
-format.disabled = "bluetooth_disabled"
-format.connected = "bluetooth_connected"
-format.connected_battery = "bluetooth_connected {device_battery_percent}%"
-device_status.connected = "Connected"
-device_status.connecting = "Connecting"
-device_status.disconnected = "Disconnected"
-device_status.disconnecting = "Disconnecting"
+icon_size = 32
 on_click_right = "$HOME/.config/ironbar/scripts/bluetooth-toggle.sh"
 tooltip = "Bluetooth Settings"
+
+[end.format]
+not_found = ""
+disabled = ""
+enabled = ""
+connected = ""
+connected_battery = " {device_battery_percent}%"
+
+[end.device_status]
+connected = ""
+connecting = ""
+disconnected = ""
+disconnecting = ""
 
 [[end]]
 type = "volume"
@@ -117,8 +123,7 @@ tooltip = "Battery Status"
 [[end]]
 type = "script"
 class = "power"
-cmd = "echo ' ⏻ '"
-mode = "poll"
-interval = 864000
+cmd = "echo '  '"
+mode = "watch"
 on_click_left = "$HOME/.config/ironbar/scripts/power.sh"
 tooltip = "Lock Screen"

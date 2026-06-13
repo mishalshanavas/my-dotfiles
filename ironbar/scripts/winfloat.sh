@@ -6,8 +6,8 @@ wf_status() {
         return
     fi
     case "$info" in
-        *'Is floating: yes'*) printf 'Float\n' ;;
-        *)                    printf 'Tiled\n' ;;
+        *'Is floating: yes'*) printf '\n' ;;
+        *)                    printf '\n' ;;
     esac
 }
 

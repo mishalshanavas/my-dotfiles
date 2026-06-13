@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/usr/bin/env bash
 render() {
     first=1
     niri msg workspaces 2>/dev/null | grep -E '^[[:space:]]' | while IFS= read -r line; do
         [ "$first" = "1" ] && first=0 || printf ' '
         case "$line" in
-            *'*'*) printf '⬤' ;;
-            *)     printf '◯' ;;
+            *'*'*) printf '●' ;;
+            *)     printf '·' ;;
         esac
     done
     printf '\n'

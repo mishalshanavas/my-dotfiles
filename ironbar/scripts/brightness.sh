@@ -43,10 +43,10 @@ render() {
         return
     fi
 
-    if   [ "$val" -ge 75 ]; then icon=""
-    elif [ "$val" -ge 40 ]; then icon=""
-    elif [ "$val" -ge 10 ]; then icon=""
-    else                         icon=""
+    if   [ "$val" -ge 75 ]; then icon=""
+    elif [ "$val" -ge 40 ]; then icon=""
+    elif [ "$val" -ge 10 ]; then icon=""
+    else                         icon=""
     fi
 
     printf '%s  %s%%\n' "$icon" "$val"

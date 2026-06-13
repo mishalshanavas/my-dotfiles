@@ -10,6 +10,11 @@ environment {
     ELECTRON_OZONE_PLATFORM_HINT "auto"
 }
 
+hotkey-overlay {
+    skip-at-startup
+    hide-not-bound
+}
+
 cursor {
     xcursor-theme "Adwaita"
     xcursor-size 24
@@ -19,10 +24,13 @@ input {
     keyboard {
         xkb {
             layout "us"
-            options "ctrl:nocaps"
         }
-        numlock
+        // numlock disabled — numlock overlays letters on laptop keyboards
     }
+
+    // Explicit: Mod = Super on TTY, Alt when nested
+    mod-key "Super"
+    mod-key-nested "Alt"
 
     touchpad {
         tap
@@ -33,7 +41,7 @@ input {
         tap-button-map "left-right-middle"
         dwt
         dwtp
-        scroll-factor 1.0
+        scroll-factor 1.2
     }
 
     mouse {
@@ -44,7 +52,14 @@ input {
     trackpoint {
     }
 
+    // Mouse focuses windows when you move over them (only if window is already on screen)
     focus-follows-mouse max-scroll-amount="0%"
+
+    // Warp mouse cursor to newly focused windows (great for keyboard-driven workflow)
+    warp-mouse-to-focus
+
+    // Press workspace number twice to jump back to previous workspace
+    workspace-auto-back-and-forth
 }
 
 output "eDP-1" {
@@ -55,12 +70,18 @@ output "eDP-1" {
 }
 
 layout {
-    gaps 0
+    gaps 3
 
     preset-column-widths {
         proportion 0.33333
         proportion 0.5
         proportion 1.0
+    }
+
+    preset-window-heights {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
     }
 
     default-column-width { proportion 0.5; }
@@ -70,15 +91,27 @@ layout {
         off
     }
 
-    // 1px border: visible on focused window only
+    // Subtle 1px border for focus visibility
     border {
         width 1
-        active-color "#3a3a3a"
+        active-color "#555555"
         inactive-color "#00000000"
+        urgent-color "#e04f5f"
     }
 
     shadow {
         off
+    }
+
+    // Tab indicator: clean tabs, hidden when single
+    tab-indicator {
+        hide-when-single-tab
+        place-within-column
+    }
+
+    // Visual hint when interactively moving windows
+    insert-hint {
+        color "#3a3a3a80"
     }
 
     struts {
@@ -88,18 +121,18 @@ layout {
         bottom 0
     }
 
-    center-focused-column "never"
+    center-focused-column "on-overflow"
+    always-center-single-column
 }
 
 // ── Startup ────────────────────────────────────────────────────────────────
 
 // Sync Wayland env into DBus/systemd so portals and tray work
-spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP DISPLAY 2>/dev/null || true; systemctl --user restart xdg-desktop-portal.service xdg-desktop-portal-gtk.service 2>/dev/null || true"
+spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP DISPLAY 2>/dev/null || true"
 
 spawn-at-startup "swaybg" "-i" "/home/mishal/.config/niri/wallpaper.jpeg" "-m" "fill"
 spawn-at-startup "mako"
 spawn-at-startup "ironbar"
-spawn-at-startup "sh" "-c" "sleep 2 && ironbar bar main set-visible false"
 spawn-at-startup "swayosd-server" "--style" "/home/mishal/.config/swayosd/style.css" "--top-margin" "0.85"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
@@ -110,8 +143,12 @@ spawn-at-startup "udiskie" "--tray"
 
 // Idle management: lock at 5 min, monitors off at 10 min, lock before sleep
 spawn-at-startup "swayidle" "-w" "timeout" "300" "/home/mishal/.config/swaylock/lock.sh" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "/home/mishal/.config/swaylock/lock.sh" "lock" "/home/mishal/.config/swaylock/lock.sh"
-
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+// XWayland integration — speeds up X11 app startup
+xwayland-satellite {
+    path "xwayland-satellite"
+}
 
 // ── Animations ─────────────────────────────────────────────────────────────
 animations {
@@ -125,10 +162,10 @@ animations {
         off
     }
     window-movement {
-        spring damping-ratio=0.92 stiffness=420 epsilon=0.0001
+        spring damping-ratio=0.85 stiffness=300 epsilon=0.001
     }
     horizontal-view-movement {
-        spring damping-ratio=0.92 stiffness=420 epsilon=0.0001
+        spring damping-ratio=0.85 stiffness=300 epsilon=0.0001
     }
 }
 // ── Window rules ───────────────────────────────────────────────────────────
@@ -155,11 +192,14 @@ window-rule {
     open-maximized true
 }
 
-// Brave → workspace 2, maximized
+// Brave → workspace 2, maximized, XWayland resize fix
 window-rule {
-    match app-id=r#"^brave.*$"#
+    match app-id=r#"^[Bb]rave.*$"#
     open-on-workspace "2"
     open-maximized true
+    tiled-state true
+    min-width 400
+    min-height 300
 }
 
 // Zen browser
@@ -207,13 +247,13 @@ binds {
 
     // Launcher & utilities
     Alt+Space hotkey-overlay-title="Run Application" { spawn "fuzzel"; }
-    Mod+V     hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && cliphist decode <<< \"$selected\" | wl-copy"; }
+    Alt+V     hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && cliphist decode <<< \"$selected\" | wl-copy"; }
     Alt+L     hotkey-overlay-title="Lock Screen"      { spawn "/home/mishal/.config/swaylock/lock.sh"; }
     Alt+E     hotkey-overlay-title="File Manager"     { spawn "nautilus"; }
     Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Screen Reader" { spawn-sh "pkill orca || exec orca"; }
 
     // Toggle ironbar
-    Mod+B repeat=false hotkey-overlay-title="Toggle Bar" { spawn-sh "/home/mishal/.config/ironbar/scripts/bartoggle.sh"; }
+    Alt+B repeat=false hotkey-overlay-title="Toggle Bar" { spawn-sh "/home/mishal/.config/ironbar/scripts/bartoggle.sh"; }
 
     // Media keys
     XF86AudioRaiseVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "raise"; }
@@ -300,19 +340,29 @@ binds {
     Alt+Tab       { focus-workspace-previous; }
     Alt+Shift+Tab { focus-workspace-down; }
 
-    // Column management
+    // Wrap-around focus: loop from last column back to first, and vice versa
+    Mod+Ctrl+H { focus-column-left-or-last; }
+    Mod+Ctrl+L { focus-column-right-or-first; }
+
+    // Column management (also Mod+[ and Mod+] for consume-or-expel)
     Mod+Comma  { consume-window-into-column; }
     Mod+Period { expel-window-from-column; }
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
 
     Mod+R       { switch-preset-column-width; }
-    Mod+Shift+R { switch-preset-window-height; }
+    Mod+Shift+R { switch-preset-column-width-back; }
     Mod+Ctrl+R  { reset-window-height; }
+    // Cycle window height preset: use with Mod+R first to adjust column width
+    Mod+Alt+R { switch-preset-window-height; }
     Mod+F       { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
+    Mod+M       { maximize-window-to-edges; }
     Mod+Ctrl+F  { expand-column-to-available-width; }
 
     Mod+C      { center-column; }
     Mod+Ctrl+C { center-visible-columns; }
+    Mod+Shift+C { center-window; }
 
     // Tiled resize
     Mod+Ctrl+Left  { set-column-width "-10%"; }
@@ -323,10 +373,12 @@ binds {
     // Floating window controls
     Mod+T       { toggle-window-floating; }
     Mod+Shift+T { switch-focus-between-floating-and-tiling; }
-    Mod+Alt+Left  { set-window-width "-10%"; }
-    Mod+Alt+Right { set-window-width "+10%"; }
-    Mod+Alt+Up    { set-window-height "-10%"; }
-    Mod+Alt+Down  { set-window-height "+10%"; }
+    // Floating resize via mouse: Mod+Right drag
+    // Height resize via keyboard: Mod+Ctrl+Up/Down (works for both tiled & floating)
+    // Center floating: Mod+Shift+C
+
+    // Show hotkey overlay manually
+    Mod+F1 { show-hotkey-overlay; }
 
     Mod+W { toggle-column-tabbed-display; }
 
