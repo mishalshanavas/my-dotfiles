@@ -12,11 +12,11 @@
 !niri/scripts/
 !niri/scripts/*
 
-!ironbar/
-!ironbar/config.toml
-!ironbar/style.css
-!ironbar/scripts/
-!ironbar/scripts/*.sh
+!eww/
+!eww/eww.yuck
+!eww/eww.css
+!eww/scripts/
+!eww/scripts/*.sh
 
 !ghostty/
 !ghostty/config.ghostty

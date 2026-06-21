@@ -1,0 +1,133 @@
+;; ── Eww Bar - Compact Minimal ────────────────────────────────
+;; Dependencies: nmcli, pactl, upower, bluetoothctl, fuzzel, niri
+
+;; ─── Clock ──────────────────────────────────────────────────
+
+(defpoll clock :interval "1s"
+  `date +"%I:%M %p"`)
+
+(defpoll date_tooltip :interval "60s"
+  `date +"%A, %d %B %Y"`)
+
+;; ─── Workspaces (niri) ──────────────────────────────────────
+
+(deflisten workspaces :initial "●"
+  `$HOME/.config/eww/scripts/workspaces.sh`)
+
+;; ─── Network ────────────────────────────────────────────────
+
+(deflisten network :initial " Off"
+  `$HOME/.config/eww/scripts/network.sh`)
+
+;; ─── Volume ─────────────────────────────────────────────────
+
+(deflisten volume :initial "  --%"
+  `$HOME/.config/eww/scripts/volume.sh`)
+
+;; ─── Brightness ─────────────────────────────────────────────
+
+(deflisten brightness :initial "  --%"
+  `$HOME/.config/eww/scripts/brightness.sh`)
+
+;; ─── Battery ────────────────────────────────────────────────
+
+(deflisten battery :initial "  --%"
+  `$HOME/.config/eww/scripts/battery.sh`)
+
+;; ─── Music (MPRIS) ──────────────────────────────────────────
+
+(deflisten music :initial ""
+  `$HOME/.config/eww/scripts/music.sh`)
+
+;; ─── Caffeine ───────────────────────────────────────────────
+
+(deflisten caffeine :initial ""
+  `$HOME/.config/eww/scripts/caffeine-watch.sh`)
+
+;; ─── Bluetooth ──────────────────────────────────────────────
+
+(deflisten bluetooth :initial ""
+  `$HOME/.config/eww/scripts/bluetooth-watch.sh`)
+
+;; ─── Widgets ────────────────────────────────────────────────
+
+(defwidget workspaces-widget []
+  (label :text workspaces :class "workspaces"))
+
+(defwidget clock-widget []
+  (label :text clock :class "clock" :tooltip date_tooltip))
+
+(defwidget music-widget []
+  (label :text music
+         :class "music"
+         :visible {music != "" ? "true" : "false"}))
+
+(defwidget caffeine-widget []
+  (button :onclick "$HOME/.config/eww/scripts/caffeine-toggle.sh"
+          :class "caffeine"
+    (label :text caffeine)))
+
+(defwidget network-widget []
+  (button :onclick "/usr/bin/ghostty -e /usr/bin/nmtui &"
+          :class "network"
+    (label :text network)))
+
+(defwidget bluetooth-widget []
+  (button :onclick "$HOME/.config/eww/scripts/bluetooth-click.sh"
+          :class "bluetooth"
+          :tooltip bluetooth
+    (label :text bluetooth)))
+
+(defwidget volume-widget []
+  (button :onclick "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+          :onrightclick "pactl set-sink-volume @DEFAULT_SINK@ +5%"
+          :onmiddleclick "pactl set-sink-volume @DEFAULT_SINK@ -5%"
+          :class "volume"
+    (label :text volume)))
+
+(defwidget brightness-widget []
+  (button :onclick "$HOME/.config/ironbar/scripts/brightness-menu.sh"
+          :class "brightness"
+    (label :text brightness)))
+
+(defwidget battery-widget []
+  (label :text battery :class "battery"))
+
+(defwidget power-widget []
+  (button :onclick "$HOME/.config/eww/scripts/power.sh"
+          :class "power"
+    (label :text "⏻")))
+
+;; ─── Bar Window ─────────────────────────────────────────────
+
+(defwindow bar
+  :monitor 0
+  :geometry (geometry
+              :x "0%"
+              :y "0%"
+              :width "100%"
+              :height 24
+              :anchor "top center")
+  :stacking "overlay"
+  :exclusive true
+  :focusable false
+  :windowtype "dock"
+  :hexpand true
+  :vexpand false
+  (centerbox :class "bar"
+    ;; LEFT
+    (box :hexpand true :halign "start" :space-evenly false
+      (workspaces-widget))
+    ;; CENTER
+    (box :hexpand true :halign "center" :space-evenly false
+      (clock-widget))
+    ;; RIGHT
+    (box :hexpand true :halign "end" :space-evenly false :spacing 4
+      (music-widget)
+      (caffeine-widget)
+      (network-widget)
+      (bluetooth-widget)
+      (volume-widget)
+      (brightness-widget)
+      (battery-widget)
+      (power-widget))))

@@ -137,7 +137,7 @@ spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd WAYLAND
 
 spawn-at-startup "bash" "/home/mishal/.config/niri/scripts/swaybg_helper.sh"
 spawn-at-startup "mako"
-spawn-at-startup "ironbar"
+spawn-at-startup "eww" "open" "bar"
 spawn-at-startup "nm-applet"
 spawn-at-startup "swayosd-server" "--style" "/home/mishal/.config/swayosd/style.css" "--top-margin" "0.85"
 spawn-at-startup "xwayland-satellite"
@@ -273,8 +273,8 @@ binds {
     Alt+E     hotkey-overlay-title="File Manager"     { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "nautilus"; }
     Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Orca" { spawn-sh "if pkill orca 2>/dev/null; then :; else orca &; fi"; }
 
-    // Toggle ironbar
-    Alt+B repeat=false hotkey-overlay-title="Toggle Bar" { spawn-sh "/home/mishal/.config/ironbar/scripts/bartoggle.sh"; }
+    // Toggle eww bar
+    Alt+B repeat=false hotkey-overlay-title="Toggle Bar" { spawn-sh "/home/mishal/.config/eww/scripts/toggle.sh"; }
 
     // Wallpaper cycle
     Alt+W repeat=false hotkey-overlay-title="Next Wallpaper" { spawn "bash" "/home/mishal/.config/niri/scripts/swaybg_helper.sh" "--cycle" "-d"; }
