@@ -138,6 +138,7 @@ spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd WAYLAND
 spawn-at-startup "bash" "/home/mishal/.config/niri/scripts/swaybg_helper.sh"
 spawn-at-startup "mako"
 spawn-at-startup "ironbar"
+spawn-at-startup "nm-applet"
 spawn-at-startup "swayosd-server" "--style" "/home/mishal/.config/swayosd/style.css" "--top-margin" "0.85"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "python3" "/home/mishal/.config/niri/scripts/niri_tile_to_n.py" "-n" "3" "-delay" "2000"

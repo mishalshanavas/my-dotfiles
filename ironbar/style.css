@@ -34,7 +34,7 @@ window > * {
 .bar {
     background: @bg_color;
     color: @text_color;
-    padding: 0 6px;
+    padding: 0 1px;
     box-shadow: inset 0 -1px 0 #111111;
 }
 
@@ -50,7 +50,6 @@ window > * {
 .script,
 .bluetooth,
 .battery,
-.tray,
 .notifications,
 .music,
 .network_manager,
@@ -61,8 +60,8 @@ window > * {
 .brightness,
 .caffeine {
     color: @text_color;
-    padding: 0 5px;
-    margin: 0 1px;
+    padding: 0 1px;
+    margin: 0 2px;
     background: transparent;
     border: 1px solid transparent;
     border-radius: 0;
@@ -72,6 +71,12 @@ window > * {
     font-family: "JetBrainsMono Nerd Font", "MonoLisa", monospace;
     font-variant-ligatures: normal;
     font-feature-settings: "liga" 1, "clig" 1;
+}
+
+/* Caffeine — extra gap, icon indicates state */
+.caffeine {
+    margin: 0 4px;
+    font-size: 11px;
 }
 
 /* Clock */
@@ -101,7 +106,6 @@ window > * {
 .script:hover,
 .bluetooth:hover,
 .battery:hover,
-.tray:hover,
 .music:hover,
 .network_manager:hover,
 .network:hover,
@@ -130,11 +134,11 @@ tooltip * {
 
 /* Workspaces */
 .workspaces-widget {
-    padding: 0 4px;
-    margin: 0 2px;
+    padding: 0 2px;
+    margin: 0 1px;
     border-radius: 0;
     font-size: 10px;
-    letter-spacing: 4px;
+    letter-spacing: 2px;
     font-weight: 600;
     background: transparent;
     border: 1px solid transparent;
@@ -148,15 +152,12 @@ tooltip * {
 /* Power Button */
 .power {
     font-size: 11px;
-    padding-left: 4px;
-    padding-right: 4px;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
-/* Tray */
-.tray .item {
-    padding: 0 2px;
-    margin: 0 1px;
-}
+.battery.critical { color: #ff4444; }
+.battery.low { color: #ffaa44; }
 
 /* Bluetooth States */
 .bluetooth.disabled,
@@ -241,7 +242,6 @@ tooltip * {
 .popup-volume .btn-mute {
     padding: 0 4px;
     min-width: 0;
-    margin-left: auto;
 }
 
 .popup-volume .apps-box {
@@ -262,14 +262,6 @@ tooltip * {
     margin: 4px 0;
 }
 
-.popup-volume .apps-box .app-box .btn-mute {
-    margin-left: auto;
-}
-
-.popup-volume .device-box .sink-box .title,
-.popup-volume .device-box .source-box .title {
-    display: none;
-}
 
 /* Bluetooth popup */
 .popup-bluetooth {
@@ -311,7 +303,7 @@ tooltip * {
 .popup-bluetooth .header .switch {
     min-height: 16px;
     min-width: 32px;
-    margin-left: auto;
+    
 }
 
 .popup-bluetooth .devices {
@@ -357,7 +349,7 @@ tooltip * {
 .popup-bluetooth .devices .box .device .switch {
     min-height: 18px;
     min-width: 34px;
-    margin-left: auto;
+    
 }
 
 .popup-bluetooth switch {

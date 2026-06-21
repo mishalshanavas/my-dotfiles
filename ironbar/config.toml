@@ -1,7 +1,7 @@
 name = "main"
 position = "top"
-height = 18
-start_hidden = true
+height = 10
+start_hidden = false
 popup_autohide = true
 exclusive_zone = true
 
@@ -11,20 +11,6 @@ cmd = "$HOME/.config/ironbar/scripts/workspaces.sh"
 mode = "watch"
 class = "workspaces-widget"
 tooltip = "Workspaces"
-
-[[start]]
-type = "focused"
-show_icon = false
-truncate.mode = "end"
-truncate.max_length = 28
-tooltip = "Focused Window"
-
-[[start]]
-type = "script"
-cmd = "$HOME/.config/ironbar/scripts/winfloat.sh"
-mode = "watch"
-class = "winfloat"
-tooltip = "Window Layout Status"
 
 [[center]]
 type = "clock"
@@ -38,14 +24,14 @@ format = "{title}"
 show_status_icon = true
 truncate.mode = "end"
 truncate.max_length = 28
-icons.play = "▶"
-icons.pause = "⏸"
-icons.prev = "⏮"
-icons.next = "⏭"
+icons.play = ""
+icons.pause = ""
+icons.prev = ""
+icons.next = ""
 icons.volume = ""
-icons.track = "🎵"
-icons.album = "💿"
-icons.artist = "🎤"
+icons.track = ""
+icons.album = ""
+icons.artist = ""
 on_click_left = "playerctl play-pause"
 on_click_right = "playerctl next"
 on_click_middle = "playerctl previous"
@@ -66,9 +52,9 @@ tooltip = "Caffeine: toggle sleep"
 type = "script"
 class = "network"
 cmd = "$HOME/.config/ironbar/scripts/net.sh"
-mode = "watch"
-on_click_left = "$HOME/.config/ironbar/scripts/network-info.sh"
-on_click_right = "$HOME/.config/ironbar/scripts/wifi-toggle.sh"
+mode = "poll"
+interval = 5
+on_click_left = "$HOME/.config/ironbar/scripts/network-choose.sh"
 tooltip = "Network"
 
 [[end]]
