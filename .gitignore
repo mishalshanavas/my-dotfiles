@@ -20,6 +20,8 @@
 
 !ghostty/
 !ghostty/config.ghostty
+!ghostty/auto/
+!ghostty/auto/theme.ghostty
 
 !swaylock/
 !swaylock/config

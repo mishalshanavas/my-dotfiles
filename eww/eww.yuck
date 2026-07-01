@@ -95,7 +95,7 @@
   (label :text battery :class "battery"))
 
 (defwidget power-widget []
-  (button :onclick "$HOME/.config/eww/scripts/power.sh"
+  (button :onclick "$HOME/.config/eww/scripts/power.sh &"
           :class "power"
     (label :text "⏻")))
 
