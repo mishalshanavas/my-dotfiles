@@ -32,8 +32,11 @@ BL_PATH=$(backlight_path)
 render
 
 if [ -z "$BL_PATH" ]; then
-    # No backlight, exit — variable stays with initial value
-    sleep infinity
+    while sleep 30; do
+        BL_PATH=$(backlight_path)
+        render
+        [ -n "$BL_PATH" ] && break
+    done
 fi
 
 # Watch with inotify for instant updates

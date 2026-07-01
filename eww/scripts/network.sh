@@ -32,6 +32,12 @@ render() {
 }
 
 render
-nmcli monitor 2>/dev/null | while IFS= read -r line; do
+if command -v nmcli >/dev/null 2>&1; then
+    nmcli monitor 2>/dev/null | while IFS= read -r line; do
+        render
+    done
+fi
+
+while sleep 10; do
     render
 done

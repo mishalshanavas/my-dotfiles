@@ -48,8 +48,14 @@ render() {
 }
 
 render
-dbus-monitor --system "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged',path='/org/bluez'" 2>/dev/null | while IFS= read -r line; do
-    case "$line" in
-        *PropertiesChanged*) render ;;
-    esac
+if command -v dbus-monitor >/dev/null 2>&1; then
+    dbus-monitor --system "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'" 2>/dev/null | while IFS= read -r line; do
+        case "$line" in
+            *PropertiesChanged*) render ;;
+        esac
+    done
+fi
+
+while sleep 5; do
+    render
 done

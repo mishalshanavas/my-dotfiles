@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Bluetooth device chooser — scan, pair, connect via fuzzel
 
+tmp_devices=$(mktemp "${TMPDIR:-/tmp}/eww-bt-devices.XXXXXX") || exit 1
+trap 'rm -f "$tmp_devices"; bluetoothctl scan off >/dev/null 2>&1 || true' EXIT INT TERM
+
 power=$(bluetoothctl show 2>/dev/null | awk '/Powered/ {print $2}')
 if [ "$power" != "yes" ]; then
     # Turn on first
@@ -13,7 +16,7 @@ bluetoothctl scan on 2>/dev/null &
 scan_pid=$!
 sleep 4
 bluetoothctl scan off 2>/dev/null
-kill $scan_pid 2>/dev/null
+kill "$scan_pid" 2>/dev/null
 
 # Build device list: paired first, then discovered
 {
@@ -36,9 +39,9 @@ kill $scan_pid 2>/dev/null
         bluetoothctl info "$mac" 2>/dev/null | grep -q 'Paired: yes' && continue
         printf '+ %s\n' "$name"
     done
-} | sort -u > /tmp/bt_devices
+} | sort -u > "$tmp_devices"
 
-devices=$(cat /tmp/bt_devices)
+devices=$(cat "$tmp_devices")
 [ -z "$devices" ] && { notify-send "No devices found" 2>/dev/null || true; exit 0; }
 
 choice=$(echo "$devices" | fuzzel --dmenu -p "Bluetooth" --lines 10 --width 32)
@@ -64,5 +67,3 @@ else
     # Trust device for auto-reconnect
     bluetoothctl trust "$mac" 2>/dev/null
 fi
-
-rm -f /tmp/bt_devices

@@ -40,11 +40,21 @@ render() {
 }
 
 BAT_DEV=$(find_battery)
-[ -z "$BAT_DEV" ] && { printf ' N/A\n'; sleep infinity; }
+while [ -z "$BAT_DEV" ]; do
+    printf ' N/A\n'
+    sleep 30
+    BAT_DEV=$(find_battery)
+done
 
 render
-upower --monitor 2>/dev/null | while IFS= read -r line; do
-    case "$line" in
-        *"$BAT_DEV"*) render ;;
-    esac
+if command -v upower >/dev/null 2>&1; then
+    upower --monitor 2>/dev/null | while IFS= read -r line; do
+        case "$line" in
+            *"$BAT_DEV"*) render ;;
+        esac
+    done
+fi
+
+while sleep 30; do
+    render
 done

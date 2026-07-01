@@ -28,9 +28,16 @@ render() {
 }
 
 render
-# Subscribe to pactl events
-pactl subscribe 2>/dev/null | while IFS= read -r line; do
-    case "$line" in
-        *"change"*"sink"*|*"change"*"server"*) render ;;
-    esac
+# Subscribe to pactl events. If PulseAudio/PipeWire restarts and the
+# subscription ends, keep the listener alive with a low-frequency poll.
+if command -v pactl >/dev/null 2>&1; then
+    pactl subscribe 2>/dev/null | while IFS= read -r line; do
+        case "$line" in
+            *"change"*"sink"*|*"change"*"server"*) render ;;
+        esac
+    done
+fi
+
+while sleep 5; do
+    render
 done

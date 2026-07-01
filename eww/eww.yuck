@@ -79,14 +79,15 @@
     (label :text bluetooth)))
 
 (defwidget volume-widget []
-  (button :onclick "pactl set-sink-mute @DEFAULT_SINK@ toggle"
-          :onrightclick "pactl set-sink-volume @DEFAULT_SINK@ +5%"
-          :onmiddleclick "pactl set-sink-volume @DEFAULT_SINK@ -5%"
+  (button :onclick "pactl set-sink-volume @DEFAULT_SINK@ +5%"
+          :onrightclick "pactl set-sink-volume @DEFAULT_SINK@ -5%"
+          :onmiddleclick "pactl set-sink-mute @DEFAULT_SINK@ toggle"
           :class "volume"
     (label :text volume)))
 
 (defwidget brightness-widget []
-  (button :onclick "$HOME/.config/ironbar/scripts/brightness-menu.sh"
+  (button :onclick "$HOME/.config/eww/scripts/brightness-adjust.sh up"
+          :onrightclick "$HOME/.config/eww/scripts/brightness-adjust.sh down"
           :class "brightness"
     (label :text brightness)))
 
@@ -108,7 +109,7 @@
               :width "100%"
               :height 24
               :anchor "top center")
-  :stacking "overlay"
+  :stacking "fg"
   :exclusive true
   :focusable false
   :windowtype "dock"

@@ -64,8 +64,15 @@ render() {
 }
 
 render
-# Watch DBus for MPRIS changes
-dbus-monitor --session "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'" 2>/dev/null \
-    | grep -q --line-buffered 'MPRIS' | while IFS= read -r _; do
+# Watch DBus for MPRIS changes. If dbus-monitor is unavailable or exits, fall
+# back to a light poll so the Eww listener keeps producing updates.
+if command -v dbus-monitor >/dev/null 2>&1; then
+    dbus-monitor --session "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'" 2>/dev/null \
+        | grep --line-buffered -E 'org\.mpris\.MediaPlayer2|xesam:|PlaybackStatus' | while IFS= read -r _; do
+        render
+    done
+fi
+
+while sleep 5; do
     render
 done

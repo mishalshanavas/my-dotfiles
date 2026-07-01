@@ -16,14 +16,14 @@ wifi_list() {
 }
 
 # Display: "SSID  sigN  *"
-list=$(wifi_list | awk -F'|' '{printf "%-24s sig%s  %s\n", $1, $2, $3}')
+list=$(wifi_list | awk -F'|' '{printf "%s\tsig%s  %s\n", $1, $2, $3}')
 [ -z "$list" ] && { notify-send "WiFi" "No networks found" 2>/dev/null; exit 0; }
 
 choice=$(echo "$list" | fuzzel --dmenu -p "WiFi" --lines 10 --width 34)
 [ -z "$choice" ] && exit 0
 
-# Extract SSID (first 24 chars, trimmed)
-ssid=$(echo "$choice" | awk '{print $1}')
+# Extract SSID while preserving spaces in network names.
+ssid=${choice%%	*}
 [ -z "$ssid" ] && exit 0
 
 # Get interface

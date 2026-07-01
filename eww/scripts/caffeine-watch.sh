@@ -2,16 +2,30 @@
 # Eww deflisten — caffeine status via inotify (instant)
 
 FILE="/tmp/caffeine-${UID}"
+last=""
 
 render() {
     if [ -f "$FILE" ]; then
-        printf '\n'
+        current=''
     else
-        printf '\n'
+        current=''
+    fi
+
+    if [ "$current" != "$last" ]; then
+        printf '%s\n' "$current"
+        last=$current
     fi
 }
 
 render
-while inotifywait -q -e create,delete /tmp 2>/dev/null; do
+if command -v inotifywait >/dev/null 2>&1; then
+    while changed=$(inotifywait -q -e create,delete,move,close_write --format '%f' /tmp 2>/dev/null); do
+        case "$changed" in
+            "$(basename "$FILE")") render ;;
+        esac
+    done
+fi
+
+while sleep 5; do
     render
 done
