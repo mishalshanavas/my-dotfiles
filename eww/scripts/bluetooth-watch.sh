@@ -3,7 +3,7 @@
 # Display: icon + device name (connected) or icon + state text (idle/off)
 # Auto-switches audio sink when BT device connects
 
-AUDIO_SWITCHED_FILE="/tmp/eww_bt_audio_switched"
+AUDIO_SWITCHED_FILE="${XDG_RUNTIME_DIR:-/tmp}/eww_bt_audio_switched"
 
 auto_switch_sink() {
     local dev_name="$1"

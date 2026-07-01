@@ -8,6 +8,7 @@
 import argparse
 import subprocess
 import json
+import shlex
 from pathlib import Path
 
 
@@ -95,7 +96,7 @@ if TARGET_APP_ID is None and COMMAND is not None:
 
 
 def run_command(command_str: str, **kwargs) -> subprocess.CompletedProcess:
-    return subprocess.run(command_str.split(" "), **kwargs)
+    return subprocess.run(shlex.split(command_str), **kwargs)
 
 
 def focus_window(id: int) -> subprocess.CompletedProcess:
@@ -309,7 +310,7 @@ if num_already_open < SPAWN_LIMIT:
     if ENABLE_SPAWN and COMMAND is not None:
         # Run the command and detach from caller
         subprocess.Popen(
-            COMMAND.split(" "),
+            shlex.split(COMMAND),
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,

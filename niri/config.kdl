@@ -1,4 +1,4 @@
-prefer-no-csd true
+prefer-no-csd
 
 environment {
     XDG_CURRENT_DESKTOP "niri"
@@ -135,21 +135,14 @@ layout {
 // Sync Wayland env into DBus/systemd so portals and tray work
 spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP DISPLAY 2>/dev/null || true"
 
+// Supervised by systemd user units in ~/.config/systemd/user:
+// mako, eww, swayidle, wl-paste/cliphist, and niri_tile_to_n.py.
 spawn-at-startup "bash" "/home/mishal/.config/niri/scripts/swaybg_helper.sh"
-spawn-at-startup "mako"
-spawn-at-startup "eww" "open" "bar"
 spawn-at-startup "nm-applet"
 spawn-at-startup "swayosd-server" "--style" "/home/mishal/.config/swayosd/style.css" "--top-margin" "0.85"
-spawn-at-startup "xwayland-satellite"
-spawn-at-startup "python3" "/home/mishal/.config/niri/scripts/niri_tile_to_n.py" "-n" "3" "-delay" "2000"
-spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
-spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
 spawn-at-startup "udiskie" "--tray"
 
 // Battery notifications handled by Ironbar battery script
-
-// Idle management: lock at 5 min, monitors off at 10 min, lock before sleep
-spawn-at-startup "swayidle" "-w" "timeout" "300" "/home/mishal/.config/swaylock/lock.sh" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "niri msg action power-off-monitors" "lock" "/home/mishal/.config/swaylock/lock.sh"
 screenshot-path "~/Pictures/Screenshots/%Y-%m-%d_%H-%M-%S.png"
 
 // XWayland integration — speeds up X11 app startup
@@ -254,6 +247,12 @@ window-rule {
     shadow {
         off
     }
+}
+
+// Keep transient notifications out of portal screencasts.
+layer-rule {
+    match namespace="^notifications$"
+    block-out-from "screencast"
 }
 
 // ── Keybindings ────────────────────────────────────────────────────────────

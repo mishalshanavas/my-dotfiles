@@ -1,7 +1,9 @@
 #!/bin/sh
 # Eww deflisten — caffeine status via inotify (instant)
 
-FILE="/tmp/caffeine-${UID}"
+uid=$(id -u)
+DIR="${XDG_RUNTIME_DIR:-/tmp}"
+FILE="${DIR}/caffeine-${uid}"
 last=""
 
 render() {
@@ -19,7 +21,7 @@ render() {
 
 render
 if command -v inotifywait >/dev/null 2>&1; then
-    while changed=$(inotifywait -q -e create,delete,move,close_write --format '%f' /tmp 2>/dev/null); do
+    while changed=$(inotifywait -q -e create,delete,move,close_write --format '%f' "$DIR" 2>/dev/null); do
         case "$changed" in
             "$(basename "$FILE")") render ;;
         esac

@@ -1,0 +1,12 @@
+[Unit]
+Description=Mako notification daemon for Niri
+PartOf=niri.service
+After=niri.service
+
+[Service]
+ExecStart=/usr/bin/mako
+Restart=on-failure
+RestartSec=1s
+
+[Install]
+WantedBy=niri.service

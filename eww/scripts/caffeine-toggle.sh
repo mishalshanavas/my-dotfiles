@@ -1,8 +1,11 @@
 #!/bin/sh
 # Toggle caffeine (sleep inhibit) state
 
-if [ -f "/tmp/caffeine-${UID}" ]; then
-    rm -f "/tmp/caffeine-${UID}"
+uid=$(id -u)
+file="${XDG_RUNTIME_DIR:-/tmp}/caffeine-${uid}"
+
+if [ -f "$file" ]; then
+    rm -f "$file"
 else
-    touch "/tmp/caffeine-${UID}"
+    touch "$file"
 fi

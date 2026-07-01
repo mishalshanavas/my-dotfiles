@@ -1,0 +1,12 @@
+[Unit]
+Description=Small-N auto tiling helper for Niri
+PartOf=niri.service
+After=niri.service
+
+[Service]
+ExecStart=/home/mishal/.config/niri/scripts/niri_auto_tiler_service.sh
+Restart=on-failure
+RestartSec=1s
+
+[Install]
+WantedBy=niri.service

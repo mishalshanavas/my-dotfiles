@@ -385,13 +385,11 @@ niri_action = NiriActions(skt_path)
 
 # Sanity check. Make sure we have the right version
 is_version_ok, version_resp = niri_reader.request("Version")
-expected_version, actual_version = "26.04 (8ed0da4)", version_resp.get("Version", "unknown")
-if actual_version != expected_version:
+actual_version = version_resp.get("Version", "unknown")
+if not is_version_ok or actual_version == "unknown":
     print(
         "",
-        "WARNING - Unexpected niri version!",
-        f"expected: {expected_version}",
-        f"  actual: {actual_version}",
+        "WARNING - Could not determine niri version!",
         "Errors may occur...",
         sep="\n",
     )
@@ -450,7 +448,8 @@ try:
             # Record new focused workspace (ignore 'active' state, we don't use it)
             if evt_data["focused"]:
                 focus_state.workspace_id = evt_data["id"]
-                wspace_state[prev_focus_state.workspace_id]["is_focused"] = False
+                if wspace_state is not None and prev_focus_state.workspace_id in wspace_state:
+                    wspace_state[prev_focus_state.workspace_id]["is_focused"] = False
             pass
 
         elif evt_name == "WorkspaceActiveWindowChanged":
@@ -464,6 +463,9 @@ try:
                     focus_state.window_id = item["id"]
 
         elif evt_name == "WindowOpenedOrChanged":
+            if win_state is None or wspace_state is None:
+                continue
+
             # Decide if we have a new/moved window
             evt_win_id = evt_data["window"]["id"]
             evt_win_wspace_id = evt_data["window"]["workspace_id"]
@@ -484,8 +486,13 @@ try:
             newest_window_data = win_state[evt_win_id] if need_check_rearrange else None
 
         elif evt_name == "WindowClosed":
+            if win_state is None:
+                continue
+
             # Delete closed window state data & remove from windows-per-workspace mapping
             evt_win_id = evt_data["id"]
+            if evt_win_id not in win_state:
+                continue
             closed_window_data = win_state.pop(evt_win_id)
 
         elif evt_name == "WindowFocusChanged":
@@ -493,18 +500,33 @@ try:
             focus_state.window_id = evt_data["id"]
 
         elif evt_name == "WindowFocusTimestampChanged":
+            if win_state is None:
+                continue
+
             # Update existing focus-timestamp state
             evt_win_id = evt_data["id"]
+            if evt_win_id not in win_state:
+                continue
             win_state[evt_win_id]["focus_timestamp"] = evt_data["focus_timestamp"]
 
         elif evt_name == "WindowUrgencyChanged":
+            if win_state is None:
+                continue
+
             # Update our existing window state
             evt_win_id = evt_data["id"]
+            if evt_win_id not in win_state:
+                continue
             win_state[evt_win_id]["is_urgent"] = evt_data["urgent"]
 
         elif evt_name == "WindowLayoutsChanged":
+            if win_state is None:
+                continue
+
             # Replace existing window layout data
             for evt_win_id, evt_new_layout in evt_data["changes"]:
+                if evt_win_id not in win_state:
+                    continue
                 win_state[evt_win_id]["layout"] = evt_new_layout
                 win_aug_data = get_additional_window_data(win_state[evt_win_id], wspace_state, output_width_lut)
                 win_state[evt_win_id].update(win_aug_data)

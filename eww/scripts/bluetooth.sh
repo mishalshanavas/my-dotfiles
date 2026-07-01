@@ -34,7 +34,7 @@ render() {
 auto_switch_sink() {
     # Only switch if we just connected to a BT device (state change detected)
     # Check if this device was already seen
-    local state_file="/tmp/eww_bt_last_device"
+    local state_file="${XDG_RUNTIME_DIR:-/tmp}/eww_bt_last_device"
     local last
     last=$(cat "$state_file" 2>/dev/null)
 

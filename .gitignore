@@ -21,6 +21,16 @@
 !ghostty/
 !ghostty/config.ghostty
 
+!swaylock/
+!swaylock/config
+!swaylock/lock.sh
+
 !fuzzel/
 !fuzzel/fuzzel.ini
 !brave-flags.conf
+
+!systemd/
+!systemd/user/
+!systemd/user/niri-*.service
+!systemd/user/niri.service.wants/
+!systemd/user/niri.service.wants/niri-*.service

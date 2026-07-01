@@ -1,0 +1,12 @@
+[Unit]
+Description=Image clipboard history watcher for Niri
+PartOf=niri.service
+After=niri.service
+
+[Service]
+ExecStart=/usr/bin/wl-paste --type image --watch /usr/bin/cliphist store
+Restart=on-failure
+RestartSec=1s
+
+[Install]
+WantedBy=niri.service
