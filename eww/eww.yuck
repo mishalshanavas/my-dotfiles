@@ -92,7 +92,9 @@
     (label :text brightness)))
 
 (defwidget battery-widget []
-  (label :text battery :class "battery"))
+  (button :onclick "$HOME/.config/eww/scripts/battery-boost.sh &"
+          :class "battery"
+    (label :text battery)))
 
 (defwidget power-widget []
   (button :onclick "$HOME/.config/eww/scripts/power.sh &"

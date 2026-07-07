@@ -86,6 +86,20 @@ button {
     background: #220000;
 }
 
+/* ─── Battery boost easter egg ────────────────────────────── */
+
+.battery:hover {
+    background: #1a2a1a;
+}
+
+.battery:active {
+    background: #1a3a1a;
+}
+
+.battery:active label {
+    color: #7fff7f;
+}
+
 /* ─── Music ───────────────────────────────────────────────── */
 
 .music label {

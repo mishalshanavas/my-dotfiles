@@ -18,6 +18,15 @@ render() {
     state_raw=${info%%|*}
     pct=${info#*|}
 
+    # ── Easter egg: boost counter inflates by +3 per tap ──
+    boost_file="/tmp/battery-boost-$(id -u)"
+    if [ -f "$boost_file" ]; then
+        tap_count=$(cat "$boost_file" 2>/dev/null)
+        tap_count=$((tap_count))
+        [ "$tap_count" -gt 0 ] 2>/dev/null && pct=$((pct + tap_count * 3))
+        [ "$pct" -gt 100 ] && pct=100
+    fi
+
     case "$state_raw" in
         charging|fully-charged|pending-charge) status="charging" ;;
         *) status="discharging" ;;
