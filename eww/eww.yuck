@@ -1,6 +1,10 @@
 ;; ── Eww Bar - Compact Minimal ────────────────────────────────
 ;; Dependencies: nmcli, pactl, upower, bluetoothctl, fuzzel, niri
 
+;; ─── Visibility Toggle Variable ─────────────────────────────
+
+(defvar bar-visible true)
+
 ;; ─── Clock ──────────────────────────────────────────────────
 
 (defpoll clock :interval "1s"

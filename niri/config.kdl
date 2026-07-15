@@ -145,6 +145,9 @@ spawn-at-startup "udiskie" "--tray"
 // Battery notifications handled by Ironbar battery script
 screenshot-path "~/Pictures/Screenshots/%Y-%m-%d_%H-%M-%S.png"
 
+// WiFi: auto-recover rtw88 firmware after it gets stuck
+spawn-at-startup "bash" "/home/mishal/.config/niri/scripts/wifi-fix.sh"
+
 // XWayland integration — speeds up X11 app startup
 xwayland-satellite {
     path "xwayland-satellite"

@@ -4,11 +4,12 @@ PartOf=niri.service
 After=niri.service
 
 [Service]
+ExecStartPre=-/usr/bin/eww close bar 2>/dev/null
 ExecStart=/usr/bin/eww --no-daemonize daemon
-ExecStartPost=/bin/sh -c 'for i in $(seq 1 50); do /usr/bin/eww ping >/dev/null 2>&1 && /usr/bin/eww close bar >/dev/null 2>&1; /usr/bin/eww ping >/dev/null 2>&1 && exec /usr/bin/eww open --id primary bar; sleep 0.1; done; exit 1'
+ExecStartPost=/bin/sh -c 'for i in $(seq 1 50); do eww ping >/dev/null 2>&1 && break; sleep 0.1; done; eww open --id primary bar'
 ExecStopPost=-/usr/bin/eww close-all
 Restart=on-failure
-RestartSec=1s
+RestartSec=2s
 
 [Install]
 WantedBy=niri.service

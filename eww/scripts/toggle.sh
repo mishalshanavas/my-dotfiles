@@ -1,8 +1,4 @@
 #!/bin/sh
-# Toggle eww bar visibility
+# Toggle eww bar visibility (uses built-in --toggle flag)
 
-if eww active-windows 2>/dev/null | grep -q '^[^:][^:]*: bar$'; then
-    eww close bar 2>/dev/null
-else
-    eww open --id primary bar 2>/dev/null
-fi
+eww open --id primary --toggle bar 2>/dev/null

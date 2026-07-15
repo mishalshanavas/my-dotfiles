@@ -32,12 +32,14 @@ render() {
 }
 
 render
+
+# Prefer nmcli monitor for instant updates; fall back to polling if unavailable
 if command -v nmcli >/dev/null 2>&1; then
     nmcli monitor 2>/dev/null | while IFS= read -r line; do
         render
     done
+else
+    while sleep 10; do
+        render
+    done
 fi
-
-while sleep 10; do
-    render
-done
