@@ -267,7 +267,7 @@ binds {
     Alt+Shift+T      hotkey-overlay-title="Floating Terminal" { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "ghostty --class=floating-terminal" "floating-terminal" "-p"; }
 
     // Launcher & utilities
-    Alt+Space hotkey-overlay-title="Run Application" { spawn "fuzzel"; }
+    Alt+Space repeat=false hotkey-overlay-title="Run Application" { spawn "fuzzel"; }
     Mod+V     hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && printf '%s\\n' \"$selected\" | cliphist decode | wl-copy"; }
     Alt+L     hotkey-overlay-title="Lock Screen"      { spawn "/home/mishal/.config/swaylock/lock.sh"; }
     Alt+E     hotkey-overlay-title="File Manager"     { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "nautilus"; }

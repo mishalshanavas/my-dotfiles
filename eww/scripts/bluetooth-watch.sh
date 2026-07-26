@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Eww deflisten — bluetooth status via dbus-monitor
+# Eww deflisten — bluetooth status via BlueZ D-Bus events.
 # Display: icon + device name (connected) or icon + state text (idle/off)
 # Auto-switches audio sink when BT device connects
 
@@ -53,6 +53,22 @@ render() {
 
 render
 
-while sleep 5; do
-    render
-done
+if command -v dbus-monitor >/dev/null 2>&1; then
+    # Reconnect if D-Bus restarts. Rendering only on BlueZ changes avoids
+    # repeatedly waking the CPU and querying bluetoothctl while idle.
+    while :; do
+        dbus-monitor --system \
+            "type='signal',sender='org.bluez',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'" \
+            2>/dev/null | while IFS= read -r line; do
+                case "$line" in
+                    *"member=PropertiesChanged"*) render ;;
+                esac
+            done
+        sleep 2
+    done
+else
+    # Fallback for systems without dbus-monitor.
+    while sleep 30; do
+        render
+    done
+fi

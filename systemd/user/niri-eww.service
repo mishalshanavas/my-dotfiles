@@ -4,15 +4,15 @@ PartOf=niri.service
 After=niri.service
 
 [Service]
-Type=oneshot
-RemainAfterExit=yes
-# Start from a clean daemon, then ask Eww to create one daemon and one named bar.
-# Running `eww daemon` and `eww open` separately can produce two bar process
-# trees on this Eww build.
+# Keep Eww in the foreground so systemd can restart it if the daemon dies.
+Type=simple
 ExecStartPre=-/usr/bin/eww kill
-ExecStart=/usr/bin/eww --restart open --id primary bar
+ExecStart=/usr/bin/eww --no-daemonize daemon
+ExecStartPost=/usr/bin/bash -c 'for _ in {1..50}; do /usr/bin/eww ping >/dev/null 2>&1 && exec /usr/bin/eww open --id primary bar; sleep 0.1; done; exit 1'
 ExecStopPost=-/usr/bin/eww close-all
 ExecStopPost=-/usr/bin/eww kill
+Restart=on-failure
+RestartSec=2s
 
 [Install]
 WantedBy=niri.service
