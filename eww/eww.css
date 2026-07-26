@@ -53,13 +53,13 @@ button {
 
 /* ─── Clock ───────────────────────────────────────────────── */
 
-.clock label {
+.clock {
     font-weight: 700;
 }
 
 /* ─── Workspaces ──────────────────────────────────────────── */
 
-.workspaces label {
+.workspaces {
     font-size: 9px;
     letter-spacing: 2px;
     font-weight: 600;
@@ -69,20 +69,20 @@ button {
 
 .workspaces:hover,
 .clock:hover,
-.caffeine button:hover,
-.network button:hover,
-.bluetooth button:hover,
-.volume button:hover,
-.brightness button:hover,
+button.caffeine:hover,
+button.network:hover,
+button.bluetooth:hover,
+button.volume:hover,
+button.brightness:hover,
 .battery:hover,
-.power button:hover,
+button.power:hover,
 .music:hover {
     background: #1a1a1a;
 }
 
 /* ─── Power ───────────────────────────────────────────────── */
 
-.power button:hover {
+button.power:hover {
     background: #220000;
 }
 

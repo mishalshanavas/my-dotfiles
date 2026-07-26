@@ -39,11 +39,20 @@ if [ -z "$BL_PATH" ]; then
     done
 fi
 
-# Watch with inotify for instant updates
+# Watch with inotify for instant updates. Restart the watch if the backlight
+# device or inotify process disappears (for example after resume).
 if command -v inotifywait >/dev/null 2>&1; then
-    inotifywait -m -e modify -e close_write "$BL_PATH/brightness" 2>/dev/null | while IFS= read -r _; do
-        render
+    while :; do
+        [ -r "$BL_PATH/brightness" ] || BL_PATH=$(backlight_path)
+        [ -n "$BL_PATH" ] || { printf ' N/A\n'; sleep 5; continue; }
+        inotifywait -q -m -e modify -e close_write "$BL_PATH/brightness" 2>/dev/null | while IFS= read -r _; do
+            render
+        done
+        sleep 1
     done
 else
-    while sleep 1; do render; done
+    while sleep 1; do
+        [ -r "$BL_PATH/brightness" ] || BL_PATH=$(backlight_path)
+        render
+    done
 fi

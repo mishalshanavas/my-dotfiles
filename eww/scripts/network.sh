@@ -1,45 +1,63 @@
 #!/usr/bin/env bash
-# Eww deflisten — network status via nmcli
-# Safe Font Awesome icons only
+# Eww deflisten — network status via NetworkManager.
+
+truncate_label() {
+    local text="$1"
+    local max="${2:-18}"
+
+    if [ "${#text}" -gt "$max" ]; then
+        printf '%s…' "${text:0:max-1}"
+    else
+        printf '%s' "$text"
+    fi
+}
 
 render() {
-    local state ssid eth connecting
+    local state iface label eth connecting radio
 
-    state=$(nmcli -t -f TYPE,STATE,CONNECTION dev 2>/dev/null)
-
-    # WiFi
-    ssid=$(echo "$state" | awk -F: '$1=="wifi" && $2=="connected" {print $3; exit}')
-    if [ -n "$ssid" ]; then
-        [ "${#ssid}" -gt 18 ] && ssid="${ssid:0:17}…"
-        printf ' %s\n' "$ssid"
+    if ! command -v nmcli >/dev/null 2>&1; then
+        printf ' N/A\n'
         return
     fi
 
-    # Ethernet
-    eth=$(echo "$state" | awk -F: '$1=="ethernet" && $2=="connected" {print $1; exit}')
+    state=$(nmcli -t -f DEVICE,TYPE,STATE dev status 2>/dev/null)
+
+    iface=$(printf '%s\n' "$state" | awk -F: '$2=="wifi" && $3=="connected" {print $1; exit}')
+    if [ -n "$iface" ]; then
+        label=$(nmcli -g GENERAL.CONNECTION dev show "$iface" 2>/dev/null | head -n 1)
+        [ -z "$label" ] || [ "$label" = "--" ] && label="WiFi"
+        label=$(truncate_label "$label" 18)
+        printf ' %s\n' "$label"
+        return
+    fi
+
+    eth=$(printf '%s\n' "$state" | awk -F: '$2=="ethernet" && $3=="connected" {print $1; exit}')
     if [ -n "$eth" ]; then
         printf ' Wired\n'
         return
     fi
 
-    # Connecting
-    connecting=$(nmcli -t -f STATE -e no dev 2>/dev/null | grep -q '^connecting$' && echo 1)
+    connecting=$(printf '%s\n' "$state" | awk -F: '$2=="wifi" && $3 ~ /(connecting|configuring|prepare|need-auth)/ {print 1; exit}')
     if [ -n "$connecting" ]; then
         printf ' …\n'
-    else
+        return
+    fi
+
+    radio=$(nmcli -t -f WIFI general 2>/dev/null | head -n 1)
+    if [ "$radio" = "disabled" ]; then
         printf ' Off\n'
+    else
+        printf ' Down\n'
     fi
 }
 
-render
+last=""
 
-# Prefer nmcli monitor for instant updates; fall back to polling if unavailable
-if command -v nmcli >/dev/null 2>&1; then
-    nmcli monitor 2>/dev/null | while IFS= read -r line; do
-        render
-    done
-else
-    while sleep 10; do
-        render
-    done
-fi
+while true; do
+    current=$(render)
+    if [ "$current" != "$last" ]; then
+        printf '%s\n' "$current"
+        last=$current
+    fi
+    sleep 3
+done

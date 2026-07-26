@@ -39,6 +39,10 @@ render() {
     fi
 
     if [ -n "$dev_name" ]; then
+        # If the device name is a raw MAC address (unresolved SDP name), show "Connecting..."
+        if [[ "$dev_name" =~ ^([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$ ]]; then
+            dev_name="Connecting..."
+        fi
         [ "${#dev_name}" -gt 16 ] && dev_name="${dev_name:0:15}…"
         printf ' %s\n' "$dev_name"
         auto_switch_sink "$dev_name"
@@ -48,13 +52,6 @@ render() {
 }
 
 render
-if command -v dbus-monitor >/dev/null 2>&1; then
-    dbus-monitor --system "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'" 2>/dev/null | while IFS= read -r line; do
-        case "$line" in
-            *PropertiesChanged*) render ;;
-        esac
-    done
-fi
 
 while sleep 5; do
     render

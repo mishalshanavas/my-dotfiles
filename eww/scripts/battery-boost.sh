@@ -16,7 +16,9 @@ fi
 tap_count=0
 if [ -f "$counter_file" ]; then
     tap_count=$(cat "$counter_file" 2>/dev/null)
-    tap_count=$((tap_count))
+    case "$tap_count" in
+        ''|*[!0-9]*) tap_count=0 ;;
+    esac
 fi
 tap_count=$((tap_count + 1))
 echo "$tap_count" > "$counter_file"
@@ -27,6 +29,9 @@ boost_pct=$((tap_count * 3))
 # Get current eww battery value to extract real percentage
 current=$(eww get battery 2>/dev/null)
 pct=$(echo "$current" | grep -o '[0-9]\+' | head -1)
+case "$pct" in
+    ''|*[!0-9]*) pct="" ;;
+esac
 
 # Fallback to upower if eww parse fails
 if [ -z "$pct" ]; then
@@ -75,4 +80,3 @@ eww update battery=" $boosted%"
         fi
     fi
 ) &
-

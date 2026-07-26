@@ -16,7 +16,7 @@ render() {
 
     if [ "$mute" = "yes" ]; then
         printf ' Muted\n'
-    elif [ -z "$vol" ]; then
+    elif ! [[ "$vol" =~ ^[0-9]+$ ]]; then
         printf ' --%%\n'
     elif [ "$vol" -ge 70 ]; then
         printf ' %s%%\n' "$vol"

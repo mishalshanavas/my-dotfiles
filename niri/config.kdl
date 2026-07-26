@@ -142,11 +142,9 @@ spawn-at-startup "nm-applet"
 spawn-at-startup "swayosd-server" "--style" "/home/mishal/.config/swayosd/style.css" "--top-margin" "0.85"
 spawn-at-startup "udiskie" "--tray"
 
-// Battery notifications handled by Ironbar battery script
+// Battery status is provided by Eww.
 screenshot-path "~/Pictures/Screenshots/%Y-%m-%d_%H-%M-%S.png"
 
-// WiFi: auto-recover rtw88 firmware after it gets stuck
-spawn-at-startup "bash" "/home/mishal/.config/niri/scripts/wifi-fix.sh"
 
 // XWayland integration — speeds up X11 app startup
 xwayland-satellite {
@@ -270,13 +268,11 @@ binds {
 
     // Launcher & utilities
     Alt+Space hotkey-overlay-title="Run Application" { spawn "fuzzel"; }
-    Mod+V     hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && cliphist decode <<< \"$selected\" | wl-copy"; }
+    Mod+V     hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && printf '%s\\n' \"$selected\" | cliphist decode | wl-copy"; }
     Alt+L     hotkey-overlay-title="Lock Screen"      { spawn "/home/mishal/.config/swaylock/lock.sh"; }
     Alt+E     hotkey-overlay-title="File Manager"     { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "nautilus"; }
-    Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Orca" { spawn-sh "if pkill orca 2>/dev/null; then :; else orca &; fi"; }
-
-    // Toggle eww bar
-    Alt+B repeat=false hotkey-overlay-title="Toggle Bar" { spawn-sh "/home/mishal/.config/eww/scripts/toggle.sh"; }
+    Alt+N     hotkey-overlay-title="WiFi Networks"    { spawn "bash" "/home/mishal/.config/eww/scripts/network-choose.sh"; }
+    Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Orca" { spawn-sh "if pkill orca 2>/dev/null; then :; elif command -v orca >/dev/null 2>&1; then orca & else notify-send 'Orca' 'Orca is not installed'; fi"; }
 
     // Wallpaper cycle
     Alt+W repeat=false hotkey-overlay-title="Next Wallpaper" { spawn "bash" "/home/mishal/.config/niri/scripts/swaybg_helper.sh" "--cycle" "-d"; }
@@ -412,6 +408,10 @@ binds {
     Print      { screenshot; }
     Ctrl+Print { screenshot-screen; }
     Mod+Print  { screenshot-window; }
+
+    // Projector / TV: focus the external display, then mirror the laptop panel to it.
+    Mod+P repeat=false hotkey-overlay-title="Mirror Laptop Screen" { spawn "bash" "/home/mishal/.config/niri/scripts/mirror-laptop-to-focused-output.sh"; }
+    Mod+Shift+P repeat=false hotkey-overlay-title="Stop Screen Mirroring" { spawn-sh "pkill -x wl-mirror && notify-send 'Screen mirroring stopped' || notify-send 'Screen mirroring' 'No active mirror found'"; }
 
     // OCR — select area, extract text, copy to clipboard
     Alt+Shift+O hotkey-overlay-title="OCR Screenshot" { spawn-sh "trap 'rm -f /tmp/ocr-$$.png' EXIT; grim -g \"$(slurp)\" /tmp/ocr-$$.png && text=$(tesseract /tmp/ocr-$$.png - 2>/dev/null | tr -d '\\n' | head -c 200) && echo \"$text\" | wl-copy && notify-send 'OCR' \"$text\" -t 5000"; }

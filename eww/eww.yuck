@@ -72,8 +72,10 @@
     (label :text caffeine)))
 
 (defwidget network-widget []
-  (button :onclick "/usr/bin/ghostty -e /usr/bin/nmtui &"
+  (button :onclick "$HOME/.config/eww/scripts/network-choose.sh &"
+          :onrightclick "$HOME/.config/eww/scripts/network-choose.sh --tui &"
           :class "network"
+          :tooltip "Left: WiFi networks / Right: nmtui"
     (label :text network)))
 
 (defwidget bluetooth-widget []
