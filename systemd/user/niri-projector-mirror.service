@@ -1,0 +1,13 @@
+[Unit]
+Description=Mirror the Niri laptop panel to the HDMI projector
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/mishal/.config/niri/scripts/projector-mirror-service.sh
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

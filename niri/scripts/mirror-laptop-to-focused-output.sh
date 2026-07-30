@@ -33,4 +33,6 @@ if [ "$target_output" = "$source_output" ]; then
 fi
 
 notify-send "Starting screen mirror" "Mirroring $source_output to $target_output."
-exec wl-mirror --fullscreen-output "$target_output" "$source_output"
+# Niri reliably exposes the SHM screencopy backend.  Using it explicitly avoids
+# wl-mirror first trying unsupported capture protocols before falling back.
+exec wl-mirror --fullscreen-output "$target_output" --backend screencopy-shm "$source_output"

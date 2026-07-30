@@ -5,7 +5,9 @@
 #   -c or --cycle
 #   -n or --notify
 #   -d or --delay
-# If no flag is provided, the last-used wallpaper will be set as the background
+# If no flag is provided, the last-used wallpaper will be set as the background.
+# The selection is stored explicitly instead of relying on file access times
+# (which may not update on noatime/relatime filesystems).
 
 # Usage:
 # To use in niri on startup (to set the initial background):
@@ -15,6 +17,8 @@
 
 # Path to folder containing wallpapers
 BG_FOLDER_PATH="$HOME/.config/niri/wallpapers"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/niri"
+STATE_FILE="$STATE_DIR/wallpaper"
 
 # Read script flags
 FLAG_CYCLE=false
@@ -30,15 +34,39 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-# Choose most-recent accessed file by default or least-recent to cycle
-mapfile -t BG_PATHS < <(find "$BG_FOLDER_PATH" -maxdepth 1 -type f -printf '%A@ %p\n' | sort -rn | cut -d' ' -f2-)
+# Keep the wallpaper list stable, so cycling has a predictable order.
+mapfile -t BG_PATHS < <(
+  find "$BG_FOLDER_PATH" -maxdepth 1 -type f \
+    \( -iname '*.avif' -o -iname '*.bmp' -o -iname '*.jpeg' -o -iname '*.jpg' -o -iname '*.png' -o -iname '*.webp' \) \
+    -print | LC_ALL=C sort
+)
 if [[ ${#BG_PATHS[@]} -eq 0 ]]; then
   notify-send "Wallpaper" "No wallpapers found in $BG_FOLDER_PATH" 2>/dev/null || true
   exit 1
 fi
+
+LAST_BG_PATH=""
+if [[ -r "$STATE_FILE" ]]; then
+  IFS= read -r LAST_BG_PATH < "$STATE_FILE" || true
+fi
+
+# On login, restore the previous choice when it is still in the wallpaper set.
 BG_SELECT_PATH="${BG_PATHS[0]}"
+for BG_PATH in "${BG_PATHS[@]}"; do
+  if [[ "$BG_PATH" == "$LAST_BG_PATH" ]]; then
+    BG_SELECT_PATH="$LAST_BG_PATH"
+    break
+  fi
+done
+
 if $FLAG_CYCLE; then
-  BG_SELECT_PATH="${BG_PATHS[-1]}"
+  # Start after the remembered wallpaper, wrapping at the end of the list.
+  for INDEX in "${!BG_PATHS[@]}"; do
+    if [[ "${BG_PATHS[$INDEX]}" == "$LAST_BG_PATH" ]]; then
+      BG_SELECT_PATH="${BG_PATHS[$(( (INDEX + 1) % ${#BG_PATHS[@]} ))]}"
+      break
+    fi
+  done
 fi
 
 # Notify if needed
@@ -49,8 +77,12 @@ fi
 # Get previous swaybg so we can stop it once we start a new instance
 PREV_SWAYBG_PID=$(pidof swaybg)
 
-# Update access on selected file, for cycling
-touch -ac "$BG_SELECT_PATH"
+# Save before launching swaybg so the choice survives an immediate reboot.
+mkdir -p "$STATE_DIR"
+STATE_TMP_FILE="$STATE_FILE.$$"
+printf '%s\n' "$BG_SELECT_PATH" > "$STATE_TMP_FILE"
+mv -f "$STATE_TMP_FILE" "$STATE_FILE"
+
 swaybg -i "$BG_SELECT_PATH" &
 
 # Wait a bit and then stop prior swaybg instances (if present)

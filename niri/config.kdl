@@ -259,6 +259,8 @@ layer-rule {
 // ── Keybindings ────────────────────────────────────────────────────────────
 
 binds {
+    // Modifier policy: Alt = applications and system actions; Mod (Super) = window/workspace/layout actions.
+
     // Terminal — spawn-jump: focus existing or spawn new
     // Ghostty's app-id is com.mitchellh.ghostty (not just ghostty)
     Alt+Return hotkey-overlay-title="Open Terminal" { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "ghostty" "com.mitchellh.ghostty" "-l" "3" "-w"; }
@@ -268,14 +270,14 @@ binds {
 
     // Launcher & utilities
     Alt+Space repeat=false hotkey-overlay-title="Run Application" { spawn "fuzzel"; }
-    Mod+V     hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && printf '%s\\n' \"$selected\" | cliphist decode | wl-copy"; }
+    Mod+V     repeat=false hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && printf '%s\\n' \"$selected\" | cliphist decode | wl-copy"; }
     Alt+L     hotkey-overlay-title="Lock Screen"      { spawn "/home/mishal/.config/swaylock/lock.sh"; }
     Alt+E     hotkey-overlay-title="File Manager"     { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "nautilus"; }
     Alt+N     hotkey-overlay-title="WiFi Networks"    { spawn "bash" "/home/mishal/.config/eww/scripts/network-choose.sh"; }
     Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Orca" { spawn-sh "if pkill orca 2>/dev/null; then :; elif command -v orca >/dev/null 2>&1; then orca & else notify-send 'Orca' 'Orca is not installed'; fi"; }
 
     // Wallpaper cycle
-    Alt+W repeat=false hotkey-overlay-title="Next Wallpaper" { spawn "bash" "/home/mishal/.config/niri/scripts/swaybg_helper.sh" "--cycle" "-d"; }
+    Alt+B repeat=false hotkey-overlay-title="Next Wallpaper" { spawn "bash" "/home/mishal/.config/niri/scripts/swaybg_helper.sh" "--cycle" "-d"; }
 
     // Media keys
     XF86AudioRaiseVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "raise"; }
@@ -287,8 +289,8 @@ binds {
 
     Mod+O repeat=false { toggle-overview; }
 
-    Alt+Q      repeat=false { close-window; }
-    Mod+Shift+Q hotkey-overlay-title="Force Kill Window" { spawn-sh "niri msg action close-window --force || true"; }
+    Alt+Q       repeat=false hotkey-overlay-title="Close Window" { close-window; }
+    Mod+Shift+Q repeat=false hotkey-overlay-title="Force Kill Window" { spawn "bash" "/home/mishal/.config/niri/scripts/niri_force_kill_focused.sh"; }
 
     // Focus navigation
     Mod+Left  { focus-column-left; }
@@ -359,8 +361,8 @@ binds {
     Mod+Ctrl+9 { move-column-to-workspace 9; }
 
     Mod+Tab       { focus-window-previous; }
-    Alt+Tab       { focus-workspace-previous; }
-    Alt+Shift+Tab { focus-workspace-down; }
+    Mod+Alt+Tab       { focus-workspace-previous; }
+    Mod+Alt+Shift+Tab { focus-workspace-down; }
 
     // Wrap-around focus: loop from last column back to first, and vice versa
     Mod+Ctrl+H { focus-column-left-or-last; }
@@ -409,16 +411,16 @@ binds {
     Ctrl+Print { screenshot-screen; }
     Mod+Print  { screenshot-window; }
 
-    // Projector / TV: focus the external display, then mirror the laptop panel to it.
-    Mod+P repeat=false hotkey-overlay-title="Mirror Laptop Screen" { spawn "bash" "/home/mishal/.config/niri/scripts/mirror-laptop-to-focused-output.sh"; }
-    Mod+Shift+P repeat=false hotkey-overlay-title="Stop Screen Mirroring" { spawn-sh "pkill -x wl-mirror && notify-send 'Screen mirroring stopped' || notify-send 'Screen mirroring' 'No active mirror found'"; }
+    // Projector / TV: the service mirrors eDP-1 to HDMI-A-1 whenever connected.
+    Alt+P      repeat=false hotkey-overlay-title="Start Projector Mirror" { spawn-sh "systemctl --user start niri-projector-mirror.service"; }
+    Alt+Ctrl+P repeat=false hotkey-overlay-title="Stop Projector Mirror" { spawn-sh "systemctl --user stop niri-projector-mirror.service"; }
 
     // OCR — select area, extract text, copy to clipboard
     Alt+Shift+O hotkey-overlay-title="OCR Screenshot" { spawn-sh "trap 'rm -f /tmp/ocr-$$.png' EXIT; grim -g \"$(slurp)\" /tmp/ocr-$$.png && text=$(tesseract /tmp/ocr-$$.png - 2>/dev/null | tr -d '\\n' | head -c 200) && echo \"$text\" | wl-copy && notify-send 'OCR' \"$text\" -t 5000"; }
 
     // System
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
-    Mod+Shift+Comma { spawn-sh "niri msg action load-config-file"; }
+    Alt+Shift+Comma { spawn-sh "niri msg action load-config-file"; }
     Alt+Shift+E     { quit; }
     Ctrl+Alt+Delete  { quit; }
     Alt+Shift+P      { power-off-monitors; }
