@@ -3,7 +3,8 @@
 set -euo pipefail
 
 caffeine_file="${XDG_RUNTIME_DIR:-/tmp}/caffeine-$(id -u)"
-lock_cmd="/home/mishal/.config/swaylock/lock.sh"
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}"
+lock_cmd="$config_dir/swaylock/lock.sh"
 
 case "${1:-run}" in
     maybe-lock)

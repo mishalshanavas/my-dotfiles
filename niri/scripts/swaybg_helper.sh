@@ -11,12 +11,13 @@
 
 # Usage:
 # To use in niri on startup (to set the initial background):
-#   spawn-at-startup "bash" "/path/to/this_script.sh" "-f" "/home/mishal/.config/niri/wallpapers/"
+#   spawn-at-startup "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/swaybg_helper.sh\""
 # To bind to a key for cycling the wallpaper with a delay:
 #   Mod+Shift+W { spawn "bash" "/path/to/this_script.sh" "--cycle" "-d"; }
 
 # Path to folder containing wallpapers
-BG_FOLDER_PATH="$HOME/.config/niri/wallpapers"
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}"
+BG_FOLDER_PATH="$CONFIG_DIR/niri/wallpapers"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/niri"
 STATE_FILE="$STATE_DIR/wallpaper"
 

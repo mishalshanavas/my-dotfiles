@@ -4,7 +4,7 @@ PartOf=niri.service
 After=niri.service
 
 [Service]
-ExecStart=/home/mishal/.config/niri/scripts/niri_swayidle.sh
+ExecStart=%h/.config/niri/scripts/niri_swayidle.sh
 Restart=on-failure
 RestartSec=1s
 

@@ -86,6 +86,11 @@ parser.add_argument(
     action="append",
     help="Ignore workspace with this id (can be specified multiple times)"
 )
+parser.add_argument(
+    "--ignore-workspace-name",
+    action="append",
+    help="Ignore a workspace with this stable name (can be specified multiple times)",
+)
 
 # Get script configs
 args, _ = parser.parse_known_args()
@@ -99,6 +104,7 @@ USE_MAX_TO_EDGES = args.maximize_to_edges
 ENABLE_EVENT_NAME_DEBUG_PRINT = args.dn
 ENABLE_EVENT_DATA_DEBUG_PRINT = args.dd
 IGNORED_WORKSPACE_IDS = args.iw
+IGNORED_WORKSPACE_NAMES = set(args.ignore_workspace_name or [])
 
 # ---------------------------------------------------------------------------------------------------------------------
 # %% Data types
@@ -296,7 +302,7 @@ def get_additional_window_data(
     window_data: dict,
     workspace_state: dict,
     output_width_lut: dict,
-    max_width_threshold: float = 0.8,
+    max_width_threshold: float = 0.95,
 ) -> dict:
     """Helper used to generate addition windowing data (particularly 'is_maximized' flag)"""
     # Set up augmentation data
@@ -344,7 +350,7 @@ def maximize_window(window_state: dict, focus_state: FocusState, target_window_i
     if need_maximization:
         solo_id = solo_win_data["id"]
         toggle_window_maximization(solo_id, focus_state.window_id)
-        win_state[solo_id]["is_maximized"] = True
+        window_state[solo_id]["is_maximized"] = True
 
     return need_maximization
 
@@ -361,7 +367,7 @@ def collapse_window(window_state: dict, focus_state: FocusState, target_window_i
     if need_collapse:
         solo_id = solo_win_data["id"]
         toggle_window_maximization(solo_id, focus_state.window_id)
-        win_state[solo_id]["is_maximized"] = False
+        window_state[solo_id]["is_maximized"] = False
 
     return need_collapse
 
@@ -571,9 +577,13 @@ try:
 
             curr_wspace_id = newest_window_data["workspace_id"]
 
-            # Don't act on ignored workspaces
-            if IGNORED_WORKSPACE_IDS and curr_wspace_id and (curr_wspace_id in IGNORED_WORKSPACE_IDS):
-                print(f"Ignored event on workspace {curr_wspace_id}")
+            # Named workspaces survive restarts; numeric IDs are retained only for
+            # backwards compatibility with existing invocations.
+            workspace_name = wspace_state.get(curr_wspace_id, {}).get("name")
+            is_ignored_id = curr_wspace_id in (IGNORED_WORKSPACE_IDS or [])
+            is_ignored_name = workspace_name in IGNORED_WORKSPACE_NAMES
+            if is_ignored_id or is_ignored_name:
+                print(f"Ignored event on workspace {workspace_name or curr_wspace_id}")
                 continue
 
             # Don't bother trying to re-arrange/tile if we already have more than 'N' windows

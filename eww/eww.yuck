@@ -56,7 +56,11 @@
 ;; ─── Widgets ────────────────────────────────────────────────
 
 (defwidget workspaces-widget []
-  (label :text workspaces :class "workspaces"))
+  (label :text workspaces
+         :class "workspaces"
+         :halign "start"
+         :xalign 0
+         :tooltip "Super+1…9: focus workspace\nSuper+Alt+1…9: move focused window\nSuper+Ctrl+1…9: move focused column"))
 
 (defwidget clock-widget []
   (label :text clock :class "clock" :tooltip date_tooltip))
@@ -125,7 +129,7 @@
   :vexpand false
   (centerbox :class "bar"
     ;; LEFT
-    (box :hexpand true :halign "start" :space-evenly false
+    (box :halign "start" :space-evenly false
       (workspaces-widget))
     ;; CENTER
     (box :hexpand true :halign "center" :space-evenly false

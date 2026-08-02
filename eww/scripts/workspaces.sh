@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
 # Eww deflisten — niri workspaces
-# Output: workspace indicator string, one line per update
+# Output: round workspace indicator, one line per update.
+# The focused workspace is filled; all others are outlined.
 
 render() {
-    local output=""
-    local first=1
-    niri msg workspaces 2>/dev/null | grep -E '^[[:space:]]' | while IFS= read -r line; do
-        [ "$first" = "1" ] && first=0 || printf ' '
-        case "$line" in
-            *'*'*) printf '●' ;;
-            *)     printf '○' ;;
-        esac
-    done
-    printf '\n'
+    niri msg --json workspaces 2>/dev/null | jq -r '
+        sort_by(.idx)
+        | map(if .is_focused then "●" else "○" end)
+        | join("1111")
+      ' || printf '?\n'
 }
 
 render

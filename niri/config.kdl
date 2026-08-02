@@ -57,8 +57,8 @@ input {
     // Mouse focuses windows when you move over them (only if window is already on screen)
     focus-follows-mouse max-scroll-amount="0%"
 
-    // Warp mouse cursor to newly focused windows (great for keyboard-driven workflow)
-    warp-mouse-to-focus
+    // Keep the cursor stationary while changing focus. This avoids accidental clicks,
+    // especially with floating windows or when a second display is attached.
 
     // Press workspace number twice to jump back to previous workspace
     workspace-auto-back-and-forth
@@ -137,9 +137,9 @@ spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd WAYLAND
 
 // Supervised by systemd user units in ~/.config/systemd/user:
 // mako, eww, swayidle, wl-paste/cliphist, and niri_tile_to_n.py.
-spawn-at-startup "bash" "/home/mishal/.config/niri/scripts/swaybg_helper.sh"
+spawn-at-startup "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/swaybg_helper.sh\""
 spawn-at-startup "nm-applet"
-spawn-at-startup "swayosd-server" "--style" "/home/mishal/.config/swayosd/style.css" "--top-margin" "0.85"
+spawn-at-startup "sh" "-c" "exec swayosd-server --style \"${XDG_CONFIG_HOME:-$HOME/.config}/swayosd/style.css\" --top-margin 0.85"
 spawn-at-startup "udiskie" "--tray"
 
 // Battery status is provided by Eww.
@@ -259,25 +259,25 @@ layer-rule {
 // ── Keybindings ────────────────────────────────────────────────────────────
 
 binds {
-    // Modifier policy: Alt = applications and system actions; Mod (Super) = window/workspace/layout actions.
+    // Modifier policy: Alt = general application/system actions; Mod (Super) = window/workspace/layout actions.
 
     // Terminal — spawn-jump: focus existing or spawn new
     // Ghostty's app-id is com.mitchellh.ghostty (not just ghostty)
-    Alt+Return hotkey-overlay-title="Open Terminal" { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "ghostty" "com.mitchellh.ghostty" "-l" "3" "-w"; }
-    Alt+T      hotkey-overlay-title="Open Terminal" { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "ghostty" "com.mitchellh.ghostty" "-l" "3" "-w"; }
-    Alt+Shift+Return hotkey-overlay-title="Floating Terminal" { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "ghostty --class=floating-terminal" "floating-terminal" "-p"; }
-    Alt+Shift+T      hotkey-overlay-title="Floating Terminal" { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "ghostty --class=floating-terminal" "floating-terminal" "-p"; }
+    Alt+Return hotkey-overlay-title="Open Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" ghostty com.mitchellh.ghostty -l 3 -w"; }
+    Alt+T      hotkey-overlay-title="Open Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" ghostty com.mitchellh.ghostty -l 3 -w"; }
+    Alt+Shift+Return hotkey-overlay-title="Floating Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" 'ghostty --class=floating-terminal' floating-terminal -p"; }
+    Alt+Shift+T      hotkey-overlay-title="Floating Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" 'ghostty --class=floating-terminal' floating-terminal -p"; }
 
     // Launcher & utilities
     Alt+Space repeat=false hotkey-overlay-title="Run Application" { spawn "fuzzel"; }
     Mod+V     repeat=false hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && printf '%s\\n' \"$selected\" | cliphist decode | wl-copy"; }
-    Alt+L     hotkey-overlay-title="Lock Screen"      { spawn "/home/mishal/.config/swaylock/lock.sh"; }
-    Alt+E     hotkey-overlay-title="File Manager"     { spawn "python3" "/home/mishal/.config/niri/scripts/niri_spawnjump.py" "nautilus"; }
-    Alt+N     hotkey-overlay-title="WiFi Networks"    { spawn "bash" "/home/mishal/.config/eww/scripts/network-choose.sh"; }
+    Alt+L     hotkey-overlay-title="Lock Screen"      { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/swaylock/lock.sh\""; }
+    Alt+E     hotkey-overlay-title="File Manager"     { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" nautilus"; }
+    Alt+N     hotkey-overlay-title="WiFi Networks"    { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/eww/scripts/network-choose.sh\""; }
     Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Orca" { spawn-sh "if pkill orca 2>/dev/null; then :; elif command -v orca >/dev/null 2>&1; then orca & else notify-send 'Orca' 'Orca is not installed'; fi"; }
 
     // Wallpaper cycle
-    Alt+B repeat=false hotkey-overlay-title="Next Wallpaper" { spawn "bash" "/home/mishal/.config/niri/scripts/swaybg_helper.sh" "--cycle" "-d"; }
+    Alt+B repeat=false hotkey-overlay-title="Next Wallpaper" { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/swaybg_helper.sh\" --cycle -d"; }
 
     // Media keys
     XF86AudioRaiseVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "raise"; }
@@ -289,8 +289,8 @@ binds {
 
     Mod+O repeat=false { toggle-overview; }
 
-    Alt+Q       repeat=false hotkey-overlay-title="Close Window" { close-window; }
-    Mod+Shift+Q repeat=false hotkey-overlay-title="Force Kill Window" { spawn "bash" "/home/mishal/.config/niri/scripts/niri_force_kill_focused.sh"; }
+    Mod+Q       repeat=false hotkey-overlay-title="Close Window" { close-window; }
+    Mod+Shift+Q repeat=false hotkey-overlay-title="Force Kill Window" { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_force_kill_focused.sh\""; }
 
     // Focus navigation
     Mod+Left  { focus-column-left; }
@@ -318,8 +318,8 @@ binds {
     Mod+Ctrl+End  { move-column-to-last; }
 
     // Workspace navigation — overview-aware: in overview moves workspaces, else focuses next
-    Mod+Page_Down         { spawn-sh "bash /home/mishal/.config/niri/scripts/niri_overview_bind.sh 'move-workspace-down' 'focus-workspace-down'"; }
-    Mod+Page_Up           { spawn-sh "bash /home/mishal/.config/niri/scripts/niri_overview_bind.sh 'move-workspace-up' 'focus-workspace-up'"; }
+    Mod+Page_Down         { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_overview_bind.sh\" move-workspace-down focus-workspace-down"; }
+    Mod+Page_Up           { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_overview_bind.sh\" move-workspace-up focus-workspace-up"; }
     Mod+Ctrl+Page_Down    { move-column-to-workspace-down; }
     Mod+Ctrl+Page_Up      { move-column-to-workspace-up; }
     Mod+Shift+Page_Down   { move-workspace-down; }
@@ -359,6 +359,16 @@ binds {
     Mod+Ctrl+7 { move-column-to-workspace 7; }
     Mod+Ctrl+8 { move-column-to-workspace 8; }
     Mod+Ctrl+9 { move-column-to-workspace 9; }
+    // Move only the focused window; column movement remains on Mod+Ctrl+number.
+    Mod+Alt+1 { move-window-to-workspace 1; }
+    Mod+Alt+2 { move-window-to-workspace 2; }
+    Mod+Alt+3 { move-window-to-workspace 3; }
+    Mod+Alt+4 { move-window-to-workspace 4; }
+    Mod+Alt+5 { move-window-to-workspace 5; }
+    Mod+Alt+6 { move-window-to-workspace 6; }
+    Mod+Alt+7 { move-window-to-workspace 7; }
+    Mod+Alt+8 { move-window-to-workspace 8; }
+    Mod+Alt+9 { move-window-to-workspace 9; }
 
     Mod+Tab       { focus-window-previous; }
     Mod+Alt+Tab       { focus-workspace-previous; }

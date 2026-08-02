@@ -27,7 +27,7 @@ window.bar {
 
 .bar {
     background: #0e0e0e;
-    padding: 0 3px;
+    padding: 0;
 }
 
 /* ─── Labels ──────────────────────────────────────────────── */
@@ -60,8 +60,10 @@ button {
 /* ─── Workspaces ──────────────────────────────────────────── */
 
 .workspaces {
-    font-size: 9px;
-    letter-spacing: 2px;
+    font-size: 13px;
+    min-width: 144px;
+    padding: 0 4px;
+    letter-spacing: 3px;
     font-weight: 600;
 }
 

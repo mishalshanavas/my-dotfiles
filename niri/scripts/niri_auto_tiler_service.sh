@@ -3,6 +3,7 @@
 set -euo pipefail
 
 runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}"
 
 find_niri_socket() {
     if [[ -n "${NIRI_SOCKET:-}" && -S "$NIRI_SOCKET" ]]; then
@@ -19,7 +20,7 @@ for _ in {1..200}; do
     socket_path="$(find_niri_socket)"
     if [[ -n "$socket_path" && -S "$socket_path" ]]; then
         export NIRI_SOCKET="$socket_path"
-        exec /usr/bin/python3 /home/mishal/.config/niri/scripts/niri_tile_to_n.py -n 3 -delay 2000
+        exec /usr/bin/python3 "$config_dir/niri/scripts/niri_tile_to_n.py" -n 3 -delay 2000 --ignore-workspace-name scratchpad
     fi
     sleep 0.1
 done

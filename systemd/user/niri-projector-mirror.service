@@ -5,7 +5,7 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/home/mishal/.config/niri/scripts/projector-mirror-service.sh
+ExecStart=%h/.config/niri/scripts/projector-mirror-service.sh
 Restart=always
 RestartSec=2
 
