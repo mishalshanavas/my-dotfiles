@@ -20,22 +20,22 @@
 
 ;; ─── Network ────────────────────────────────────────────────
 
-(deflisten network :initial " Off"
+(deflisten network :initial ""
   `$HOME/.config/eww/scripts/network.sh`)
 
 ;; ─── Volume ─────────────────────────────────────────────────
 
-(deflisten volume :initial "  --%"
+(deflisten volume :initial ""
   `$HOME/.config/eww/scripts/volume.sh`)
 
 ;; ─── Brightness ─────────────────────────────────────────────
 
-(deflisten brightness :initial "  --%"
+(deflisten brightness :initial ""
   `$HOME/.config/eww/scripts/brightness.sh`)
 
 ;; ─── Battery ────────────────────────────────────────────────
 
-(deflisten battery :initial "  --%"
+(deflisten battery :initial ""
   `$HOME/.config/eww/scripts/battery.sh`)
 
 ;; ─── Music (MPRIS) ──────────────────────────────────────────
@@ -45,30 +45,34 @@
 
 ;; ─── Caffeine ───────────────────────────────────────────────
 
-(deflisten caffeine :initial ""
+(deflisten caffeine :initial ""
   `$HOME/.config/eww/scripts/caffeine-watch.sh`)
 
 ;; ─── Bluetooth ──────────────────────────────────────────────
 
-(deflisten bluetooth :initial ""
+(deflisten bluetooth :initial ""
   `$HOME/.config/eww/scripts/bluetooth-watch.sh`)
 
 ;; ─── Widgets ────────────────────────────────────────────────
 
 (defwidget workspaces-widget []
-  (label :text workspaces
-         :class "workspaces"
-         :halign "start"
-         :xalign 0
-         :tooltip "Super+1…9: focus workspace\nSuper+Alt+1…9: move focused window\nSuper+Ctrl+1…9: move focused column"))
+  (button :onclick "niri msg action focus-workspace-down"
+          :onrightclick "niri msg action focus-workspace-up"
+          :class "workspaces"
+          :tooltip "Left: next workspace • Right: previous workspace"
+    (label :text workspaces
+           :halign "start"
+           :xalign 0)))
 
 (defwidget clock-widget []
   (label :text clock :class "clock" :tooltip date_tooltip))
 
 (defwidget music-widget []
-  (label :text music
-         :class "music"
-         :visible {music != "" ? "true" : "false"}))
+  (button :onclick "bash $HOME/.config/eww/scripts/music-toggle.sh"
+          :class "music"
+          :tooltip "Play / pause"
+          :visible {music != "" ? "true" : "false"}
+    (label :text music)))
 
 (defwidget caffeine-widget []
   (button :onclick "$HOME/.config/eww/scripts/caffeine-toggle.sh"
@@ -93,7 +97,7 @@
           :onrightclick "pactl set-sink-volume @DEFAULT_SINK@ -5%"
           :onmiddleclick "pactl set-sink-mute @DEFAULT_SINK@ toggle"
           :class "volume"
-    (label :text volume)))
+    (label :markup volume)))
 
 (defwidget brightness-widget []
   (button :onclick "$HOME/.config/eww/scripts/brightness-adjust.sh up"
@@ -109,7 +113,7 @@
 (defwidget power-widget []
   (button :onclick "$HOME/.config/eww/scripts/power.sh &"
           :class "power"
-    (label :text "⏻")))
+    (label :text "")))
 
 ;; ─── Bar Window ─────────────────────────────────────────────
 
@@ -135,7 +139,7 @@
     (box :hexpand true :halign "center" :space-evenly false
       (clock-widget))
     ;; RIGHT
-    (box :hexpand true :halign "end" :space-evenly false :spacing 4
+    (box :hexpand true :halign "end" :space-evenly false :spacing 1
       (music-widget)
       (caffeine-widget)
       (network-widget)

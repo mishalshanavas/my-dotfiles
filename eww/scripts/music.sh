@@ -38,11 +38,11 @@ render() {
     [ -z "$title" ] && { printf '\n'; return; }
 
     if [ "$status" = "Playing" ]; then
-        icon=''
+        icon='Ⅱ'
     elif [ "$status" = "Paused" ]; then
-        icon=''
+        icon='▶'
     else
-        icon=''
+        icon='▶'
     fi
 
     local max=30

@@ -8,9 +8,9 @@ last=""
 
 render() {
     if [ -f "$FILE" ]; then
-        current=''
+        current=$'\uefef'
     else
-        current=''
+        current=$'\uf159'
     fi
 
     if [ "$current" != "$last" ]; then

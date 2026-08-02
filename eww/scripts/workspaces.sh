@@ -7,7 +7,7 @@ render() {
     niri msg --json workspaces 2>/dev/null | jq -r '
         sort_by(.idx)
         | map(if .is_focused then "●" else "○" end)
-        | join("1111")
+        | join("\u2009")
       ' || printf '?\n'
 }
 

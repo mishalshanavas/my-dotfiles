@@ -45,7 +45,8 @@ fi
 boosted=$((pct + boost_pct))
 [ "$boosted" -gt 100 ] && boosted=100
 
-eww update battery=" $boosted%"
+icon=$'\ue1a5'
+eww update battery="$icon $boosted%"
 
 # ── Background: revert after 5s of inactivity ────────────────
 (
@@ -67,12 +68,12 @@ eww update battery=" $boosted%"
             real_pct=${info#*|}
 
             case "$state_raw" in
-                charging|fully-charged|pending-charge) icon='' ;;
-                *)  if [ -n "$real_pct" ] && [ "$real_pct" -ge 90 ]; then icon=''
-                    elif [ -n "$real_pct" ] && [ "$real_pct" -ge 70 ]; then icon=''
-                    elif [ -n "$real_pct" ] && [ "$real_pct" -ge 50 ]; then icon=''
-                    elif [ -n "$real_pct" ] && [ "$real_pct" -ge 20 ]; then icon=''
-                    else icon=''
+                charging|fully-charged|pending-charge) icon=$'\ue1a3' ;;
+                *)  if [ -n "$real_pct" ] && [ "$real_pct" -ge 90 ]; then icon=$'\ue1a5'
+                    elif [ -n "$real_pct" ] && [ "$real_pct" -ge 70 ]; then icon=$'\uf0a1'
+                    elif [ -n "$real_pct" ] && [ "$real_pct" -ge 50 ]; then icon=$'\uf09f'
+                    elif [ -n "$real_pct" ] && [ "$real_pct" -ge 20 ]; then icon=$'\uf09e'
+                    else icon=$'\uf09c'
                     fi ;;
             esac
 

@@ -13,10 +13,12 @@ truncate_label() {
 }
 
 render() {
-    local state iface label eth connecting radio
+    local state iface label eth connecting radio wifi_icon ethernet_icon
+    wifi_icon=$'\ue63e'
+    ethernet_icon=$'\ue8be'
 
     if ! command -v nmcli >/dev/null 2>&1; then
-        printf ' N/A\n'
+        printf '%s N/A\n' "$wifi_icon"
         return
     fi
 
@@ -27,27 +29,27 @@ render() {
         label=$(nmcli -g GENERAL.CONNECTION dev show "$iface" 2>/dev/null | head -n 1)
         [ -z "$label" ] || [ "$label" = "--" ] && label="WiFi"
         label=$(truncate_label "$label" 18)
-        printf ' %s\n' "$label"
+        printf '%s %s\n' "$wifi_icon" "$label"
         return
     fi
 
     eth=$(printf '%s\n' "$state" | awk -F: '$2=="ethernet" && $3=="connected" {print $1; exit}')
     if [ -n "$eth" ]; then
-        printf ' Wired\n'
+        printf '%s Wired\n' "$ethernet_icon"
         return
     fi
 
     connecting=$(printf '%s\n' "$state" | awk -F: '$2=="wifi" && $3 ~ /(connecting|configuring|prepare|need-auth)/ {print 1; exit}')
     if [ -n "$connecting" ]; then
-        printf ' …\n'
+        printf '%s …\n' "$wifi_icon"
         return
     fi
 
     radio=$(nmcli -t -f WIFI general 2>/dev/null | head -n 1)
     if [ "$radio" = "disabled" ]; then
-        printf ' Off\n'
+        printf '%s Off\n' "$wifi_icon"
     else
-        printf ' Down\n'
+        printf '%s Down\n' "$wifi_icon"
     fi
 }
 

@@ -4,7 +4,7 @@
 power=$(bluetoothctl show 2>/dev/null | awk '/Powered/ {print $2}')
 
 if [ "$power" != "yes" ]; then
-    printf '\n'
+    printf '%s\n' $'\ue1a7'
     exit 0
 fi
 
@@ -15,7 +15,7 @@ if [ -n "$dev_name" ]; then
     if [ "${#dev_name}" -gt 14 ]; then
         dev_name="${dev_name:0:13}…"
     fi
-    printf ' %s\n' "$dev_name"
+    printf '%s %s\n' $'\ue1a8' "$dev_name"
 else
-    printf '\n'
+    printf '%s\n' $'\ue1a7'
 fi

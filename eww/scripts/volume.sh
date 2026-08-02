@@ -9,21 +9,21 @@ get_default_sink() {
 render() {
     local sink vol mute icon
     sink=$(get_default_sink)
-    [ -z "$sink" ] && { printf ' --%%\n'; return; }
+    [ -z "$sink" ] && { printf '<span font_family="Material Symbols Rounded" size="large">%s</span> --%%\n' $'\ue04f'; return; }
 
     vol=$(pactl get-sink-volume "$sink" 2>/dev/null | awk 'NR==1{print $5}' | tr -d '%')
     mute=$(pactl get-sink-mute "$sink" 2>/dev/null | awk '{print $2}')
 
     if [ "$mute" = "yes" ]; then
-        printf ' Muted\n'
+        printf '<span font_family="Material Symbols Rounded" size="large">%s</span> Muted\n' $'\ue04f'
     elif ! [[ "$vol" =~ ^[0-9]+$ ]]; then
-        printf ' --%%\n'
+        printf '<span font_family="Material Symbols Rounded" size="large">%s</span> --%%\n' $'\ue050'
     elif [ "$vol" -ge 70 ]; then
-        printf ' %s%%\n' "$vol"
+        printf '<span font_family="Material Symbols Rounded" size="large">%s</span> %s%%\n' $'\ue050' "$vol"
     elif [ "$vol" -ge 30 ]; then
-        printf ' %s%%\n' "$vol"
+        printf '<span font_family="Material Symbols Rounded" size="large">%s</span> %s%%\n' $'\ue04d' "$vol"
     else
-        printf ' %s%%\n' "$vol"
+        printf '<span font_family="Material Symbols Rounded" size="large">%s</span> %s%%\n' $'\ue04d' "$vol"
     fi
 }
 

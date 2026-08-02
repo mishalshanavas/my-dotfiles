@@ -33,12 +33,12 @@ render() {
     esac
 
     if [ "$status" = "charging" ]; then
-        icon=''
-    elif [ -n "$pct" ] && [ "$pct" -ge 90 ]; then icon=''
-    elif [ -n "$pct" ] && [ "$pct" -ge 70 ]; then icon=''
-    elif [ -n "$pct" ] && [ "$pct" -ge 50 ]; then icon=''
-    elif [ -n "$pct" ] && [ "$pct" -ge 20 ]; then icon=''
-    else icon=''
+        icon=$'\ue1a3'
+    elif [ -n "$pct" ] && [ "$pct" -ge 90 ]; then icon=$'\ue1a5'
+    elif [ -n "$pct" ] && [ "$pct" -ge 70 ]; then icon=$'\uf0a1'
+    elif [ -n "$pct" ] && [ "$pct" -ge 50 ]; then icon=$'\uf09f'
+    elif [ -n "$pct" ] && [ "$pct" -ge 20 ]; then icon=$'\uf09e'
+    else icon=$'\uf09c'
     fi
 
     if [ -n "$pct" ]; then
@@ -50,7 +50,7 @@ render() {
 
 BAT_DEV=$(find_battery)
 while [ -z "$BAT_DEV" ]; do
-    printf ' N/A\n'
+    printf '%s N/A\n' $'\uf09c'
     sleep 30
     BAT_DEV=$(find_battery)
 done

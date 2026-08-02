@@ -25,7 +25,7 @@ render() {
     power=$(bluetoothctl show 2>/dev/null | awk '/Powered/ {print $2}')
 
     if [ "$power" != "yes" ]; then
-        printf ' Off\n'
+        printf '%s Off\n' $'\ue1a9'
         return
     fi
 
@@ -44,10 +44,10 @@ render() {
             dev_name="Connecting..."
         fi
         [ "${#dev_name}" -gt 16 ] && dev_name="${dev_name:0:15}…"
-        printf ' %s\n' "$dev_name"
+        printf '%s %s\n' $'\ue1a8' "$dev_name"
         auto_switch_sink "$dev_name"
     else
-        printf ' On\n'
+        printf '%s On\n' $'\ue1a7'
     fi
 }
 

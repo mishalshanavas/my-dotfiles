@@ -13,19 +13,19 @@ backlight_path() {
 
 render() {
     local cur max pct icon
-    [ -z "$BL_PATH" ] && { printf ' N/A\n'; return; }
+    [ -z "$BL_PATH" ] && { printf '%s N/A\n' $'\ue3ab'; return; }
 
     cur=$(tr -cd '0-9' < "$BL_PATH/brightness")
     max=$(tr -cd '0-9' < "$BL_PATH/max_brightness")
 
     if [ -z "$cur" ] || [ -z "$max" ] || [ "$max" -eq 0 ]; then
-        printf ' N/A\n'
+        printf '%s N/A\n' $'\ue3ab'
         return
     fi
 
     pct=$(( (100 * cur + max / 2) / max ))
 
-    printf ' %s%%\n' "$pct"
+    printf '%s %s%%\n' $'\ue3ab' "$pct"
 }
 
 BL_PATH=$(backlight_path)
@@ -44,7 +44,7 @@ fi
 if command -v inotifywait >/dev/null 2>&1; then
     while :; do
         [ -r "$BL_PATH/brightness" ] || BL_PATH=$(backlight_path)
-        [ -n "$BL_PATH" ] || { printf ' N/A\n'; sleep 5; continue; }
+        [ -n "$BL_PATH" ] || { printf '%s N/A\n' $'\ue3ab'; sleep 5; continue; }
         inotifywait -q -m -e modify -e close_write "$BL_PATH/brightness" 2>/dev/null | while IFS= read -r _; do
             render
         done
