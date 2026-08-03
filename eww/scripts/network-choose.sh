@@ -109,8 +109,9 @@ if printf '%s\n' "$output" | grep -Eiq "secrets|password|no valid secrets|802-11
     password=$(fuzzel --dmenu --prompt-only="Password: " --password --width 34)
     [ -z "$password" ] && exit 0
 
-    output=$(nmcli --wait 25 dev wifi connect "$ssid" password "$password" ifname "$iface" 2>&1)
+    output=$(printf '%s\n' "$password" | nmcli --ask --wait 25 dev wifi connect "$ssid" ifname "$iface" 2>&1)
     ret=$?
+    unset password
 
     if [ $ret -eq 0 ]; then
         notify "Connected to $ssid"

@@ -1,16 +1,23 @@
-#!/bin/sh
-# Eww deflisten — caffeine status via inotify (instant)
+#!/usr/bin/env bash
+# Eww deflisten — report the actual caffeine inhibitor state.
 
-uid=$(id -u)
-DIR="${XDG_RUNTIME_DIR:-/tmp}"
-FILE="${DIR}/caffeine-${uid}"
+runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
+pid_file="${runtime_dir}/eww-caffeine.pid"
 last=""
 
+is_active() {
+    local pid
+    [ -r "$pid_file" ] || return 1
+    pid=$(cat "$pid_file" 2>/dev/null)
+    [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null
+}
+
 render() {
-    if [ -f "$FILE" ]; then
-        current=$'\uefef'
+    if is_active; then
+        current="true"
     else
-        current=$'\uf159'
+        rm -f "$pid_file"
+        current="false"
     fi
 
     if [ "$current" != "$last" ]; then
@@ -21,9 +28,9 @@ render() {
 
 render
 if command -v inotifywait >/dev/null 2>&1; then
-    while changed=$(inotifywait -q -e create,delete,move,close_write --format '%f' "$DIR" 2>/dev/null); do
+    while changed=$(inotifywait -q -e create,delete,move,close_write --format '%f' "$runtime_dir" 2>/dev/null); do
         case "$changed" in
-            "$(basename "$FILE")") render ;;
+            "$(basename "$pid_file")") render ;;
         esac
     done
 fi

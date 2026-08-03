@@ -1,10 +1,6 @@
 ;; ── Eww Bar - Compact Minimal ────────────────────────────────
 ;; Dependencies: nmcli, pactl, upower, bluetoothctl, fuzzel, niri
 
-;; ─── Visibility Toggle Variable ─────────────────────────────
-
-(defvar bar-visible true)
-
 ;; ─── Clock ──────────────────────────────────────────────────
 
 (defpoll clock :interval "1s"
@@ -15,7 +11,26 @@
 
 ;; ─── Workspaces (niri) ──────────────────────────────────────
 
-(deflisten workspaces :initial "●"
+(defvar workspace_1 "○")
+(defvar workspace_2 "○")
+(defvar workspace_3 "○")
+(defvar workspace_4 "○")
+(defvar workspace_5 "○")
+(defvar workspace_6 "○")
+(defvar workspace_7 "○")
+(defvar workspace_8 "○")
+(defvar workspace_9 "○")
+(defvar workspace_visible_1 "false")
+(defvar workspace_visible_2 "false")
+(defvar workspace_visible_3 "false")
+(defvar workspace_visible_4 "false")
+(defvar workspace_visible_5 "false")
+(defvar workspace_visible_6 "false")
+(defvar workspace_visible_7 "false")
+(defvar workspace_visible_8 "false")
+(defvar workspace_visible_9 "false")
+
+(deflisten workspace_sync :initial ""
   `$HOME/.config/eww/scripts/workspaces.sh`)
 
 ;; ─── Network ────────────────────────────────────────────────
@@ -38,6 +53,11 @@
 (deflisten battery :initial ""
   `$HOME/.config/eww/scripts/battery.sh`)
 
+;; Alternates true/false every second; used to blink the battery
+;; label when the charge is critical.
+(defpoll battery_blink :interval "1s"
+  `$HOME/.config/eww/scripts/battery-blink.sh`)
+
 ;; ─── Music (MPRIS) ──────────────────────────────────────────
 
 (deflisten music :initial ""
@@ -56,13 +76,17 @@
 ;; ─── Widgets ────────────────────────────────────────────────
 
 (defwidget workspaces-widget []
-  (button :onclick "niri msg action focus-workspace-down"
-          :onrightclick "niri msg action focus-workspace-up"
-          :class "workspaces"
-          :tooltip "Left: next workspace • Right: previous workspace"
-    (label :text workspaces
-           :halign "start"
-           :xalign 0)))
+  (box :class "workspaces" :spacing 0
+    (label :text workspace_sync :visible false)
+    (button :onclick "niri msg action focus-workspace 1" :tooltip "Workspace 1" :visible {workspace_visible_1 == "true" ? "true" : "false"} (label :text workspace_1))
+    (button :onclick "niri msg action focus-workspace 2" :tooltip "Workspace 2" :visible {workspace_visible_2 == "true" ? "true" : "false"} (label :text workspace_2))
+    (button :onclick "niri msg action focus-workspace 3" :tooltip "Workspace 3" :visible {workspace_visible_3 == "true" ? "true" : "false"} (label :text workspace_3))
+    (button :onclick "niri msg action focus-workspace 4" :tooltip "Workspace 4" :visible {workspace_visible_4 == "true" ? "true" : "false"} (label :text workspace_4))
+    (button :onclick "niri msg action focus-workspace 5" :tooltip "Workspace 5" :visible {workspace_visible_5 == "true" ? "true" : "false"} (label :text workspace_5))
+    (button :onclick "niri msg action focus-workspace 6" :tooltip "Workspace 6" :visible {workspace_visible_6 == "true" ? "true" : "false"} (label :text workspace_6))
+    (button :onclick "niri msg action focus-workspace 7" :tooltip "Workspace 7" :visible {workspace_visible_7 == "true" ? "true" : "false"} (label :text workspace_7))
+    (button :onclick "niri msg action focus-workspace 8" :tooltip "Workspace 8" :visible {workspace_visible_8 == "true" ? "true" : "false"} (label :text workspace_8))
+    (button :onclick "niri msg action focus-workspace 9" :tooltip "Workspace 9" :visible {workspace_visible_9 == "true" ? "true" : "false"} (label :text workspace_9))))
 
 (defwidget clock-widget []
   (label :text clock :class "clock" :tooltip date_tooltip))
@@ -76,13 +100,14 @@
 
 (defwidget caffeine-widget []
   (button :onclick "$HOME/.config/eww/scripts/caffeine-toggle.sh"
-          :class "caffeine"
-    (label :text caffeine)))
+      :class {caffeine == "true" ? "caffeine caffeine-active" : "caffeine"}
+          :tooltip "Toggle automatic sleep inhibition"
+    (label :text {caffeine == "true" ? "" : ""})))
 
 (defwidget network-widget []
   (button :onclick "$HOME/.config/eww/scripts/network-choose.sh &"
           :onrightclick "$HOME/.config/eww/scripts/network-choose.sh --tui &"
-          :class "network"
+      :class {matches(network, "(Off|Down|N/A)$") ? "network network-disconnected" : "network"}
           :tooltip "Left: WiFi networks / Right: nmtui"
     (label :text network)))
 
@@ -96,23 +121,26 @@
   (button :onclick "pactl set-sink-volume @DEFAULT_SINK@ +5%"
           :onrightclick "pactl set-sink-volume @DEFAULT_SINK@ -5%"
           :onmiddleclick "pactl set-sink-mute @DEFAULT_SINK@ toggle"
-          :class "volume"
-    (label :markup volume)))
+    :class {matches(volume, "Muted$") ? "volume volume-muted" : "volume"}
+    :tooltip "Left: volume up / Right: volume down / Middle: mute"
+    (label :text volume)))
 
 (defwidget brightness-widget []
   (button :onclick "$HOME/.config/eww/scripts/brightness-adjust.sh up"
           :onrightclick "$HOME/.config/eww/scripts/brightness-adjust.sh down"
-          :class "brightness"
+    :class "brightness"
+    :tooltip "Left: brighter / Right: dimmer"
     (label :text brightness)))
 
 (defwidget battery-widget []
-  (button :onclick "$HOME/.config/eww/scripts/battery-boost.sh &"
-          :class "battery"
+  (button :class {matches(battery, " ([0-9]|10)%$") ? (battery_blink == "true" ? "battery battery-critical battery-blink" : "battery battery-critical") : (matches(battery, " ([0-9]|1[0-9]|20)%$") ? "battery battery-low" : "battery")}
+    :tooltip "Battery charge"
     (label :text battery)))
 
 (defwidget power-widget []
   (button :onclick "$HOME/.config/eww/scripts/power.sh &"
-          :class "power"
+    :class "power"
+    :tooltip "Power menu"
     (label :text "")))
 
 ;; ─── Bar Window ─────────────────────────────────────────────

@@ -6,17 +6,17 @@
 AUDIO_SWITCHED_FILE="${XDG_RUNTIME_DIR:-/tmp}/eww_bt_audio_switched"
 
 auto_switch_sink() {
-    local dev_name="$1"
-    local sink
-    # Find bluez sink
-    sink=$(pactl list short sinks 2>/dev/null | grep -i bluez | head -1 | awk '{print $1}')
+    local mac="$1"
+    local device_id sink
+    device_id="bluez_output.${mac//:/_}"
+    sink=$(pactl list short sinks 2>/dev/null | awk -v device_id="$device_id" 'index($2, device_id) == 1 { print $2; exit }')
     [ -z "$sink" ] && return
-    # Only switch if this is a new connection
+
     local last
     last=$(cat "$AUDIO_SWITCHED_FILE" 2>/dev/null)
-    [ "$dev_name" = "$last" ] && return
-    pactl set-default-sink "$sink" 2>/dev/null
-    echo "$dev_name" > "$AUDIO_SWITCHED_FILE"
+    [ "$mac" = "$last" ] && return
+    pactl set-default-sink "$sink" 2>/dev/null || return
+    printf '%s\n' "$mac" > "$AUDIO_SWITCHED_FILE"
 }
 
 render() {
@@ -45,8 +45,9 @@ render() {
         fi
         [ "${#dev_name}" -gt 16 ] && dev_name="${dev_name:0:15}…"
         printf '%s %s\n' $'\ue1a8' "$dev_name"
-        auto_switch_sink "$dev_name"
+        auto_switch_sink "$mac"
     else
+        rm -f "$AUDIO_SWITCHED_FILE"
         printf '%s On\n' $'\ue1a7'
     fi
 }

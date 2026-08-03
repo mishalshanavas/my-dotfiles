@@ -57,9 +57,12 @@ button label,
 .workspaces {
     font-family: "Inter", sans-serif;
     font-size: 12px;
-    min-width: 64px;
+    padding: 0;
+}
+
+.workspaces button {
     padding: 0 1px;
-    letter-spacing: 1px;
+    min-width: 11px;
 }
 
 button:hover,
@@ -76,6 +79,43 @@ button:active {
 button.power:hover,
 button.power:active {
     background: #57252a;
+}
+
+.battery-low label {
+    color: #ff6b72;
+}
+
+.battery-critical label {
+    color: #ff3b3f;
+}
+
+.battery-blink label {
+    opacity: 0.25;
+}
+
+.network-disconnected label {
+    color: #f29e5b;
+}
+
+.volume-muted label {
+    color: #f3c969;
+}
+
+.caffeine-active label {
+    color: #62d9d0;
+}
+
+.battery-low:hover {
+    background: #43252a;
+}
+
+.network-disconnected:hover,
+.volume-muted:hover {
+    background: #403326;
+}
+
+.caffeine-active:hover {
+    background: #1d3b3a;
 }
 
 tooltip {

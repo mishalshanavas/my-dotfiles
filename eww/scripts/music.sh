@@ -25,7 +25,7 @@ render() {
         | grep -o 'Playing\|Paused\|Stopped' | head -1)
 
     # Get metadata
-    local metadata title artist
+    local metadata
     metadata=$(dbus-send --session --dest="$player" --type=method_call \
         --print-reply /org/mpris/MediaPlayer2 \
         org.freedesktop.DBus.Properties.Get \
@@ -67,9 +67,13 @@ render
 # Watch DBus for MPRIS changes. If dbus-monitor is unavailable or exits, fall
 # back to a light poll so the Eww listener keeps producing updates.
 if command -v dbus-monitor >/dev/null 2>&1; then
-    dbus-monitor --session "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'" 2>/dev/null \
-        | grep --line-buffered -E 'org\.mpris\.MediaPlayer2|xesam:|PlaybackStatus' | while IFS= read -r _; do
-        render
+    dbus-monitor --session \
+        "type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged',arg0='org.mpris.MediaPlayer2.Player'" \
+        "type='signal',interface='org.freedesktop.DBus',member='NameOwnerChanged',arg0namespace='org.mpris.MediaPlayer2'" \
+        2>/dev/null | while IFS= read -r line; do
+        case "$line" in
+            *"member=PropertiesChanged"*|*"member=NameOwnerChanged"*) render ;;
+        esac
     done
 fi
 
