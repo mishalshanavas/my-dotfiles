@@ -123,7 +123,7 @@
           :onmiddleclick "pactl set-sink-mute @DEFAULT_SINK@ toggle"
     :class {matches(volume, "Muted$") ? "volume volume-muted" : "volume"}
     :tooltip "Left: volume up / Right: volume down / Middle: mute"
-    (label :text volume)))
+    (label :markup volume)))
 
 (defwidget brightness-widget []
   (button :onclick "$HOME/.config/eww/scripts/brightness-adjust.sh up"
