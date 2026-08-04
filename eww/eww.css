@@ -85,6 +85,10 @@ button.power:active {
     color: #ff6b72;
 }
 
+.battery-charging label {
+    color: #4ade80;
+}
+
 .battery-critical label {
     color: #ff3b3f;
 }
@@ -102,7 +106,7 @@ button.power:active {
 }
 
 .caffeine-active label {
-    color: #62d9d0;
+    color: #c8732e;
 }
 
 .battery-low:hover {
@@ -115,7 +119,7 @@ button.power:active {
 }
 
 .caffeine-active:hover {
-    background: #1d3b3a;
+    background: #3a2a1d;
 }
 
 tooltip {

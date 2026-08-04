@@ -133,7 +133,7 @@
     (label :text brightness)))
 
 (defwidget battery-widget []
-  (button :class {matches(battery, " ([0-9]|10)%$") ? (battery_blink == "true" ? "battery battery-critical battery-blink" : "battery battery-critical") : (matches(battery, " ([0-9]|1[0-9]|20)%$") ? "battery battery-low" : "battery")}
+  (button :class {matches(battery, "") ? "battery battery-charging" : (matches(battery, " ([0-9]|10)%$") ? (battery_blink == "true" ? "battery battery-critical battery-blink" : "battery battery-critical") : (matches(battery, " ([0-9]|1[0-9]|20)%$") ? "battery battery-low" : "battery"))}
     :tooltip "Battery charge"
     (label :text battery)))
 

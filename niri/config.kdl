@@ -289,7 +289,7 @@ binds {
 
     Mod+O repeat=false { toggle-overview; }
 
-    Mod+Q       repeat=false hotkey-overlay-title="Close Window" { close-window; }
+    Alt+Q       repeat=false hotkey-overlay-title="Close Window" { close-window; }
     Mod+Shift+Q repeat=false hotkey-overlay-title="Force Kill Window" { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_force_kill_focused.sh\""; }
 
     // Focus navigation
