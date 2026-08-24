@@ -5,12 +5,26 @@
 render() {
     local status artist title icon
 
-    # Get first active MPRIS player
-    local player
-    player=$(dbus-send --session --dest=org.freedesktop.DBus \
+    # Prefer the actively playing MPRIS client; fall back to the first player.
+    local player candidate
+    local -a players
+    mapfile -t players < <(dbus-send --session --dest=org.freedesktop.DBus \
         --type=method_call --print-reply /org/freedesktop/DBus \
         org.freedesktop.DBus.ListNames 2>/dev/null \
-        | grep -o 'org.mpris.MediaPlayer2\.[^"]*' | head -1)
+        | grep -o 'org.mpris.MediaPlayer2\.[^"]*')
+
+    player=${players[0]:-}
+    for candidate in "${players[@]}"; do
+        status=$(dbus-send --session --dest="$candidate" --type=method_call \
+            --print-reply /org/mpris/MediaPlayer2 \
+            org.freedesktop.DBus.Properties.Get \
+            string:org.mpris.MediaPlayer2.Player string:PlaybackStatus 2>/dev/null \
+            | grep -o 'Playing\|Paused\|Stopped' | head -1)
+        if [ "$status" = "Playing" ]; then
+            player=$candidate
+            break
+        fi
+    done
 
     if [ -z "$player" ]; then
         printf '\n'

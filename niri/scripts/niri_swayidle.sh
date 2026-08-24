@@ -2,17 +2,24 @@
 
 set -euo pipefail
 
-caffeine_file="${XDG_RUNTIME_DIR:-/tmp}/caffeine-$(id -u)"
+caffeine_pid_file="${XDG_RUNTIME_DIR:-/tmp}/eww-caffeine.pid"
 config_dir="${XDG_CONFIG_HOME:-$HOME/.config}"
 lock_cmd="$config_dir/swaylock/lock.sh"
 
+caffeine_active() {
+    local pid
+    [[ -r "$caffeine_pid_file" ]] || return 1
+    IFS= read -r pid < "$caffeine_pid_file" || return 1
+    [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null
+}
+
 case "${1:-run}" in
     maybe-lock)
-        [[ -e "$caffeine_file" ]] || exec "$lock_cmd"
+        caffeine_active || exec "$lock_cmd"
         exit 0
         ;;
     maybe-power-off-monitors)
-        [[ -e "$caffeine_file" ]] || exec niri msg action power-off-monitors
+        caffeine_active || exec niri msg action power-off-monitors
         exit 0
         ;;
     lock-before-sleep)

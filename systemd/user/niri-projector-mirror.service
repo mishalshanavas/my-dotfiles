@@ -2,12 +2,18 @@
 Description=Mirror the Niri laptop panel to the HDMI projector
 After=graphical-session.target
 PartOf=graphical-session.target
+ConditionFileIsExecutable=/usr/bin/niri
+ConditionFileIsExecutable=/usr/bin/jq
+ConditionFileIsExecutable=/usr/bin/wl-mirror
+StartLimitIntervalSec=30s
+StartLimitBurst=5
 
 [Service]
 Type=simple
 ExecStart=%h/.config/niri/scripts/projector-mirror-service.sh
-Restart=always
+Restart=on-failure
 RestartSec=2
+NoNewPrivileges=true
 
 [Install]
 WantedBy=graphical-session.target

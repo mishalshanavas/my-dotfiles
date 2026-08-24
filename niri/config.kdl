@@ -15,6 +15,36 @@ hotkey-overlay {
     hide-not-bound
 }
 
+overview {
+    zoom 0.4
+    backdrop-color "#000000"
+
+    workspace-shadow {
+        off
+    }
+}
+
+recent-windows {
+    open-delay-ms 100
+
+    highlight {
+        active-color "#333333"
+        urgent-color "#e04f5f"
+        padding 8
+        corner-radius 0
+    }
+
+    previews {
+        max-height 320
+        max-scale 0.35
+    }
+
+    binds {
+        Alt+Tab       { next-window scope="workspace"; }
+        Alt+Shift+Tab { previous-window scope="workspace"; }
+    }
+}
+
 cursor {
     xcursor-theme "Adwaita"
     xcursor-size 24
@@ -72,7 +102,8 @@ output "eDP-1" {
 }
 
 layout {
-    gaps 1
+    // Dense, edge-to-edge tiling.
+    gaps 0
 
     preset-column-widths {
         proportion 0.33333
@@ -96,23 +127,23 @@ layout {
     // Subtle 1px border for focus visibility
     border {
         width 1
-        active-color "#555555"
+        active-color "#777777"
         inactive-color "#00000000"
         urgent-color "#e04f5f"
     }
 
     shadow {
-        on
-        softness 24
-        spread 3
-        offset x=0 y=4
-        color "#00000050"
+        off
     }
 
     // Tab indicator: clean tabs, hidden when single
     tab-indicator {
         hide-when-single-tab
         place-within-column
+        gap 0
+        width 2
+        gaps-between-tabs 0
+        corner-radius 0
     }
 
     // Visual hint when interactively moving windows
@@ -153,20 +184,22 @@ xwayland-satellite {
 
 // ── Animations ─────────────────────────────────────────────────────────────
 animations {
+    // Fast, critically damped motion preserves spatial context without bounce.
+    slowdown 0.8
     workspace-switch {
         spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
     }
     window-open {
-        spring damping-ratio=0.8 stiffness=800 epsilon=0.0001
+        off
     }
     window-close {
         off
     }
     window-movement {
-        spring damping-ratio=0.85 stiffness=300 epsilon=0.001
+        spring damping-ratio=1.0 stiffness=600 epsilon=0.001
     }
     horizontal-view-movement {
-        spring damping-ratio=0.85 stiffness=300 epsilon=0.0001
+        spring damping-ratio=1.0 stiffness=600 epsilon=0.001
     }
 }
 // ── Window rules ───────────────────────────────────────────────────────────
@@ -221,33 +254,12 @@ window-rule {
     clip-to-geometry true
 }
 
-// Floating terminal (Ghostty --class floating-terminal)
+// Floating terminal (dedicated Ghostty D-Bus instance and Wayland app-id)
 window-rule {
-    match app-id="floating-terminal"
+    match app-id="com.mishal.FloatingTerminal"
     open-floating true
     default-column-width { fixed 680; }
     default-window-height { fixed 330; }
-}
-
-// Shadow on floating windows for visual depth
-// Exclude transient popups, notifications, and mako
-window-rule {
-    match is-floating=true
-    shadow {
-        on
-        softness 20
-        spread 2
-        offset x=0 y=4
-        color "#00000060"
-    }
-}
-
-// Override: no shadow on transient/popup windows
-window-rule {
-    match app-id=r#"^(mako|org\.freedesktop\.Notifications)$"#
-    shadow {
-        off
-    }
 }
 
 // Keep transient notifications out of portal screencasts.
@@ -261,12 +273,14 @@ layer-rule {
 binds {
     // Modifier policy: Alt = general application/system actions; Mod (Super) = window/workspace/layout actions.
 
-    // Terminal — spawn-jump: focus existing or spawn new
-    // Ghostty's app-id is com.mitchellh.ghostty (not just ghostty)
-    Alt+Return hotkey-overlay-title="Open Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" ghostty com.mitchellh.ghostty -l 3 -w"; }
-    Alt+T      hotkey-overlay-title="Open Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" ghostty com.mitchellh.ghostty -l 3 -w"; }
-    Alt+Shift+Return hotkey-overlay-title="Floating Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" 'ghostty --class=floating-terminal' floating-terminal -p"; }
-    Alt+Shift+T      hotkey-overlay-title="Floating Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" 'ghostty --class=floating-terminal' floating-terminal -p"; }
+    // Always request a new window from the running Ghostty instance. Fall back
+    // to starting Ghostty when no instance owns its D-Bus name yet.
+    Alt+Return repeat=false hotkey-overlay-title="New Terminal" { spawn-sh "ghostty +new-window >/dev/null 2>&1 || exec ghostty"; }
+    Alt+T      repeat=false hotkey-overlay-title="New Terminal" { spawn-sh "ghostty +new-window >/dev/null 2>&1 || exec ghostty"; }
+    // A valid reverse-DNS class gives the floating terminal its own Ghostty
+    // instance and Wayland app-id, independent from regular terminal windows.
+    Alt+Shift+Return repeat=false hotkey-overlay-title="Toggle Floating Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" 'ghostty --class=com.mishal.FloatingTerminal' com.mishal.FloatingTerminal --scratch"; }
+    Alt+Shift+T      repeat=false hotkey-overlay-title="Toggle Floating Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" 'ghostty --class=com.mishal.FloatingTerminal' com.mishal.FloatingTerminal --scratch"; }
 
     // Launcher & utilities
     Alt+Space repeat=false hotkey-overlay-title="Run Application" { spawn "fuzzel"; }
@@ -274,7 +288,7 @@ binds {
     Alt+L     hotkey-overlay-title="Lock Screen"      { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/swaylock/lock.sh\""; }
     Alt+E     hotkey-overlay-title="File Manager"     { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" nautilus"; }
     Alt+N     hotkey-overlay-title="WiFi Networks"    { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/eww/scripts/network-choose.sh\""; }
-    Alt+S allow-when-locked=true hotkey-overlay-title="Toggle Orca" { spawn-sh "if pkill orca 2>/dev/null; then :; elif command -v orca >/dev/null 2>&1; then orca & else notify-send 'Orca' 'Orca is not installed'; fi"; }
+    Alt+S hotkey-overlay-title="Toggle Orca" { spawn-sh "if ! command -v orca >/dev/null 2>&1; then notify-send 'Orca' 'Orca is not installed'; elif systemctl --user is-active --quiet niri-orca.service; then systemctl --user stop niri-orca.service; else systemctl --user start niri-orca.service; fi"; }
 
     // Wallpaper cycle
     Alt+B repeat=false hotkey-overlay-title="Next Wallpaper" { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/swaybg_helper.sh\" --cycle -d"; }
@@ -302,15 +316,15 @@ binds {
     Mod+K     { focus-window-up; }
     Mod+L     { focus-column-right; }
 
-    // Window movement
-    Mod+Shift+Left  { move-column-left; }
-    Mod+Shift+Down  { move-window-down; }
-    Mod+Shift+Up    { move-window-up; }
-    Mod+Shift+Right { move-column-right; }
-    Mod+Shift+H     { move-column-left; }
-    Mod+Shift+J     { move-window-down; }
-    Mod+Shift+K     { move-window-up; }
-    Mod+Shift+L     { move-column-right; }
+    // Move: columns/windows in tiling, 40 logical pixels when floating.
+    Mod+Shift+Left  { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" left"; }
+    Mod+Shift+Down  { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" down"; }
+    Mod+Shift+Up    { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" up"; }
+    Mod+Shift+Right { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" right"; }
+    Mod+Shift+H     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" left"; }
+    Mod+Shift+J     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" down"; }
+    Mod+Shift+K     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" up"; }
+    Mod+Shift+L     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" right"; }
 
     Mod+Home      { focus-column-first; }
     Mod+End       { focus-column-last; }
@@ -322,6 +336,8 @@ binds {
     Mod+Page_Up           { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_overview_bind.sh\" move-workspace-up focus-workspace-up"; }
     Mod+Ctrl+Page_Down    { move-column-to-workspace-down; }
     Mod+Ctrl+Page_Up      { move-column-to-workspace-up; }
+    Mod+Alt+Page_Down     { move-window-to-workspace-down; }
+    Mod+Alt+Page_Up       { move-window-to-workspace-up; }
     Mod+Shift+Page_Down   { move-workspace-down; }
     Mod+Shift+Page_Up     { move-workspace-up; }
 
@@ -370,13 +386,8 @@ binds {
     Mod+Alt+8 { move-window-to-workspace 8; }
     Mod+Alt+9 { move-window-to-workspace 9; }
 
-    Mod+Tab       { focus-window-previous; }
     Mod+Alt+Tab       { focus-workspace-previous; }
     Mod+Alt+Shift+Tab { focus-workspace-down; }
-
-    // Wrap-around focus: loop from last column back to first, and vice versa
-    Mod+Ctrl+H { focus-column-left-or-last; }
-    Mod+Ctrl+L { focus-column-right-or-first; }
 
     // Column management (also Mod+[ and Mod+] for consume-or-expel)
     Mod+Comma  { consume-window-into-column; }
@@ -398,18 +409,19 @@ binds {
     Mod+Ctrl+C { center-visible-columns; }
     Mod+Shift+C { center-window; }
 
-    // Tiled resize
-    Mod+Ctrl+Left  { set-column-width "-10%"; }
-    Mod+Ctrl+Right { set-column-width "+10%"; }
-    Mod+Ctrl+Up    { set-window-height "-10%"; }
-    Mod+Ctrl+Down  { set-window-height "+10%"; }
+    // Resize tiled windows by 10%; use precise 40px steps when floating.
+    Mod+Ctrl+Left  { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" left"; }
+    Mod+Ctrl+Right { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" right"; }
+    Mod+Ctrl+Up    { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" up"; }
+    Mod+Ctrl+Down  { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" down"; }
+    Mod+Ctrl+H     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" left"; }
+    Mod+Ctrl+L     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" right"; }
+    Mod+Ctrl+K     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" up"; }
+    Mod+Ctrl+J     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" down"; }
 
-    // Floating window controls
-    Mod+T       { toggle-window-floating; }
-    Mod+Shift+T { switch-focus-between-floating-and-tiling; }
-    // Floating resize via mouse: Mod+Right drag
-    // Height resize via keyboard: Mod+Ctrl+Up/Down (works for both tiled & floating)
-    // Center floating: Mod+Shift+C
+    // Floating mode and layer focus. Niri also supports interactive Mod+drag.
+    Mod+T       hotkey-overlay-title="Toggle Floating" { toggle-window-floating; }
+    Mod+Shift+T hotkey-overlay-title="Switch Tiled/Floating Focus" { switch-focus-between-floating-and-tiling; }
 
     // Show hotkey overlay manually
     Mod+F1 { show-hotkey-overlay; }
@@ -426,7 +438,7 @@ binds {
     Alt+Ctrl+P repeat=false hotkey-overlay-title="Stop Projector Mirror" { spawn-sh "systemctl --user stop niri-projector-mirror.service"; }
 
     // OCR — select area, extract text, copy to clipboard
-    Alt+Shift+O hotkey-overlay-title="OCR Screenshot" { spawn-sh "trap 'rm -f /tmp/ocr-$$.png' EXIT; grim -g \"$(slurp)\" /tmp/ocr-$$.png && text=$(tesseract /tmp/ocr-$$.png - 2>/dev/null | tr -d '\\n' | head -c 200) && echo \"$text\" | wl-copy && notify-send 'OCR' \"$text\" -t 5000"; }
+    Alt+Shift+O hotkey-overlay-title="OCR Screenshot" { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/ocr.sh\""; }
 
     // System
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
@@ -438,4 +450,6 @@ binds {
     // Multi-monitor
     Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
     Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
+    Mod+Alt+Ctrl+Left    { move-window-to-monitor-left; }
+    Mod+Alt+Ctrl+Right   { move-window-to-monitor-right; }
 }

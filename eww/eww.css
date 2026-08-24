@@ -19,7 +19,7 @@
 
 window.bar,
 .bar {
-    background: #151516;
+    background: #000000;
 }
 
 window.bar {
@@ -37,7 +37,7 @@ label {
 button {
     margin: 0;
     padding: 1px 3px;
-    border-radius: 5px;
+    border-radius: 0;
 }
 
 /* Status labels intentionally use the same compact text size. */
@@ -125,7 +125,7 @@ button.power:active {
 tooltip {
     background: #242426;
     border: 1px solid #444448;
-    border-radius: 6px;
+    border-radius: 0;
     padding: 5px 7px;
 }
 

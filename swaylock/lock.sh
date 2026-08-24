@@ -2,9 +2,19 @@
 # Lock screen: screenshot → blur → lock
 # Falls back gracefully if screenshot/blur fails
 
-LOCK_FILE="${XDG_RUNTIME_DIR:-/tmp}/swaylock-${UID}.lock"
-BG="${XDG_CACHE_HOME:-$HOME/.cache}/lockscreen-blur.png"
-TMP="/tmp/lockscreen-$$.png"
+set -u
+umask 077
+
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/${UID}}"
+LOCK_FILE="$RUNTIME_DIR/swaylock.lock"
+TMP_DIR=$(mktemp -d "$RUNTIME_DIR/swaylock.XXXXXX") || exit 1
+BG="$TMP_DIR/lockscreen-blur.png"
+TMP="$TMP_DIR/lockscreen.png"
+
+cleanup() {
+    rm -rf -- "$TMP_DIR"
+}
+trap cleanup EXIT INT TERM
 
 # If swaylock is already running, avoid doing expensive screenshot/blur work
 # and avoid stacking lock processes.
@@ -28,7 +38,7 @@ fi
 
 # Lock with image if available, otherwise plain
 if [[ -f "$BG" && -s "$BG" ]]; then
-    exec swaylock --image "$BG" --scaling fill
+    swaylock --image "$BG" --scaling fill
 else
-    exec swaylock
+    swaylock
 fi

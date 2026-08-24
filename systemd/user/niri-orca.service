@@ -1,15 +1,14 @@
 [Unit]
-Description=Mako notification daemon for Niri
+Description=Orca screen reader for Niri
 PartOf=niri.service
 After=niri.service
+ConditionFileIsExecutable=/usr/bin/orca
 StartLimitIntervalSec=30s
 StartLimitBurst=5
 
 [Service]
-ExecStart=/usr/bin/mako
+Type=simple
+ExecStart=/usr/bin/env orca
 Restart=on-failure
-RestartSec=1s
+RestartSec=2s
 NoNewPrivileges=true
-
-[Install]
-WantedBy=niri.service

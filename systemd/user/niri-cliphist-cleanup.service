@@ -1,14 +1,15 @@
 [Unit]
-Description=Mako notification daemon for Niri
+Description=Clear clipboard history when the Niri session ends
 PartOf=niri.service
 After=niri.service
 StartLimitIntervalSec=30s
 StartLimitBurst=5
 
 [Service]
-ExecStart=/usr/bin/mako
-Restart=on-failure
-RestartSec=1s
+Type=oneshot
+ExecStart=/usr/bin/true
+RemainAfterExit=yes
+ExecStop=/usr/bin/cliphist wipe
 NoNewPrivileges=true
 
 [Install]

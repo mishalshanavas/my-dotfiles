@@ -27,7 +27,7 @@ render
 while true; do
     niri msg event-stream 2>/dev/null | while IFS= read -r line; do
         case "$line" in
-            *Workspace*|*Window*) render ;;
+            *Workspace*) render ;;
         esac
     done
     sleep 1

@@ -1,0 +1,4 @@
+# Keep a useful session history without retaining an unnecessarily large cache.
+max-items=200
+max-dedupe-search=100
+preview-width=100

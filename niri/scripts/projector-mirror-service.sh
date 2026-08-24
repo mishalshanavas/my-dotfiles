@@ -3,8 +3,8 @@
 
 set -u
 
-source_output="eDP-1"
-target_output="HDMI-A-1"
+source_output="${NIRI_MIRROR_SOURCE:-eDP-1}"
+target_output="${NIRI_MIRROR_TARGET:-HDMI-A-1}"
 
 while true; do
     if niri msg --json outputs 2>/dev/null | jq -e --arg output "$target_output" '.[$output].logical != null' >/dev/null; then

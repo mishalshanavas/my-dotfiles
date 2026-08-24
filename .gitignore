@@ -4,6 +4,8 @@
 # Allow tracked files
 !.gitignore
 !README.md
+!scripts/
+!scripts/*.sh
 
 !niri/
 !niri/config.kdl
@@ -30,6 +32,9 @@
 !fuzzel/
 !fuzzel/fuzzel.ini
 !brave-flags.conf
+
+!cliphist/
+!cliphist/config
 
 !autostart/
 !autostart/*.desktop

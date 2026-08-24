@@ -2,11 +2,14 @@
 Description=Text clipboard history watcher for Niri
 PartOf=niri.service
 After=niri.service
+StartLimitIntervalSec=30s
+StartLimitBurst=5
 
 [Service]
 ExecStart=/usr/bin/wl-paste --type text --watch /usr/bin/cliphist store
 Restart=on-failure
 RestartSec=1s
+NoNewPrivileges=true
 
 [Install]
 WantedBy=niri.service

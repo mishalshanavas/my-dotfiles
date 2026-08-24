@@ -30,7 +30,7 @@ while [[ $# -gt 0 ]]; do
     -c|--cycle) FLAG_CYCLE=true ;;
     -n|--notify) FLAG_NOTIFY=true ;;
     -d|--delay) FLAG_DELAY=true ;;
-    *) echo "Unknown option: $1" ;;
+    *) printf 'Unknown option: %s\n' "$1" >&2; exit 2 ;;
   esac
   shift
 done
@@ -75,8 +75,17 @@ if $FLAG_NOTIFY; then
   notify-send "Wallpaper Changed" "$(basename "$BG_SELECT_PATH")"
 fi
 
-# Get previous swaybg so we can stop it once we start a new instance
-PREV_SWAYBG_PID=$(pidof swaybg)
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+PID_FILE="$RUNTIME_DIR/niri-swaybg.pid"
+PREV_SWAYBG_PID=""
+if [[ -r "$PID_FILE" ]]; then
+  IFS= read -r PREV_SWAYBG_PID < "$PID_FILE" || true
+  if [[ ! "$PREV_SWAYBG_PID" =~ ^[0-9]+$ ]] \
+      || [[ ! -r "/proc/$PREV_SWAYBG_PID/comm" ]] \
+      || [[ $(<"/proc/$PREV_SWAYBG_PID/comm") != "swaybg" ]]; then
+    PREV_SWAYBG_PID=""
+  fi
+fi
 
 # Save before launching swaybg so the choice survives an immediate reboot.
 mkdir -p "$STATE_DIR"
@@ -85,6 +94,8 @@ printf '%s\n' "$BG_SELECT_PATH" > "$STATE_TMP_FILE"
 mv -f "$STATE_TMP_FILE" "$STATE_FILE"
 
 swaybg -i "$BG_SELECT_PATH" &
+NEW_SWAYBG_PID=$!
+printf '%s\n' "$NEW_SWAYBG_PID" > "$PID_FILE"
 
 # Wait a bit and then stop prior swaybg instances (if present)
 if $FLAG_DELAY; then
@@ -93,5 +104,5 @@ fi
 
 # Close all prior swaybg instances (would be 'behind' current wallpaper)
 if [[ -n "$PREV_SWAYBG_PID" ]]; then
-  kill $PREV_SWAYBG_PID
+  kill "$PREV_SWAYBG_PID" 2>/dev/null || true
 fi

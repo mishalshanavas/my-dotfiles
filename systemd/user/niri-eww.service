@@ -2,6 +2,8 @@
 Description=Eww bar for Niri
 PartOf=niri.service
 After=niri.service
+StartLimitIntervalSec=30s
+StartLimitBurst=5
 
 [Service]
 # Keep Eww in the foreground so systemd can restart it if the daemon dies.
@@ -13,6 +15,7 @@ ExecStopPost=-/usr/bin/eww close-all
 ExecStopPost=-/usr/bin/eww kill
 Restart=on-failure
 RestartSec=2s
+NoNewPrivileges=true
 
 [Install]
 WantedBy=niri.service

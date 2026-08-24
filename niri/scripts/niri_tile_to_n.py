@@ -14,7 +14,6 @@ from dataclasses import dataclass
 from time import perf_counter, sleep
 from collections import deque
 
-
 # ---------------------------------------------------------------------------------------------------------------------
 # %% Args
 
@@ -383,10 +382,11 @@ if STARTUP_DELAY_MS > 0:
 skt_path = NiriSocket.get_niri_socket_path()
 if skt_path is None or skt_path == "":
     print("Couldn't find niri socket! (from env: NIRI_SOCKET)")
-    quit()
+    raise SystemExit(1)
 
 # Create separate read/write sockets, since eventstream reader cannot issue actions
 niri_reader = NiriRequests(skt_path)
+niri_query = NiriRequests(skt_path)
 niri_action = NiriActions(skt_path)
 
 # Sanity check. Make sure we have the right version
@@ -404,13 +404,27 @@ if not is_version_ok or actual_version == "unknown":
 # ---------------------------------------------------------------------------------------------------------------------
 # %% *** IPC listening loop ***
 
-# Get monitor into
-is_outputs_ok, outputs_resp = niri_reader.request("Outputs")
-if not is_outputs_ok:
-    print("Error requesting info about monitors", outputs_resp, sep="\n")
-    quit()
-output_full_info = {out_key: out_dict["logical"] for out_key, out_dict in outputs_resp["Outputs"].items()}
-output_width_lut = {out_key: out_info["width"] for out_key, out_info in output_full_info.items() if out_info is not None}
+def query_output_widths() -> dict[str, int]:
+    """Return current logical output widths, including scale/config changes."""
+    is_outputs_ok, outputs_resp = niri_query.request("Outputs")
+    if not is_outputs_ok:
+        print("Error requesting info about monitors", outputs_resp, sep="\n")
+        return {}
+
+    output_full_info = {
+        out_key: out_dict["logical"]
+        for out_key, out_dict in outputs_resp["Outputs"].items()
+    }
+    return {
+        out_key: out_info["width"]
+        for out_key, out_info in output_full_info.items()
+        if out_info is not None
+    }
+
+
+output_width_lut = query_output_widths()
+if not output_width_lut:
+    raise SystemExit(1)
 
 # Initialize state tracking
 prev_focus_state = FocusState()
@@ -439,6 +453,12 @@ try:
         prev_focus_state.copy_inplace(focus_state)
         closed_window_data, newest_window_data = None, None
         if evt_name == "WorkspacesChanged":
+            # Workspace changes accompany output hot-plug events. Refresh the
+            # width table so maximization detection follows the current scale.
+            refreshed_widths = query_output_widths()
+            if refreshed_widths:
+                output_width_lut = refreshed_widths
+
             # Replace existing workspace info
             wspace_state = make_workspace_state_from_WorkspacesChanged(evt_data)
             for item in wspace_state.values():
@@ -548,12 +568,14 @@ try:
             evt_is_overview_open = evt_data["is_open"]
 
         elif evt_name == "ConfigLoaded":
-            pass
+            refreshed_widths = query_output_widths()
+            if refreshed_widths:
+                output_width_lut = refreshed_widths
 
         elif evt_name == "CastsChanged":
             pass
 
-        else:
+        elif ENABLE_EVENT_NAME_DEBUG_PRINT:
             print("Unknown event:", evt_name)
 
         # Handle max-on-close
@@ -619,5 +641,6 @@ except (KeyboardInterrupt, InterruptedError):
 
 finally:
     niri_action.close()
+    niri_query.close()
     niri_reader.close()
     print("", f"({os.path.basename(__file__)}) - Closed niri IPC connection", sep="\n")

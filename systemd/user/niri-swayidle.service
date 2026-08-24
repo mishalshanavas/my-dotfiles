@@ -2,11 +2,14 @@
 Description=Idle manager for Niri
 PartOf=niri.service
 After=niri.service
+StartLimitIntervalSec=30s
+StartLimitBurst=5
 
 [Service]
 ExecStart=%h/.config/niri/scripts/niri_swayidle.sh
 Restart=on-failure
 RestartSec=1s
+NoNewPrivileges=true
 
 [Install]
 WantedBy=niri.service
