@@ -19,6 +19,7 @@
 !eww/eww.css
 !eww/scripts/
 !eww/scripts/*.sh
+!eww/scripts/fuzzel
 
 !ghostty/
 !ghostty/config.ghostty
@@ -31,6 +32,15 @@
 
 !fuzzel/
 !fuzzel/fuzzel.ini
+
+!networkmanager-dmenu/
+!networkmanager-dmenu/config.ini
+
+!mako/
+!mako/config
+
+!swayosd/
+!swayosd/style.css
 !brave-flags.conf
 
 !cliphist/

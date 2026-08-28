@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Eww deflisten — bluetooth status via BlueZ D-Bus events.
-# Display: icon + device name (connected) or icon + state text (idle/off)
+# Display: icon + device name when connected, icon + state when off, or
+# nothing when Bluetooth is powered on but disconnected.
 # Auto-switches audio sink when BT device connects
 
 AUDIO_SWITCHED_FILE="${XDG_RUNTIME_DIR:-/tmp}/eww_bt_audio_switched"
@@ -48,7 +49,7 @@ render() {
         auto_switch_sink "$mac"
     else
         rm -f "$AUDIO_SWITCHED_FILE"
-        printf '%s On\n' $'\ue1a7'
+        printf '\n'
     fi
 }
 

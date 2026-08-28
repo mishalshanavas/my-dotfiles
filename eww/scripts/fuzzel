@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Fuzzel presentation adapter for networkmanager-dmenu. The upstream tool
+# mixes connections and administrative actions in one list; keep its network
+# handling while presenting a focused connection picker.
+
+# Inherit all visual settings from ~/.config/fuzzel/fuzzel.ini. Only collapse
+# unused rows so a short network list does not leave an oversized empty menu.
+common_args=(--minimal-lines)
+
+network_menu=false
+for arg in "$@"; do
+    if [[ "$arg" == Networks* ]]; then
+        network_menu=true
+        break
+    fi
+done
+
+# Fuzzel permits one process per Wayland display. Give a just-closed picker a
+# moment to release its lock; if a different launcher remains open, cancel
+# quietly so networkmanager-dmenu does not emit a failure notification.
+for _ in {1..10}; do
+    pgrep -f '^/usr/bin/fuzzel( |$)' >/dev/null 2>&1 || break
+    sleep 0.05
+done
+pgrep -f '^/usr/bin/fuzzel( |$)' >/dev/null 2>&1 && exit 0
+
+if "$network_menu"; then
+    sed -E \
+        -e '/(Enable|Disable) (WiFi|Networking|Bluetooth)$/d' \
+        -e '/Launch Connection Manager$/d' \
+        -e '/Delete a Connection$/d' \
+        -e '/Rescan WiFi Networks$/d' \
+        -e '/Show WiFi password$/d' \
+        -e '/Saved connections$/d' \
+        -e '/:Eth$/d' \
+        | /usr/bin/fuzzel "$@" "${common_args[@]}"
+else
+    exec /usr/bin/fuzzel "$@" "${common_args[@]}"
+fi

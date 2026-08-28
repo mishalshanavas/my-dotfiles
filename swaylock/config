@@ -1,28 +1,32 @@
 daemonize
 show-failed-attempts
 ignore-empty-password
+indicator-caps-lock
 
 indicator-idle-visible
-indicator-radius=60
-indicator-thickness=6
+indicator-radius=38
+indicator-thickness=3
 
-font=MonoLisa
+font=Inter
+font-size=14
 
 color=000000
-inside-color=00000000
-ring-color=404040
+inside-color=151517ff
+ring-color=2a2a2cff
 line-color=00000000
-text-color=e0e0e0
+text-color=f5f5f7
 separator-color=00000000
+key-hl-color=60a5fa
+bs-hl-color=f29e5b
 
-inside-clear-color=00000000
-ring-clear-color=808080
-text-clear-color=e0e0e0
+inside-clear-color=151517ff
+ring-clear-color=60a5faff
+text-clear-color=f5f5f7
 
-inside-ver-color=00000000
-ring-ver-color=404040
-text-ver-color=e0e0e0
+inside-ver-color=151517ff
+ring-ver-color=60a5faff
+text-ver-color=f5f5f7
 
-inside-wrong-color=00000000
-ring-wrong-color=666666
-text-wrong-color=ffffff
+inside-wrong-color=151517ff
+ring-wrong-color=ff6b72ff
+text-wrong-color=f5f5f7

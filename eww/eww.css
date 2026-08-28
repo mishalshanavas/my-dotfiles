@@ -2,9 +2,9 @@
 
 * {
     all: unset;
-    font-family: "Inter", "Material Symbols Rounded", sans-serif;
-    font-size: 10px;
-    font-weight: 500;
+    font-family: "Inter", "Material Symbols Rounded", "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 11px;
+    font-weight: 400;
     color: #f5f5f7;
     margin: 0;
     padding: 0;
@@ -34,23 +34,40 @@ label {
     padding: 0 2px;
 }
 
-button {
+.music,
+.caffeine,
+.network,
+.bluetooth,
+.volume,
+.brightness,
+.battery,
+.power {
     margin: 0;
-    padding: 1px 3px;
-    border-radius: 0;
+    padding: 0 3px;
+    border-radius: 4px;
+    background: #151517;
 }
 
-/* Status labels intentionally use the same compact text size. */
+/* Status labels use regular weight; only the clock is emphasized. */
 button label,
 .music {
-    font-size: 10px;
+    font-size: 11px;
+    font-weight: 400;
 }
 
 .clock {
     font-family: "Inter", sans-serif;
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 600;
     padding: 0 5px;
+    border-radius: 4px;
+    background: #151517;
+}
+
+.clock label {
+    font-size: 11px;
+    font-weight: 600;
+    font-feature-settings: "tnum";
 }
 
 /* Keep workspace controls visible, but give them no unnecessary width. */
@@ -105,6 +122,10 @@ button.power:active {
     color: #f3c969;
 }
 
+.caffeine label {
+    color: #60a5fa;
+}
+
 .caffeine-active label {
     color: #c8732e;
 }
@@ -123,14 +144,15 @@ button.power:active {
 }
 
 tooltip {
-    background: #242426;
-    border: 1px solid #444448;
-    border-radius: 0;
-    padding: 5px 7px;
+    background: #151517;
+    border: 1px solid #2a2a2c;
+    border-radius: 4px;
+    padding: 6px 8px;
 }
 
 tooltip * {
-    font-family: "Inter", sans-serif;
-    font-size: 10px;
+    font-family: "JetBrainsMono Nerd Font Mono", monospace;
+    font-size: 11px;
+    font-weight: 400;
     color: #f5f5f7;
 }
