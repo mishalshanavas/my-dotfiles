@@ -10,7 +10,10 @@ StartLimitBurst=5
 Type=simple
 ExecStartPre=-/usr/bin/eww kill
 ExecStart=/usr/bin/eww --no-daemonize daemon
-ExecStartPost=/usr/bin/bash -c 'for _ in {1..50}; do /usr/bin/eww ping >/dev/null 2>&1 && exec /usr/bin/eww open --id primary bar; sleep 0.1; done; exit 1'
+# `eww open` normally starts another daemon when an IPC call fails.  During
+# startup the first daemon can accept the request before GTK is ready to send
+# its reply, so forbid that fallback and verify the window on the next pass.
+ExecStartPost=/usr/bin/bash -c 'for _ in {1..50}; do /usr/bin/eww --no-daemonize active-windows 2>/dev/null | /usr/bin/grep -Fxq "primary: bar" && exit 0; /usr/bin/eww --no-daemonize ping >/dev/null 2>&1 && /usr/bin/eww --no-daemonize open --id primary bar >/dev/null 2>&1 || true; sleep 0.1; done; exit 1'
 ExecStopPost=-/usr/bin/eww close-all
 ExecStopPost=-/usr/bin/eww kill
 Restart=on-failure
