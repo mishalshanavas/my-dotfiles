@@ -7,6 +7,7 @@ pid_file="${XDG_RUNTIME_DIR:-/tmp}/eww-caffeine.pid"
 pid=$(cat "$pid_file" 2>/dev/null)
 [[ "$pid" =~ ^[0-9]+$ ]] || exit 0
 kill -0 "$pid" 2>/dev/null || exit 0
+[ "$(cat "/proc/$pid/comm" 2>/dev/null)" = "systemd-inhibit" ] || exit 0
 
 elapsed=$(ps -o etimes= -p "$pid" 2>/dev/null)
 elapsed=${elapsed//[[:space:]]/}

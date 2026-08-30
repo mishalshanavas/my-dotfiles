@@ -9,7 +9,9 @@ StartLimitBurst=5
 ExecStart=%h/.config/niri/scripts/niri_swayidle.sh
 Restart=on-failure
 RestartSec=1s
-NoNewPrivileges=true
+# PAM authentication uses the setuid unix_chkpwd helper to verify /etc/shadow.
+# Enabling NoNewPrivileges here makes every swaylock password fail.
+NoNewPrivileges=false
 
 [Install]
 WantedBy=niri.service

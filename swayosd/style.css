@@ -31,13 +31,13 @@ image,
 label {
     color: #f5f5f7;
     font-family: "Inter", "Material Symbols Rounded", sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 400;
     margin: 0 5px;
 }
 
 label {
-    font-size: 13px;
+    font-size: 11px;
     color: #a1a1aa;
 }
 

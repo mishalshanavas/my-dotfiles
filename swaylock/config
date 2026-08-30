@@ -8,7 +8,7 @@ indicator-radius=38
 indicator-thickness=3
 
 font=Inter
-font-size=14
+font-size=12
 
 color=000000
 inside-color=151517ff

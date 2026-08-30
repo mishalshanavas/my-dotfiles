@@ -77,6 +77,7 @@ fi
 
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 PID_FILE="$RUNTIME_DIR/niri-swaybg.pid"
+LOCK_BACKGROUND="$RUNTIME_DIR/swaylock-background.png"
 PREV_SWAYBG_PID=""
 if [[ -r "$PID_FILE" ]]; then
   IFS= read -r PREV_SWAYBG_PID < "$PID_FILE" || true
@@ -92,6 +93,22 @@ mkdir -p "$STATE_DIR"
 STATE_TMP_FILE="$STATE_FILE.$$"
 printf '%s\n' "$BG_SELECT_PATH" > "$STATE_TMP_FILE"
 mv -f "$STATE_TMP_FILE" "$STATE_FILE"
+
+# Build swaylock's blurred wallpaper outside the lock path. The lock screen can
+# then appear immediately instead of capturing and filtering the live desktop.
+if command -v ffmpeg >/dev/null 2>&1; then
+  (
+    exec 8>"$RUNTIME_DIR/swaylock-background.lock"
+    flock -n 8 || exit 0
+    LOCK_TMP=$(mktemp "$RUNTIME_DIR/swaylock-background.XXXXXX.png") || exit 0
+    trap 'rm -f -- "$LOCK_TMP"' EXIT INT TERM
+    if ffmpeg -y -loglevel error -i "$BG_SELECT_PATH" -frames:v 1 \
+        -vf 'gblur=sigma=6,eq=brightness=0.06:contrast=0.92:saturation=0.75' \
+        "$LOCK_TMP" 2>/dev/null; then
+      mv -f -- "$LOCK_TMP" "$LOCK_BACKGROUND"
+    fi
+  ) &
+fi
 
 swaybg -i "$BG_SELECT_PATH" &
 NEW_SWAYBG_PID=$!

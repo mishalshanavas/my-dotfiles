@@ -28,7 +28,7 @@ choice=$(printf '  Suspend\n  Reboot\n  Shutdown\n' | /usr/bin/fuzzel -
 
 case "$choice" in
     *Suspend*)
-        run_power_action "Suspend" /usr/bin/systemctl --no-ask-password suspend
+        run_power_action "Suspend" /usr/bin/systemctl --no-ask-password suspend-then-hibernate
         ;;
     *Reboot*)
         run_power_action "Reboot" /usr/bin/systemctl --no-ask-password reboot

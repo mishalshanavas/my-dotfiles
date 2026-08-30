@@ -5,15 +5,6 @@
 
 (defvar clock_show_date false)
 
-(defpoll clock :interval "1s"
-  `date +"%H:%M:%S"`)
-
-(defpoll clock_date :interval "60s"
-  `date +"%a %d %b"`)
-
-(defpoll calendar :interval "60s"
-  `$HOME/.config/eww/scripts/calendar.sh`)
-
 ;; ─── Workspaces (niri) ──────────────────────────────────────
 
 (defvar workspace_1 "○")
@@ -61,6 +52,7 @@
 ;; Alternates true/false every second; used to blink the battery
 ;; label when the charge is critical.
 (defpoll battery_blink :interval "1s"
+  :run-while {matches(battery, " ([0-9]|10)%$")}
   `$HOME/.config/eww/scripts/battery-blink.sh`)
 
 ;; ─── Music (MPRIS) ──────────────────────────────────────────
@@ -74,6 +66,7 @@
   `$HOME/.config/eww/scripts/caffeine-watch.sh`)
 
 (defpoll caffeine_elapsed :interval "1s"
+  :run-while {caffeine == "true"}
   `$HOME/.config/eww/scripts/caffeine-elapsed.sh`)
 
 ;; ─── Bluetooth ──────────────────────────────────────────────
@@ -98,10 +91,10 @@
 
 (defwidget clock-widget []
   (tooltip
-    (label :class "calendar-tooltip" :markup calendar)
+    (calendar :class "calendar-tooltip")
     (button :class "clock"
             :onclick {clock_show_date ? "eww update clock_show_date=false" : "eww update clock_show_date=true"}
-      (label :text {clock_show_date ? clock_date : clock}))))
+      (label :text {clock_show_date ? formattime(EWW_TIME, "%a %d %b") : formattime(EWW_TIME, "%H:%M:%S")}))))
 
 (defwidget music-widget []
   (button :onclick "bash $HOME/.config/eww/scripts/music-toggle.sh"
@@ -118,7 +111,7 @@
 
 (defwidget network-widget []
   (button :onclick "$HOME/.config/eww/scripts/networkmanager-menu.sh &"
-          :onrightclick "$HOME/.config/eww/scripts/network-choose.sh --tui &"
+          :onrightclick "$HOME/.config/eww/scripts/networkmanager-menu.sh --tui &"
       :class {matches(network, "(Off|Down|N/A)$") ? "network network-disconnected" : "network"}
           :tooltip "Left: NetworkManager menu / Right: nmtui"
     (label :text network)))

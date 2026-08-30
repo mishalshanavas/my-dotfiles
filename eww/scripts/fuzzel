@@ -19,10 +19,10 @@ done
 # moment to release its lock; if a different launcher remains open, cancel
 # quietly so networkmanager-dmenu does not emit a failure notification.
 for _ in {1..10}; do
-    pgrep -f '^/usr/bin/fuzzel( |$)' >/dev/null 2>&1 || break
+    pgrep -x fuzzel >/dev/null 2>&1 || break
     sleep 0.05
 done
-pgrep -f '^/usr/bin/fuzzel( |$)' >/dev/null 2>&1 && exit 0
+pgrep -x fuzzel >/dev/null 2>&1 && exit 0
 
 if "$network_menu"; then
     sed -E \

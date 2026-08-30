@@ -11,9 +11,14 @@ report_failure() {
     status=1
 }
 
-while IFS= read -r -d '' script; do
+mapfile -d '' shell_files < <(
+    find eww/scripts niri/scripts swaylock scripts -type f \
+        \( -name '*.sh' -o -name 'fuzzel' \) -print0
+)
+
+for script in "${shell_files[@]}"; do
     bash -n "$script" || report_failure "shell syntax: $script"
-done < <(find eww/scripts niri/scripts swaylock scripts -type f -name '*.sh' -print0)
+done
 
 python3 - <<'PY' || report_failure "Python syntax"
 import ast
@@ -26,7 +31,6 @@ PY
 python3 -m unittest discover -s niri/scripts -p 'test_*.py' || report_failure "Python tests"
 
 if command -v shellcheck >/dev/null 2>&1; then
-    mapfile -d '' shell_files < <(find eww/scripts niri/scripts swaylock scripts -type f -name '*.sh' -print0)
     shellcheck "${shell_files[@]}" || report_failure "ShellCheck"
 else
     printf 'SKIP: shellcheck is not installed\n'
@@ -40,7 +44,7 @@ fi
 
 if command -v systemd-analyze >/dev/null 2>&1; then
     systemd_output=$(mktemp)
-    if systemd-analyze --user verify systemd/user/niri-*.service 2>"$systemd_output"; then
+    if systemd-analyze --user verify systemd/user/*.service 2>"$systemd_output"; then
         :
     elif grep -Ev '^(Failed to turn off SO_PASSRIGHTS|Failed to enable SO_PASSCRED)' "$systemd_output" | grep -q .; then
         cat "$systemd_output" >&2
@@ -52,6 +56,24 @@ if command -v systemd-analyze >/dev/null 2>&1; then
 else
     printf 'SKIP: systemd-analyze is not installed\n'
 fi
+
+if command -v fuzzel >/dev/null 2>&1; then
+    fuzzel --check-config --config=fuzzel/fuzzel.ini || report_failure "Fuzzel config"
+fi
+
+if command -v ghostty >/dev/null 2>&1; then
+    ghostty +validate-config --config-file=ghostty/config.ghostty || report_failure "Ghostty config"
+fi
+
+python3 - <<'PY' || report_failure "INI config"
+import configparser
+from pathlib import Path
+
+for name in ("networkmanager-dmenu/config.ini",):
+    parser = configparser.RawConfigParser()
+    with Path(name).open(encoding="utf-8") as stream:
+        parser.read_file(stream)
+PY
 
 if command -v eww >/dev/null 2>&1 && eww ping >/dev/null 2>&1; then
     eww -c eww reload || report_failure "Eww config"

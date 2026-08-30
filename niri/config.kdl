@@ -25,23 +25,26 @@ overview {
 }
 
 recent-windows {
-    open-delay-ms 100
+    debounce-ms 300
+    open-delay-ms 80
 
     highlight {
-        active-color "#333333"
+        active-color "#444444"
         urgent-color "#e04f5f"
-        padding 8
+        padding 6
         corner-radius 0
     }
 
     previews {
-        max-height 320
-        max-scale 0.35
+        max-height 400
+        max-scale 0.45
     }
 
     binds {
         Alt+Tab       { next-window scope="workspace"; }
         Alt+Shift+Tab { previous-window scope="workspace"; }
+        Alt+grave       { next-window scope="workspace" filter="app-id"; }
+        Alt+Shift+grave { previous-window scope="workspace" filter="app-id"; }
     }
 }
 
@@ -56,6 +59,7 @@ input {
     keyboard {
         xkb {
             layout "us"
+            options "compose:ralt"
         }
         // numlock disabled — numlock overlays letters on laptop keyboards
     }
@@ -169,9 +173,8 @@ spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd WAYLAND
 // Supervised by systemd user units in ~/.config/systemd/user:
 // mako, eww, swayidle, wl-paste/cliphist, and niri_tile_to_n.py.
 spawn-at-startup "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/swaybg_helper.sh\""
-spawn-at-startup "nm-applet"
 spawn-at-startup "sh" "-c" "exec swayosd-server --style \"${XDG_CONFIG_HOME:-$HOME/.config}/swayosd/style.css\" --top-margin 0.85"
-spawn-at-startup "udiskie" "--tray"
+spawn-at-startup "udiskie" "--no-tray"
 
 // Battery status is provided by Eww.
 screenshot-path "~/Pictures/Screenshots/%Y-%m-%d_%H-%M-%S.png"
@@ -184,22 +187,30 @@ xwayland-satellite {
 
 // ── Animations ─────────────────────────────────────────────────────────────
 animations {
-    // Fast, critically damped motion preserves spatial context without bounce.
-    slowdown 0.8
+    // Quick, critically damped motion preserves spatial context without bounce.
+    slowdown 0.9
     workspace-switch {
-        spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+        spring damping-ratio=1.0 stiffness=1000 epsilon=0.001
     }
     window-open {
-        off
+        duration-ms 120
+        curve "ease-out-expo"
     }
     window-close {
-        off
+        duration-ms 100
+        curve "ease-out-quad"
     }
     window-movement {
-        spring damping-ratio=1.0 stiffness=600 epsilon=0.001
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.001
     }
     horizontal-view-movement {
-        spring damping-ratio=1.0 stiffness=600 epsilon=0.001
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.001
+    }
+    window-resize {
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.001
+    }
+    overview-open-close {
+        spring damping-ratio=1.0 stiffness=900 epsilon=0.001
     }
 }
 // ── Window rules ───────────────────────────────────────────────────────────
@@ -248,12 +259,6 @@ window-rule {
     open-fullscreen true
 }
 
-// Sharp corners everywhere
-window-rule {
-    geometry-corner-radius 0
-    clip-to-geometry true
-}
-
 // Floating terminal (dedicated Ghostty D-Bus instance and Wayland app-id)
 window-rule {
     match app-id="com.mishal.FloatingTerminal"
@@ -287,7 +292,7 @@ binds {
     Mod+V     repeat=false hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && printf '%s\\n' \"$selected\" | cliphist decode | wl-copy"; }
     Alt+L     hotkey-overlay-title="Lock Screen"      { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/swaylock/lock.sh\""; }
     Alt+E     hotkey-overlay-title="File Manager"     { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" nautilus"; }
-    Alt+N     hotkey-overlay-title="WiFi Networks"    { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/eww/scripts/network-choose.sh\""; }
+    Alt+N     hotkey-overlay-title="WiFi Networks"    { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/eww/scripts/networkmanager-menu.sh\""; }
     Alt+S hotkey-overlay-title="Toggle Orca" { spawn-sh "if ! command -v orca >/dev/null 2>&1; then notify-send 'Orca' 'Orca is not installed'; elif systemctl --user is-active --quiet niri-orca.service; then systemctl --user stop niri-orca.service; else systemctl --user start niri-orca.service; fi"; }
 
     // Wallpaper cycle
@@ -432,10 +437,16 @@ binds {
     Print      { screenshot; }
     Ctrl+Print { screenshot-screen; }
     Mod+Print  { screenshot-window; }
+    Mod+Shift+Print repeat=false hotkey-overlay-title="Toggle Screen Recording" { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/screen-record-toggle.sh\""; }
 
     // Projector / TV: the service mirrors eDP-1 to HDMI-A-1 whenever connected.
     Alt+P      repeat=false hotkey-overlay-title="Start Projector Mirror" { spawn-sh "systemctl --user start niri-projector-mirror.service"; }
     Alt+Ctrl+P repeat=false hotkey-overlay-title="Stop Projector Mirror" { spawn-sh "systemctl --user stop niri-projector-mirror.service"; }
+
+    // Change the source of Niri's dynamic screencast target.
+    Mod+S       repeat=false hotkey-overlay-title="Cast Focused Window" { set-dynamic-cast-window; }
+    Mod+Shift+S repeat=false hotkey-overlay-title="Cast Focused Monitor" { set-dynamic-cast-monitor; }
+    Mod+Ctrl+S  repeat=false hotkey-overlay-title="Clear Dynamic Cast" { clear-dynamic-cast-target; }
 
     // OCR — select area, extract text, copy to clipboard
     Alt+Shift+O hotkey-overlay-title="OCR Screenshot" { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/ocr.sh\""; }

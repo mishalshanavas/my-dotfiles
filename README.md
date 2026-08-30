@@ -10,9 +10,9 @@ tokens, credentials, or machine-specific state.
 ```bash
 cd ~/.config
 git status
-git add .gitignore README.md niri eww ghostty swaylock fuzzel systemd \
-  pipewire wireplumber xdg-desktop-portal autostart cliphist scripts \
-  brave-flags.conf
+git add .gitignore README.md niri eww ghostty swaylock fuzzel mako \
+  networkmanager-dmenu swayosd systemd pipewire wireplumber \
+  xdg-desktop-portal autostart cliphist scripts brave-flags.conf
 git commit -m "Describe the configuration change"
 git push origin main
 ```
@@ -46,8 +46,8 @@ cookies, SSH keys, password stores, or files containing API tokens.
 ## Validate configuration
 
 Run `~/.config/scripts/validate-configs.sh` after edits. It checks shell and
-Python syntax, the Niri configuration, systemd user units, and ShellCheck or
-Eww when those tools are available.
+Python syntax, the Niri configuration, systemd user units, Fuzzel, Ghostty,
+INI files, and ShellCheck or Eww when those tools are available.
 
 Clipboard history is limited by `cliphist/config` and is wiped when the Niri
 session ends. It can still contain sensitive data during the active session;
