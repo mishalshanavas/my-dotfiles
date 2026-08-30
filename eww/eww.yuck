@@ -94,7 +94,7 @@
     (calendar :class "calendar-tooltip")
     (button :class "clock"
             :onclick {clock_show_date ? "eww update clock_show_date=false" : "eww update clock_show_date=true"}
-      (label :text {clock_show_date ? formattime(EWW_TIME, "%a %d %b") : formattime(EWW_TIME, "%H:%M:%S")}))))
+      (label :text {clock_show_date ? formattime(EWW_TIME, "%a %d %b") : formattime(EWW_TIME, "%I:%M:%S %p")}))))
 
 (defwidget music-widget []
   (button :onclick "bash $HOME/.config/eww/scripts/music-toggle.sh"
