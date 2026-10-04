@@ -4,6 +4,7 @@
 ;; ─── Clock ──────────────────────────────────────────────────
 
 (defvar clock_show_date false)
+(defvar battery_display_override "")
 
 ;; ─── Workspaces (niri) ──────────────────────────────────────
 
@@ -68,6 +69,11 @@
 (defpoll caffeine_elapsed :interval "1s"
   :run-while {caffeine == "true"}
   `$HOME/.config/eww/scripts/caffeine-elapsed.sh`)
+
+;; ─── Power key ───────────────────────────────────────────────
+
+(defpoll power_key_state :interval "5s"
+  `$HOME/.local/bin/power-toggle status`)
 
 ;; ─── Bluetooth ──────────────────────────────────────────────
 
@@ -139,13 +145,15 @@
     (label :text brightness)))
 
 (defwidget battery-widget []
-  (button :class {matches(battery, "") ? "battery battery-charging" : (matches(battery, " ([0-9]|10)%$") ? (battery_blink == "true" ? "battery battery-critical battery-blink" : "battery battery-critical") : (matches(battery, " ([0-9]|1[0-9]|20)%$") ? "battery battery-low" : "battery"))}
+  (button :onrightclick "$HOME/.config/eww/scripts/battery-easter-egg.sh"
+    :class {matches(battery, "") ? "battery battery-charging" : (matches(battery, " ([0-9]|10)%$") ? (battery_blink == "true" ? "battery battery-critical battery-blink" : "battery battery-critical") : (matches(battery, " ([0-9]|1[0-9]|20)%$") ? "battery battery-low" : "battery"))}
     :tooltip "Battery charge"
-    (label :text battery)))
+    (label :text {battery_display_override != "" ? battery_display_override : battery})))
 
 (defwidget power-widget []
   (button :onclick "$HOME/.config/eww/scripts/power.sh &"
-    :class "power"
+    :onrightclick "$HOME/.local/bin/power-toggle toggle"
+    :class {power_key_state == "off" ? "power power-disabled" : "power"}
     :tooltip "Power menu"
     (label :text "")))
 

@@ -65,3 +65,5 @@
 !systemd/user/niri-*.service
 !systemd/user/niri.service.wants/
 !systemd/user/niri.service.wants/niri-*.service
+
+!.tmux.conf

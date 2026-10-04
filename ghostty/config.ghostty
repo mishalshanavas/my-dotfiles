@@ -35,6 +35,7 @@ split-inherit-working-directory = true
 title = ""
 
 # Shell
+command = direct:/home/mishal/.local/bin/ghostty-tmux
 shell-integration = zsh
 shell-integration-features = cursor,sudo,title
 
@@ -43,7 +44,7 @@ copy-on-select = true
 clipboard-trim-trailing-spaces = true
 
 # Scrolling
-scrollback-limit = 20000
+scrollback-limit = 50000
 
 # Notifications
 notify-on-command-finish = unfocused

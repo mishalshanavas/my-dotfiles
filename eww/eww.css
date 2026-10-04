@@ -143,6 +143,14 @@ button.power:active {
     background: #3a2a1d;
 }
 
+.power-disabled {
+    background: #3b2023;
+}
+
+.power-disabled:hover {
+    background: #57252a;
+}
+
 tooltip {
     background: #151517;
     border: 1px solid #2a2a2c;
