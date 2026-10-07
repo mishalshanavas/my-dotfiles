@@ -1,0 +1,7 @@
+[Unit]
+Description=Eww caffeine idle and sleep inhibitor
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/systemd-inhibit --what=idle:sleep:handle-lid-switch --who=Eww-caffeine --why=Caffeine-enabled --mode=block /usr/bin/sleep infinity
+NoNewPrivileges=true

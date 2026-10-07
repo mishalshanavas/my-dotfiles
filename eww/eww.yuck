@@ -73,7 +73,7 @@
 ;; ─── Power key ───────────────────────────────────────────────
 
 (defpoll power_key_state :interval "5s"
-  `$HOME/.local/bin/power-toggle status`)
+  `$HOME/.config/eww/scripts/power-toggle.sh status`)
 
 ;; ─── Bluetooth ──────────────────────────────────────────────
 
@@ -152,7 +152,7 @@
 
 (defwidget power-widget []
   (button :onclick "$HOME/.config/eww/scripts/power.sh &"
-    :onrightclick "$HOME/.local/bin/power-toggle toggle"
+    :onrightclick "$HOME/.config/eww/scripts/power-toggle.sh toggle"
     :class {power_key_state == "off" ? "power power-disabled" : "power"}
     :tooltip "Power menu"
     (label :text "")))

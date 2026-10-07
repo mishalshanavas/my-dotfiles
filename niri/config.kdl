@@ -109,7 +109,7 @@ output "eDP-1" {
 }
 
 layout {
-    // Dense, edge-to-edge tiling.
+    // Keep wallpaper from showing between opaque tiled windows.
     gaps 0
 
     preset-column-widths {
@@ -131,11 +131,11 @@ layout {
         off
     }
 
-    // Subtle 1px border for focus visibility
+    // Clearly mark the active window, even on the dense laptop display.
     border {
-        width 1
-        active-color "#777777"
-        inactive-color "#00000000"
+        width 2
+        active-color "#c7c7c7"
+        inactive-color "#000000"
         urgent-color "#e04f5f"
     }
 
@@ -190,38 +190,54 @@ xwayland-satellite {
 
 // ── Animations ─────────────────────────────────────────────────────────────
 animations {
-    // Quick, critically damped motion preserves spatial context without bounce.
-    slowdown 0.9
+    // Keep motion quick at the laptop's 60 Hz refresh rate.
+    slowdown 1.05
     workspace-switch {
-        spring damping-ratio=1.0 stiffness=1000 epsilon=0.001
+        spring damping-ratio=0.88 stiffness=700 epsilon=0.001
     }
+    // Closing mirrors the opening curve in reverse.
     window-open {
-        duration-ms 120
-        curve "ease-out-expo"
+        duration-ms 190
+        curve "cubic-bezier" 0.2 0.8 0.2 1.0
     }
     window-close {
-        duration-ms 100
-        curve "ease-out-quad"
+        duration-ms 190
+        curve "cubic-bezier" 0.8 0.0 0.8 0.2
     }
+    // Related view, window, and resize motions share one spring so they stay in sync.
     window-movement {
-        spring damping-ratio=1.0 stiffness=800 epsilon=0.001
+        spring damping-ratio=0.90 stiffness=650 epsilon=0.001
     }
     horizontal-view-movement {
-        spring damping-ratio=1.0 stiffness=800 epsilon=0.001
+        spring damping-ratio=0.90 stiffness=650 epsilon=0.001
     }
     window-resize {
-        spring damping-ratio=1.0 stiffness=800 epsilon=0.001
+        spring damping-ratio=0.90 stiffness=650 epsilon=0.001
+    }
+    config-notification-open-close {
+        spring damping-ratio=0.85 stiffness=850 epsilon=0.001
+    }
+    exit-confirmation-open-close {
+        spring damping-ratio=0.85 stiffness=650 epsilon=0.001
+    }
+    screenshot-ui-open {
+        duration-ms 160
+        curve "ease-out-quad"
     }
     overview-open-close {
-        spring damping-ratio=1.0 stiffness=900 epsilon=0.001
+        spring damping-ratio=0.90 stiffness=650 epsilon=0.001
+    }
+    recent-windows-close {
+        spring damping-ratio=0.90 stiffness=700 epsilon=0.001
     }
 }
 // ── Window rules ───────────────────────────────────────────────────────────
 
-// Ghostty — let it decide its own initial size
+// Fade the whole unfocused Ghostty window, including tmux-painted cells.
 window-rule {
-    match app-id=r#"^com\.mitchellh\.ghostty$"#
-    default-column-width {}
+    match app-id="com.mitchellh.ghostty" is-active=false
+    draw-border-with-background false
+    opacity 0.93
 }
 
 // Firefox picture-in-picture — floating bottom-right
@@ -233,27 +249,19 @@ window-rule {
     default-floating-position x=32 y=32 relative-to="bottom-right"
 }
 
-// VSCode → workspace 1, maximized
+// VSCode → workspace 1; let the normal tiling layout set its width.
 window-rule {
     match app-id=r#"^code.*$"#
     open-on-workspace "1"
-    open-maximized true
 }
 
-// Brave → workspace 2, maximized, XWayland resize fix
+// Brave → workspace 2, XWayland resize fix
 window-rule {
     match app-id=r#"^[Bb]rave.*$"#
     open-on-workspace "2"
-    open-maximized true
     tiled-state true
     min-width 400
     min-height 300
-}
-
-// Zen browser
-window-rule {
-    match app-id=r#"^zen$"#
-    open-maximized true
 }
 
 // Minecraft — fullscreen
@@ -339,6 +347,10 @@ binds {
     Mod+Ctrl+Home { move-column-to-first; }
     Mod+Ctrl+End  { move-column-to-last; }
 
+    // Super+Tab cycles workspaces; Shift reverses direction.
+    Mod+Tab       repeat=false { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_cycle_workspace.py\" next"; }
+    Mod+Shift+Tab repeat=false { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_cycle_workspace.py\" previous"; }
+
     // Workspace navigation — overview-aware: in overview moves workspaces, else focuses next
     Mod+Page_Down         { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_overview_bind.sh\" move-workspace-down focus-workspace-down"; }
     Mod+Page_Up           { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_overview_bind.sh\" move-workspace-up focus-workspace-up"; }
@@ -408,9 +420,9 @@ binds {
     Mod+Ctrl+R  { reset-window-height; }
     // Cycle window height preset: use with Mod+R first to adjust column width
     Mod+Alt+R { switch-preset-window-height; }
-    Mod+F       { maximize-column; }
+    Mod+F       { maximize-window-to-edges; }
     Mod+Shift+F { fullscreen-window; }
-    Mod+M       { maximize-window-to-edges; }
+    Mod+M       { maximize-column; }
     Mod+Ctrl+F  { expand-column-to-available-width; }
 
     Mod+C      { center-column; }

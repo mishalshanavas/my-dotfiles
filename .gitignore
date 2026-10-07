@@ -63,6 +63,7 @@
 !systemd/
 !systemd/user/
 !systemd/user/niri-*.service
+!systemd/user/eww-caffeine.service
 !systemd/user/niri.service.wants/
 !systemd/user/niri.service.wants/niri-*.service
 

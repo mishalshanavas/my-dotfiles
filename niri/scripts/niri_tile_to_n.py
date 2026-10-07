@@ -13,6 +13,7 @@ import argparse
 from dataclasses import dataclass
 from time import perf_counter, sleep
 from collections import deque
+from niri_tiling_policy import third_window_action, two_window_ids_to_fit
 
 # ---------------------------------------------------------------------------------------------------------------------
 # %% Args
@@ -614,6 +615,17 @@ try:
             if num_tile_wins == 0 or num_tile_wins > TILE_TO_N:
                 continue
 
+            # Give the first two separate columns half the output each, whether
+            # their initial widths leave empty space or overflow the screen.
+            if num_tile_wins == 2:
+                output = wspace_state.get(curr_wspace_id, {}).get("output")
+                fit_ids = two_window_ids_to_fit(
+                    list(curr_tile_wins.values()), output_width_lut.get(output, 0)
+                )
+                if fit_ids is not None:
+                    for window_id in fit_ids:
+                        niri_action.action("SetWindowWidth", id=window_id, change={"SetProportion": 0.5})
+
             # Auto-maximize solo windows, if needed
             if MAXIMIZE_SOLOS and num_tile_wins == 1:
                 solo_id = tuple(curr_tile_wins.keys())[0]
@@ -628,10 +640,10 @@ try:
                 num_max_wins -= 1
 
             # Apply tiling if needed
-            is_zero_max_windows = num_max_wins == 0
-            if is_zero_max_windows and (2 < num_tile_wins <= TILE_TO_N):
-                is_new_win_onscreen = newest_window_data["col_idx"] == 2
-                consume_action = "ConsumeOrExpelWindowRight" if is_new_win_onscreen else "ConsumeOrExpelWindowLeft"
+            consume_action = third_window_action(
+                num_tile_wins, num_max_wins, newest_window_data["col_idx"], TILE_TO_N
+            )
+            if consume_action is not None:
                 niri_action.action(consume_action, id=newest_window_data["id"])
 
             pass

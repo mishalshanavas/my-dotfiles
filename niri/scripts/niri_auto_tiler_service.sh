@@ -20,7 +20,9 @@ for _ in {1..200}; do
     socket_path="$(find_niri_socket)"
     if [[ -n "$socket_path" && -S "$socket_path" ]]; then
         export NIRI_SOCKET="$socket_path"
-        exec /usr/bin/python3 "$config_dir/niri/scripts/niri_tile_to_n.py" -n 3 -delay 2000 --ignore-workspace-name scratchpad
+        # Split the first two columns evenly and group a newly opened third.
+        # Later manual resizes remain under the user's control.
+        exec /usr/bin/python3 "$config_dir/niri/scripts/niri_tile_to_n.py" -n 3 -delay 2000 -x -xc -c
     fi
     sleep 0.1
 done

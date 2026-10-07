@@ -1,43 +1,18 @@
 #!/usr/bin/env bash
-# Toggle a real idle/sleep inhibitor and persist its process ID for the bar.
+# Toggle the systemd-owned caffeine inhibitor.
 
-runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
-pid_file="${runtime_dir}/eww-caffeine.pid"
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}"
+source "$config_dir/eww/scripts/caffeine-state.sh"
 
-is_inhibitor() {
-    local pid="${1:-}"
-    [[ "$pid" =~ ^[0-9]+$ ]] || return 1
-    kill -0 "$pid" 2>/dev/null || return 1
-    [ "$(cat "/proc/$pid/comm" 2>/dev/null)" = "systemd-inhibit" ]
-}
+lock_file="${XDG_RUNTIME_DIR:-/tmp}/eww-caffeine.lock"
+exec 9>"$lock_file"
+flock -x 9
 
-if [ -r "$pid_file" ]; then
-    pid=$(cat "$pid_file" 2>/dev/null)
-    if is_inhibitor "$pid"; then
-        pkill -TERM -P "$pid" 2>/dev/null || true
-        kill "$pid" 2>/dev/null || true
-        rm -f "$pid_file"
-        exit 0
-    fi
-    rm -f "$pid_file"
-fi
-
-if ! command -v systemd-inhibit >/dev/null 2>&1; then
-    notify-send "Caffeine" "systemd-inhibit is not installed" 2>/dev/null || true
-    exit 1
-fi
-
-systemd-inhibit \
-    --what=idle:sleep:handle-lid-switch \
-    --who="Eww caffeine" \
-    --why="Caffeine mode is enabled" \
-    --mode=block \
-    sleep infinity >/dev/null 2>&1 &
-pid=$!
-
-if is_inhibitor "$pid"; then
-    printf '%s\n' "$pid" > "$pid_file"
+if caffeine_active; then
+    systemctl --user stop eww-caffeine.service
 else
-    notify-send "Caffeine" "Failed to inhibit sleep" 2>/dev/null || true
-    exit 1
+    systemctl --user start eww-caffeine.service || {
+        notify-send "Caffeine" "Failed to inhibit idle and sleep" 2>/dev/null || true
+        exit 1
+    }
 fi

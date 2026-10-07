@@ -54,7 +54,7 @@ notify-on-command-finish-after = 10s
 resize-overlay = never
 mouse-hide-while-typing = true
 focus-follows-mouse = true
-unfocused-split-opacity = 0.9
+unfocused-split-opacity = 1.0
 
 # Behavior
 confirm-close-surface = false

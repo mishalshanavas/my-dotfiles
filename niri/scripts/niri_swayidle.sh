@@ -2,16 +2,9 @@
 
 set -euo pipefail
 
-caffeine_pid_file="${XDG_RUNTIME_DIR:-/tmp}/eww-caffeine.pid"
 config_dir="${XDG_CONFIG_HOME:-$HOME/.config}"
 lock_cmd="$config_dir/swaylock/lock.sh"
-
-caffeine_active() {
-    local pid
-    [[ -r "$caffeine_pid_file" ]] || return 1
-    IFS= read -r pid < "$caffeine_pid_file" || return 1
-    [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null
-}
+source "$config_dir/eww/scripts/caffeine-state.sh"
 
 case "${1:-run}" in
     maybe-lock)

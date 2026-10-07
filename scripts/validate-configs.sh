@@ -43,8 +43,9 @@ else
 fi
 
 if command -v systemd-analyze >/dev/null 2>&1; then
+    mapfile -d '' systemd_units < <(find systemd/user -maxdepth 1 -type f -name '*.service' -print0)
     systemd_output=$(mktemp)
-    if systemd-analyze --user verify systemd/user/*.service 2>"$systemd_output"; then
+    if systemd-analyze --user verify "${systemd_units[@]}" 2>"$systemd_output"; then
         :
     elif grep -Ev '^(Failed to turn off SO_PASSRIGHTS|Failed to enable SO_PASSCRED)' "$systemd_output" | grep -q .; then
         cat "$systemd_output" >&2

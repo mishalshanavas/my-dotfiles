@@ -26,6 +26,7 @@ render() {
     power=$(bluetoothctl show 2>/dev/null | awk '/Powered/ {print $2}')
 
     if [ "$power" != "yes" ]; then
+        rm -f -- "$AUDIO_SWITCHED_FILE"
         printf '%s Off\n' $'\ue1a9'
         return
     fi
