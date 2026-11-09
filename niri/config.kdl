@@ -91,8 +91,7 @@ input {
     trackpoint {
     }
 
-    // Mouse focuses windows when you move over them (only if window is already on screen)
-    focus-follows-mouse max-scroll-amount="0%"
+    // Click or keyboard navigation changes focus; pointer motion cannot steal it.
 
     // Keep the cursor stationary while changing focus. This avoids accidental clicks,
     // especially with floating windows or when a second display is attached.
@@ -131,7 +130,7 @@ layout {
         off
     }
 
-    // Clearly mark the active window, even on the dense laptop display.
+    // Stable focus highlight; no helper or config reload on focus changes.
     border {
         width 2
         active-color "#c7c7c7"
@@ -168,13 +167,16 @@ layout {
     center-focused-column "never"
 }
 
+// Window geometry and focus are managed by native Niri actions only.
+// Legacy auto-tiler and dynamic focus-border services are disabled.
+
 // ── Startup ────────────────────────────────────────────────────────────────
 
 // Sync Wayland env into DBus/systemd so portals and tray work
 spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP DISPLAY 2>/dev/null || true"
 
 // Supervised by systemd user units in ~/.config/systemd/user:
-// mako, eww, swayidle, wl-paste/cliphist, and niri_tile_to_n.py.
+// mako, eww, swayidle and wl-paste/cliphist.
 spawn-at-startup "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/swaybg_helper.sh\""
 spawn-at-startup "sh" "-c" "exec swayosd-server --style \"${XDG_CONFIG_HOME:-$HOME/.config}/swayosd/style.css\" --top-margin 0.85"
 spawn-at-startup "udiskie" "--no-tray"
@@ -240,6 +242,12 @@ window-rule {
     opacity 0.93
 }
 
+// Keep regular terminal columns predictable when another tiled app opens.
+window-rule {
+    match app-id="com.mitchellh.ghostty"
+    default-column-width { proportion 0.5; }
+}
+
 // Firefox picture-in-picture — floating bottom-right
 window-rule {
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
@@ -249,19 +257,20 @@ window-rule {
     default-floating-position x=32 y=32 relative-to="bottom-right"
 }
 
-// VSCode → workspace 1; let the normal tiling layout set its width.
+// VS Code opens focused; its native column size remains under user control.
 window-rule {
     match app-id=r#"^code.*$"#
-    open-on-workspace "1"
+    match app-id=r#"^com\.microsoft\.VSCode$"#
+    open-focused true
+    geometry-corner-radius 0
+    clip-to-geometry true
 }
 
-// Brave → workspace 2, XWayland resize fix
+// Brave opens focused; use the application's own minimum-size constraints.
 window-rule {
     match app-id=r#"^[Bb]rave.*$"#
-    open-on-workspace "2"
-    tiled-state true
-    min-width 400
-    min-height 300
+    match app-id=r#"^com\.brave\..*$"#
+    open-focused true
 }
 
 // Minecraft — fullscreen
@@ -276,6 +285,7 @@ window-rule {
     open-floating true
     default-column-width { fixed 680; }
     default-window-height { fixed 330; }
+    default-floating-position x=0 y=48 relative-to="top"
 }
 
 // Keep transient notifications out of portal screencasts.
@@ -292,18 +302,17 @@ binds {
     // Always request a new window from the running Ghostty instance. Fall back
     // to starting Ghostty when no instance owns its D-Bus name yet.
     Alt+Return repeat=false hotkey-overlay-title="New Terminal" { spawn-sh "ghostty +new-window >/dev/null 2>&1 || exec ghostty"; }
-    Alt+T      repeat=false hotkey-overlay-title="New Terminal" { spawn-sh "ghostty +new-window >/dev/null 2>&1 || exec ghostty"; }
+    Alt+T repeat=false hotkey-overlay-title="New Terminal" { spawn-sh "ghostty +new-window >/dev/null 2>&1 || exec ghostty"; }
     // A valid reverse-DNS class gives the floating terminal its own Ghostty
     // instance and Wayland app-id, independent from regular terminal windows.
-    Alt+Shift+Return repeat=false hotkey-overlay-title="Toggle Floating Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" 'ghostty --class=com.mishal.FloatingTerminal' com.mishal.FloatingTerminal --scratch"; }
-    Alt+Shift+T      repeat=false hotkey-overlay-title="Toggle Floating Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" 'ghostty --class=com.mishal.FloatingTerminal' com.mishal.FloatingTerminal --scratch"; }
+    Alt+Shift+Return repeat=false hotkey-overlay-title="Toggle Floating Terminal" { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" 'ghostty --class=com.mishal.FloatingTerminal -e tmux new-session -A -s floating-terminal' com.mishal.FloatingTerminal --toggle-close"; }
+    Alt+Mod+T repeat=false hotkey-overlay-title="New Floating Terminal" { spawn "ghostty" "--class=com.mishal.FloatingTerminal" "--gtk-single-instance=false"; }
 
     // Launcher & utilities
-    Alt+Space repeat=false hotkey-overlay-title="Run Application" { spawn "fuzzel"; }
+    Alt+Space repeat=false hotkey-overlay-title="Run Application" { spawn "python3" "/home/mishal/.config/niri/scripts/niri_app_menu.py"; }
     Mod+V     repeat=false hotkey-overlay-title="Clipboard History" { spawn-sh "selected=$(cliphist list | fuzzel --dmenu); [ -n \"$selected\" ] && printf '%s\\n' \"$selected\" | cliphist decode | wl-copy"; }
     Alt+L     hotkey-overlay-title="Lock Screen"      { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/swaylock/lock.sh\""; }
     Alt+E     hotkey-overlay-title="File Manager"     { spawn-sh "exec python3 \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_spawnjump.py\" nautilus"; }
-    Alt+N     hotkey-overlay-title="WiFi Networks"    { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/eww/scripts/networkmanager-menu.sh\""; }
     Alt+S hotkey-overlay-title="Toggle Orca" { spawn-sh "if ! command -v orca >/dev/null 2>&1; then notify-send 'Orca' 'Orca is not installed'; elif systemctl --user is-active --quiet niri-orca.service; then systemctl --user stop niri-orca.service; else systemctl --user start niri-orca.service; fi"; }
 
     // Wallpaper cycle
@@ -317,30 +326,40 @@ binds {
     XF86MonBrightnessUp   allow-when-locked=true { spawn "swayosd-client" "--brightness" "raise"; }
     XF86MonBrightnessDown allow-when-locked=true { spawn "swayosd-client" "--brightness" "lower"; }
 
-    Mod+O repeat=false { toggle-overview; }
+    Mod+O repeat=false hotkey-overlay-title="Toggle Overview" { toggle-overview; }
 
     Alt+Q       repeat=false hotkey-overlay-title="Close Window" { close-window; }
     Mod+Shift+Q repeat=false hotkey-overlay-title="Force Kill Window" { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_force_kill_focused.sh\""; }
 
     // Focus navigation
-    Mod+Left  { focus-column-left; }
-    Mod+Down  { focus-window-down; }
-    Mod+Up    { focus-window-up; }
-    Mod+Right { focus-column-right; }
-    Mod+H     { focus-column-left; }
-    Mod+J     { focus-window-down; }
-    Mod+K     { focus-window-up; }
-    Mod+L     { focus-column-right; }
+    Mod+Left  hotkey-overlay-title="Focus Left"  { focus-column-left; }
+    Mod+Down  hotkey-overlay-title="Focus Down"  { focus-window-down; }
+    Mod+Up    hotkey-overlay-title="Focus Up"    { focus-window-up; }
+    Mod+Right hotkey-overlay-title="Focus Right" { focus-column-right; }
+    Mod+H hotkey-overlay-title=null { focus-column-left; }
+    Mod+J hotkey-overlay-title=null { focus-window-down; }
+    Mod+K hotkey-overlay-title=null { focus-window-up; }
+    Mod+L hotkey-overlay-title=null { focus-column-right; }
 
-    // Move: columns/windows in tiling, 40 logical pixels when floating.
-    Mod+Shift+Left  { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" left"; }
-    Mod+Shift+Down  { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" down"; }
-    Mod+Shift+Up    { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" up"; }
-    Mod+Shift+Right { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" right"; }
-    Mod+Shift+H     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" left"; }
-    Mod+Shift+J     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" down"; }
-    Mod+Shift+K     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" up"; }
-    Mod+Shift+L     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" right"; }
+    // Ctrl means move: reorder tiled windows, or nudge floating windows by 40 px.
+    Mod+Ctrl+Left  hotkey-overlay-title="Move/Nudge Left"  { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" left"; }
+    Mod+Ctrl+Down  hotkey-overlay-title="Move/Nudge Down"  { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" down"; }
+    Mod+Ctrl+Up    hotkey-overlay-title="Move/Nudge Up"    { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" up"; }
+    Mod+Ctrl+Right hotkey-overlay-title="Move/Nudge Right" { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" right"; }
+    Mod+Ctrl+H hotkey-overlay-title=null { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" left"; }
+    Mod+Ctrl+J hotkey-overlay-title=null { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" down"; }
+    Mod+Ctrl+K hotkey-overlay-title=null { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" up"; }
+    Mod+Ctrl+L hotkey-overlay-title=null { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_move_focused.sh\" right"; }
+
+    // Shift means cross-monitor focus; Ctrl+Shift moves the focused column.
+    Mod+Shift+Left  hotkey-overlay-title="Focus Monitor Left"  { focus-monitor-left; }
+    Mod+Shift+Down  hotkey-overlay-title="Focus Monitor Down"  { focus-monitor-down; }
+    Mod+Shift+Up    hotkey-overlay-title="Focus Monitor Up"    { focus-monitor-up; }
+    Mod+Shift+Right hotkey-overlay-title="Focus Monitor Right" { focus-monitor-right; }
+    Mod+Shift+H hotkey-overlay-title=null { focus-monitor-left; }
+    Mod+Shift+J hotkey-overlay-title=null { focus-monitor-down; }
+    Mod+Shift+K hotkey-overlay-title=null { focus-monitor-up; }
+    Mod+Shift+L hotkey-overlay-title=null { focus-monitor-right; }
 
     Mod+Home      { focus-column-first; }
     Mod+End       { focus-column-last; }
@@ -415,38 +434,34 @@ binds {
     Mod+BracketLeft  { consume-or-expel-window-left; }
     Mod+BracketRight { consume-or-expel-window-right; }
 
-    Mod+R       { switch-preset-column-width; }
+    Mod+R       hotkey-overlay-title="Cycle Column Width" { switch-preset-column-width; }
     Mod+Shift+R { switch-preset-column-width-back; }
     Mod+Ctrl+R  { reset-window-height; }
     // Cycle window height preset: use with Mod+R first to adjust column width
     Mod+Alt+R { switch-preset-window-height; }
-    Mod+F       { maximize-window-to-edges; }
-    Mod+Shift+F { fullscreen-window; }
-    Mod+M       { maximize-column; }
+    Mod+F       repeat=false allow-inhibiting=false hotkey-overlay-title="Maximize Window" { maximize-window-to-edges; }
+    Mod+Shift+F repeat=false allow-inhibiting=false hotkey-overlay-title="Toggle Fullscreen" { fullscreen-window; }
+    Mod+M       repeat=false hotkey-overlay-title="Maximize Column" { maximize-column; }
     Mod+Ctrl+F  { expand-column-to-available-width; }
 
     Mod+C      { center-column; }
     Mod+Ctrl+C { center-visible-columns; }
-    Mod+Shift+C { center-window; }
+    Mod+Shift+C hotkey-overlay-title="Center Window" { center-window; }
 
-    // Resize tiled windows by 10%; use precise 40px steps when floating.
-    Mod+Ctrl+Left  { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" left"; }
-    Mod+Ctrl+Right { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" right"; }
-    Mod+Ctrl+Up    { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" up"; }
-    Mod+Ctrl+Down  { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" down"; }
-    Mod+Ctrl+H     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" left"; }
-    Mod+Ctrl+L     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" right"; }
-    Mod+Ctrl+K     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" up"; }
-    Mod+Ctrl+J     { spawn "sh" "-c" "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_resize_focused.sh\" down"; }
+    // Native resizing works for both tiled and floating windows.
+    Mod+Minus       hotkey-overlay-title="Decrease Width"  { set-window-width "-10%"; }
+    Mod+Equal       hotkey-overlay-title="Increase Width"  { set-window-width "+10%"; }
+    Mod+Shift+Minus hotkey-overlay-title="Decrease Height" { set-window-height "-10%"; }
+    Mod+Shift+Equal hotkey-overlay-title="Increase Height" { set-window-height "+10%"; }
 
-    // Floating mode and layer focus. Niri also supports interactive Mod+drag.
-    Mod+T       hotkey-overlay-title="Toggle Floating" { toggle-window-floating; }
-    Mod+Shift+T hotkey-overlay-title="Switch Tiled/Floating Focus" { switch-focus-between-floating-and-tiling; }
+    // Floating layer. Mod+left-drag moves; Mod+right-drag resizes natively.
+    Mod+Space repeat=false hotkey-overlay-title="Toggle Floating" { toggle-window-floating; }
+    Mod+grave hotkey-overlay-title="Switch Tiled/Floating Focus" { switch-focus-between-floating-and-tiling; }
 
-    // Show hotkey overlay manually
-    Mod+F1 { show-hotkey-overlay; }
+    // Searchable shortcut guide sized for the laptop display.
+    Mod+F1 hotkey-overlay-title="Show Shortcut Guide" { spawn-sh "exec \"${XDG_CONFIG_HOME:-$HOME/.config}/niri/scripts/niri_shortcut_guide.sh\""; }
 
-    Mod+W { toggle-column-tabbed-display; }
+    Mod+W repeat=false hotkey-overlay-title="Toggle Tabbed Column" { toggle-column-tabbed-display; }
 
     // Screenshots
     Print      { screenshot; }
@@ -475,6 +490,8 @@ binds {
 
     // Multi-monitor
     Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
     Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
     Mod+Alt+Ctrl+Left    { move-window-to-monitor-left; }
     Mod+Alt+Ctrl+Right   { move-window-to-monitor-right; }

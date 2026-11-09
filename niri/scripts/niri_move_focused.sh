@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Give Mod+Shift+direction one meaning for both tiled and floating windows.
+# Give Mod+Ctrl+direction one meaning for both tiled and floating windows.
 
 set -euo pipefail
 

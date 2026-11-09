@@ -48,6 +48,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--no_spawn", action="store_true", help="focus only; never launch")
     parser.add_argument("--always_spawn", action="store_true", help="always launch a new process")
     parser.add_argument(
+        "--toggle-close",
+        action="store_true",
+        help="close the sole match when focused; otherwise spawn or focus it",
+    )
+    parser.add_argument(
         "-o",
         "--spawn_in_overview",
         action="store_true",
@@ -80,6 +85,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         args.pull = True
         args.push = True
         # A hidden scratchpad window must remain discoverable globally.
+        args.workspace = False
+        args.active_workspaces = False
+    if args.toggle_close:
+        args.pull = True
         args.workspace = False
         args.active_workspaces = False
     return args
@@ -417,7 +426,9 @@ def run(args: argparse.Namespace, client: NiriClient | None = None) -> int:
 
         if len(matches) == 1:
             target = matches[0]
-            if target.get("is_focused") and args.push:
+            if target.get("is_focused") and args.toggle_close:
+                client.action("close-window", "--id", str(target["id"]))
+            elif target.get("is_focused") and args.push:
                 push_window(client, target, args.scratch)
             elif args.pull:
                 pull_window(client, target, workspaces)

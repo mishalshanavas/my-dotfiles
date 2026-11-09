@@ -12,7 +12,7 @@ backlight_path() {
 }
 
 render() {
-    local cur max pct icon
+    local cur max pct
     [ -z "$BL_PATH" ] && { printf '%s N/A\n' $'\ue3ab'; return; }
 
     cur=$(tr -cd '0-9' < "$BL_PATH/brightness")

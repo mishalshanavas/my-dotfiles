@@ -67,12 +67,28 @@ workspace; `--active-workspaces` explicitly means the visible workspace on
 every output. Launches are serialized per application and workspace to prevent
 rapid key repeats from exceeding an instance limit.
 
-The floating-terminal binding is a toggle. When focused, it moves to the next
-dynamic workspace without following focus. Invoking the shortcut elsewhere
-moves it directly to the uniquely identified focused workspace and focuses it.
-No persistent named workspace is created.
+The floating-terminal binding is a toggle backed by the persistent tmux session
+`floating-terminal`. When focused, the Ghostty window closes while tmux keeps
+the shell alive. Invoking the shortcut again reopens Ghostty and attaches the
+same session. If its window is already open elsewhere, the shortcut pulls and
+focuses it. No hidden or persistent scratchpad workspace is created.
 
 The compositor key grammar is intentional: `Alt` launches applications and
-system tools, while `Mod` controls windows and workspaces. `Mod+Shift` moves,
-`Mod+Ctrl` resizes, and `Mod+Alt` moves one window across workspaces or
-monitors. `Alt+Q` and `Mod+V` are retained as muscle-memory exceptions.
+system tools, while `Mod` controls windows and workspaces. `Mod+direction`
+focuses, `Mod+Ctrl+direction` moves a tiled item or nudges a floating window,
+and `Mod+Shift+direction` focuses a monitor. Add `Ctrl+Shift` to move a column
+to another monitor.
+
+Floating windows use Niri's native layer model. `Mod+Space` toggles the focused
+window between tiled and floating, and `Mod+grave` switches focus between the
+two layers. `Mod+-`/`Mod+=` change width, while adding `Shift` changes height.
+`Mod+Shift+C` centers the focused window. With a pointer, `Mod` plus left drag
+moves a window and `Mod` plus right drag resizes it.
+
+Application and general shortcuts stay on `Alt`. `Mod+V` remains the Windows
+clipboard-history muscle-memory exception, and `Alt+Q` closes the focused
+window.
+
+`Mod+F1` opens a compact searchable shortcut guide. Equivalent arrow and
+H/J/K/L bindings share rows so the full command set remains accessible on the
+1366×768 display without relying on Niri's clipped built-in overlay.

@@ -7,7 +7,7 @@ get_default_sink() {
 }
 
 render() {
-    local sink vol mute icon
+    local sink vol mute
     sink=$(get_default_sink)
     [ -z "$sink" ] && { printf '<span font_family="Material Symbols Rounded">%s</span> --%%\n' $'\ue04f'; return; }
 
